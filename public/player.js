@@ -989,7 +989,7 @@ function ActionsAtHome(action){
             //consumes time and add longterm happiness possibility
             OpponentEvents('is checking the tinder.');
 
-            ReduceTime_Check(100); //executes also update function 3
+            ReduceTime_Check(2); //executes also update function 3
             break;
 
         case 'internettime':
