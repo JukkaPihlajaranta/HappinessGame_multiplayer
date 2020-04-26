@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://code.jquery.com/jquery-3.5.0.min.js" integrity="sha256-xNzN2a4ltkB44Mc/Jz3pT4iU1cmeR0FkXs4pru/JxaQ=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.0/anime.js" integrity="sha256-nnFnuz7rC1JLnvsb8M7A9aXcRHTpUN4vYA26t2UO+dQ=" crossorigin="anonymous"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <link rel="stylesheet" href="./style.css" type="text/css">
+    <link href="https://fonts.googleapis.com/css2?family=Patrick+Hand+SC&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+
+    <script defer src="./player.js"></script>
+    <script defer src="./game.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chasing the happiness</title>
+</head>
+<body>
+    <img src="./img/Topic_Happiness.png" height="40px">
+    <div id="GameArea">
+
+
+        <div class="prefs-wrapper">
+            <div class="twoColumns50-50">
+    
+    
+                <div class="score-element">
+                    <img src="./img/icons/Icon_HappinessSprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="happiness_bar" class="shared-bar"></div>
+                        <div id="happiness_text" class="UI_text scoreboard">Happiness: x</div>
+                        
+                    </div>
+                </div>
+        
+                <div class="score-element">
+                    <img src="./img/icons/Icon_EnergySprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="energy_bar" class="shared-bar"></div>
+                        <div id="energy_text" class="UI_text scoreboard">Energy: x</div>
+                    </div>
+                </div>
+    
+                <div class="score-element">
+                        <img src="./img/icons/Icon_ClockSprite.png" class="scoreboard-icon">
+                        <div id='meter'>
+                            <div id='monthly_time_bar' class="shared-bar"></div>
+                            <div id="monhlytime_text" class="UI_text scoreboard">Time: 100% </div>
+                        </div>
+                    
+                </div>
+        
+                <div class="score-element">
+                    <img src="./img/icons/Icon_IntoxicationSprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="intoxication_bar" class="shared-bar"></div>
+                        <div id="intoxication_text" class="UI_text scoreboard">Intoxication: 0%</div>
+                    </div>
+                </div>
+    
+    
+            </div>
+            
+            <div id="week_text" class="UI_text center">
+                Week # 1
+            </div>
+    
+            <div class="twoColumns50-50">
+    
+                <div class="score-element">
+                    <img src="./img/icons/Icon_SalarySprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="salaryText">Salary: x</div>
+                    </div>
+                </div>
+                
+                <div class="score-element">
+                    <img src="./img/icons/Icon_MoneySprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="moneyText">Money: x</div>
+                    </div>
+                </div>
+    
+                <div class="score-element">
+                    <img src="./img/icons/Icon_OccupationSprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="jobText">Occupation:</div>
+                    </div>
+                </div>
+        
+                <div class="score-element">
+                    <img src="./img/icons/Icon_RelationshipSprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="relationship_bar" class="shared-bar"></div>
+                        <div id="relationship_obj" class="UI_text scoreboard">Rela: x</div>
+                    </div>
+                </div>
+
+                <div class="score-element">
+                    <img src="./img/icons/Button_PetStore.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="pet_obj">None</div>
+                    </div>
+                </div>
+
+                <div class="score-element">
+                    <img src="./img/icons/Button_Home_New.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="home_obj">None x</div>
+                    </div>
+    
+            </div>
+    
+            </div>
+        </div>
+        
+        <div id="player"></div>
+        <div id="opponent"></div>
+        
+    
+        <div class="moveButtons">
+            <div id="btn-blockingPanel">
+                <div id="btn-blockingPanel-centerTopic">Wait for opponent to finish this week..</div> 
+            </div>
+            <img id="homebutton" src="./img/icons/Button_Home_New.png" class="moveButton active">
+            <img id="betterhomebutton" src="./img/icons/Button_HomeLux_New.png" class="moveButton">
+            <img id="barbutton" src="./img/icons/Button_Bar.png" class="moveButton"> 
+            <img id="postbutton" src="./img/icons/Button_Post.png" class="moveButton"> 
+            <img id="petstorebutton" src="./img/icons/Button_PetStore.png" class="moveButton"> 
+            <img id="somestorebutton" src="./img/icons/SomeStoreSprite.png" class="moveButton">
+            <img id="schoolbutton" src="./img/icons/Button_School.png" class="moveButton">
+        </div>
+        
+        <!--Game board-->
+        <div class="container"></div>
+        
+        <div id="infoboxBase" class="infoboxBase"></div>
+        <button class="btn" id="move-player">Go to destination!</button><br>
+        <div id="tempInfo"></div>
+        <!-- <div class="dotsBase"></div> -->
+        <div class="routeBase"></div>
+        <div class="prefs-wrapper">
+
+            <div id="opponentInfo" class="UI_text opponent"></div>
+            <!-- <br> -->
+            <div class="twoColumns50-50">
+                <div class="score-element">
+                    <img src="./img/icons/Icon_ClockSprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id='opponent_time_bar' class="shared-bar"></div>
+                        <div id="opponent_time_text" class="UI_text scoreboard">Time: 100% </div>
+                    </div>
+                </div>
+
+                <div class="score-element">
+                    <img src="./img/icons/Icon_HappinessSprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="opponent_happiness_bar" class="shared-bar"></div>
+                        <div id="opponent_happiness_text" class="UI_text scoreboard">Happiness: x</div>
+                        
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="twoColumns50-50">
+                <div class="score-element">
+                    <img src="./img/icons/Icon_MoneySprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="opponent_moneyText">Money: x</div>
+                    </div>
+                </div>
+
+                <div class="score-element">
+                    <img src="" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="xx">Nothing yet</div>
+                    </div>
+                </div>
+            </div>
+            <div class="UI_text opponent">Events:</div>
+            <!-- <br> -->
+            <div id="opponent_events" class="opponent_eventContainer"></div>
+        </div>
+</div>
+
+    <div id="startUp_element">
+        Enter your name and start chasing<br> for happiness!<br>
+        <input id="playerNameText" type="text">
+        <button id="enterBtn" class="btn">Enter</button>
+    </div>
+    
+    <div id="game_ChatState">
+        <h2 id="first_Topic">Welcome to happiness game</h2><br>
+        <div class="prefs-wrapper">
+            <div id="list_of_players"></div><br>
+
+        </div>
+        
+        <button id="readyBtn" class="btn">Ready to play?</button>
+        
+        <div class="prefs-wrapper">
+            <div id="chatArea"></div>
+        </div>
+        <input id="inputChat" type="text">
+        <button id="chatBtn" class="btn">Chat</button>
+    </div>
+
+  
+</body>
+</html>

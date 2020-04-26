@@ -1,0 +1,443 @@
+/* @import url('./buttons.css'); */
+
+:root{
+    --text-bar-height: 25px;
+    --scoreboard-wrapper-width: calc(40px*8)/*20rem*/;
+}
+
+body{
+    box-sizing: border-box;
+    /* font-family: 'Patrick Hand', cursive; */
+    font-family: 'Raleway', sans-serif;
+    /* font-family: 'Patrick Hand SC', cursive; */
+    font-size: 1rem;
+}
+
+.container{
+    display: grid;
+    grid-template-columns: 40px 40px 40px 40px 40px 40px 40px 40px;
+    grid-template-rows: 40px 40px 40px 40px 40px 40px 40px /*20px 20px 20px*/;
+    border: 1px solid black;
+    width:var(--scoreboard-wrapper-width);
+    border-radius: 5%;
+    overflow: hidden;
+}
+
+
+/* TEXT BOXES-------------------------------------------------------------------*/
+.infoboxBase{
+    
+    position: absolute;
+
+    background-color: rgb(78, 78, 78);
+    border: 1px solid black;
+    border-radius: 5%;
+    width:var(--scoreboard-wrapper-width);
+    /* transform: translate(0px, 0px); */
+    overflow-y: auto;
+    overflow-x: hidden;
+    /* overflow: auto; */
+    /* transform: translate3d(0px, 0px, 0); */
+    max-height: calc(40px*7);
+    z-index: 1;
+}
+
+.opponent_eventContainer{
+
+    color:white;
+    background-color: rgb(160, 160, 160);
+    border: 1px solid black;
+    border-radius: 5%;
+    /* min-height: 100px; */
+    height: 100px;
+    width:var(--scoreboard-wrapper-width);
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.infoboxBase.net{
+    background-color: rgb(97, 115, 136);
+}
+
+#tempInfo{
+    position: fixed;
+    color: whitesmoke;
+
+    background-color: rgb(116, 116, 116);
+    border: 1px solid black;
+    border-radius: 10%;
+    width:var(--scoreboard-wrapper-width);
+    z-index: 2;
+}
+
+/* .homeBase{
+    margin-left: 5px;
+    margin-right: 5px;
+    
+    display: flex;
+    background-color: rgb(78, 78, 78);
+    border: 1px solid rgb(131, 131, 131);
+} */
+
+
+/* COLUMN CREATORS-------------------------------------------------------------------*/
+
+/* Scoreboard */
+.twoColumns50-50{
+    grid-template-columns: 50% 50%;
+    grid-template-rows: auto;
+    display: grid;
+}
+
+/* Announcements */
+.twoColumns20-80{
+    grid-template-columns: 20% 80%;
+    grid-template-rows: auto;
+    align-self: center;
+    display: grid;
+}
+
+.twoColumns30-70{
+    grid-template-columns: 30% 70%;
+    grid-template-rows: auto;
+    align-self: center;
+    display: grid;
+}
+
+
+.twoColumns40-60{
+    min-height: 40px;
+
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-bottom: 10px; 
+
+    align-self: center;
+    grid-template-columns: 40% 60%;
+    grid-template-rows: auto;
+    display: grid;
+}
+
+.twoColumns40-60.moreBottom{
+    margin-bottom: 20px; 
+}
+
+.twoColumns40-60.topicBorder{
+    margin-bottom: 0px;
+    min-height: 0px;
+}
+
+.twoColumns40-60.withBorder{
+    border: 1px solid rgb(131, 131, 131);
+}
+
+.oneColumn.border{
+    margin-left: 5px;
+    margin-right: 5px;
+    border: 1px solid rgb(223, 218, 192);
+}
+
+
+.basicCell{
+    align-self: center;
+    margin-left: 5px;
+}
+
+
+
+/* TEXTS -------------------------------------------------------*/
+
+
+.text-topic{
+    margin-left: 5px;
+    color: rgb(255, 255, 144);
+    font-family: 'Patrick Hand SC', cursive;
+    font-size: 1.5rem;
+    font-weight: 900;
+}
+
+/* BASE UI_texts */
+.UI_text{
+    align-self: center;
+}
+
+.UI_text.center{
+    color:gray;
+    text-align: center;
+    
+}
+
+
+
+.UI_text.opponent{
+    color:black;
+    /* font-weight: 600; */
+    
+}
+
+.UI_text.middleTopic{
+    margin-left: 5px;
+    margin-right: 5px;
+    font-weight: 700;
+    color: rgb(255, 255, 138);
+}
+
+.UI_text.description{
+    margin-left: 5px;
+    margin-right: 5px;
+    font-style: italic;
+    color: rgb(219, 219, 219);
+}
+
+.UI_text.scoreboard{
+    position: absolute;
+}
+
+.UI_text.scoreboard.red{
+    color:red;
+    font-weight: 600;
+}
+
+.UI_text.scoreboard.green{
+    color:rgb(46, 189, 46);
+    font-weight: 600;
+}
+
+.optiontext{
+    align-self: center;
+    /* margin-left:5px; */
+}
+
+.optiontext.dark{ color:rgb(0, 0, 0); }
+.optiontext.yellow{ color:yellow; margin-left: 10px;}
+.optiontext.green { color:rgb(89, 255, 89); }
+.optiontext.gray  { color:rgb(200, 200, 200);}
+.optiontext.white{ color:rgb(255, 255, 255); font-weight: 400;}
+.optiontext.orange{ color: orange; }
+.optiontext.red{ color: rgb(252, 94, 77); }
+.optiontext.magenta{ color: rgb(255, 161, 250); }
+.optiontext.blueish{ color: rgb(164, 229, 255); }
+
+
+
+/* BROWSER -------------------------------------------------------*/
+.browserBase{
+    display: flex;
+}
+
+.browser{
+    width: var(--scoreboard-wrapper-width);
+    padding-top: 5px;
+    padding-left: 5px;
+    /* align-content: center; */
+    color: black;
+    border:1px solid black;
+    background-color: white;
+}
+
+/* BUTTONS --------------------------------------------------------*/
+.btn{
+    font-size: 1rem;
+    border: 1px solid black;
+    font-family: 'Raleway', sans-serif;
+    text-shadow:1px 1px black;
+    border-radius: 0.5em;
+    /* padding: 0rem 0.5rem 0rem 1rem; */
+    text-align: center;
+    /* margin:2rem 0em 0em 0em; */
+    color:white;
+    background-color: rgb(169, 169, 255);
+    
+}
+
+.btn.green{
+    background-color: rgb(0, 150, 25);
+}
+
+.btn:hover{
+    background-color: rgb(190, 190, 190);
+    border: 1px solid white;
+}
+.moveButtons{
+    display: flex;
+    /* justify-content: center; */
+    
+}
+.moveButton{
+    height: 40px;
+    border: 1px solid black;
+    margin-right: 5px;
+    border-radius: 20%;
+    
+} 
+
+.moveButton:hover{
+    border: 1px dashed green;
+}
+
+.moveButton.active{
+    border: 1px solid black;
+    background-color: lime;
+}
+
+/* For blocking the player controls */
+/* huom id! ## */
+#btn-blockingPanel{
+    position: absolute;
+    background-color: white;
+    opacity: 65%;
+    width: 340px;
+    height: 42px;
+    
+}
+
+#btn-blockingPanel-centerTopic{
+    /* width: inherit; */
+    /* background-color: gray;
+    border: 1px gray;
+    border-radius: 10%; */
+    text-align: center;
+    margin-top: 10px;
+    opacity: 100%;
+    font-weight: 900;
+    color:red;
+}
+
+/* SCOREBOARD -------------------------------------------------------------------------*/
+.prefs-wrapper{
+    border: 1px solid black;
+    /* width: 35vh; */
+    width: var(--scoreboard-wrapper-width);
+    border-radius: 5%;
+    padding: 3px;
+}
+
+/* text + pic + bars */
+.score-element{
+    display: flex;
+    align-content: center;
+    
+}
+
+.scoreboard-icon{
+    height: var(--text-bar-height);
+    align-self: center;
+}
+
+
+
+
+
+
+
+/* BARS -----------------------------------------------------------------------------*/
+
+#meter {
+    width: calc(var(--scoreboard-wrapper-width)*0.9) ;
+    
+    margin-left: 5px;
+    margin-bottom: 1px;
+    color:black;
+    
+    display: flex;
+    align-self: center;
+           
+}
+
+.shared-bar{
+    height: var(--text-bar-height);
+}
+
+#happiness_bar,
+#opponent_happiness_bar{
+    background:linear-gradient(to right, white, yellow);
+    position: static;
+    height: var(--text-bar-height);
+    width: 0%;
+    
+}
+
+#intoxication_bar{
+    background:linear-gradient(to right, white, rgb(141, 110, 88) );
+    position: static;
+    height: var(--text-bar-height);
+    width: 0%;
+    
+}
+
+#energy_bar{
+    background:linear-gradient(to right, white, cyan);
+    position: static;
+    height: var(--text-bar-height);
+    width: 0%;
+    /* animation: animatedBar 1 4s; */
+}
+
+#monthly_time_bar,
+#opponent_time_bar{
+    background: linear-gradient(to right, white, lime);
+    position: static;
+    height: var(--text-bar-height);
+    width: 0%;
+}
+
+#relationship_bar{
+    background: linear-gradient(to right, white, rgb(221, 52, 255));
+    position: static;
+    height: var(--text-bar-height);
+    width: 0%;
+}
+
+
+/*GAME ELEMENTS -----------------------------------------------------------------------*/
+
+.mapElement{
+
+    background: green;
+    width: 40px;
+    height: 40px;
+    /* border: 2px gray solid; */
+
+}
+
+
+#opponent{
+    position: absolute;
+    background: red;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px black solid;
+}
+
+#player{
+    position: absolute;
+
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: 1px black solid;
+    background: coral;
+
+    /* transform: translate3d(0px, 0px, 0); */
+    /* transition: transform .3s ease-in-out; */
+}
+
+
+.route-dots{
+    position: absolute;
+
+    width: 4px;
+    height: 4px;
+    border-radius: 30%;
+    border: 1px black solid;
+    background-color: lime;
+}
+
+/* X-MARK */
+.end-dot{
+    position: absolute;
+    width: 12px;
+    height: 12px;
+
+}
