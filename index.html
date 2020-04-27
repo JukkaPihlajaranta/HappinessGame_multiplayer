@@ -12,7 +12,7 @@
 
     <script defer src="./player.js"></script>
     <script defer src="./game.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
     <title>Chasing the happiness</title>
 </head>
 <body>
@@ -84,7 +84,9 @@
                 <div class="score-element">
                     <img src="./img/icons/Icon_OccupationSprite.png" class="scoreboard-icon">
                     <div id='meter'>
-                        <div id="jobText">Occupation:</div>
+                        <!-- <div id="jobText">Occupation:</div> -->
+                        <div id="job_bar" class="shared-bar"></div>
+                        <div id="jobText" class="UI_text scoreboard">Job: x</div>
                     </div>
                 </div>
         
@@ -97,19 +99,26 @@
                 </div>
 
                 <div class="score-element">
-                    <img src="./img/icons/Button_PetStore.png" class="scoreboard-icon">
+                    <img src="./img/icons/Icon_EducationSprite.png" class="scoreboard-icon">
                     <div id='meter'>
-                        <div id="pet_obj">None</div>
+                        <!-- <div id="education_obj">None x</div> -->
+                        <div id="education_bar" class="shared-bar"></div>
+                        <div id="education_obj" class="UI_text scoreboard">Rela: x</div>
                     </div>
                 </div>
 
                 <div class="score-element">
-                    <img src="./img/icons/Button_Home_New.png" class="scoreboard-icon">
-                    <div id='meter'>
-                        <div id="home_obj">None x</div>
-                    </div>
-    
-            </div>
+                    <img src="./img/icons/Button_Home_New.png" class="scoreboard-icon" id="icon_house">
+                    <img src="./img/icons/Button_HomeLux_New.png" class="scoreboard-icon" id="icon_houselux">
+                    <img src="./img/icons/Button_PetStore.png" class="scoreboard-icon" id="icon_pet">
+                    <img src="./img/icons/JobApplicationSprite.png" class="scoreboard-icon" id="icon_jobapplication">
+                    <img src="./img/icons/PostPackageSprite.png" class="scoreboard-icon" id="icon_postpackage">
+                    <!-- <div id='meter'>
+                        <div id="pet_obj">None</div>
+                    </div> -->
+                </div>
+
+
     
             </div>
         </div>
@@ -125,17 +134,18 @@
             <img id="homebutton" src="./img/icons/Button_Home_New.png" class="moveButton active">
             <img id="betterhomebutton" src="./img/icons/Button_HomeLux_New.png" class="moveButton">
             <img id="barbutton" src="./img/icons/Button_Bar.png" class="moveButton"> 
-            <img id="postbutton" src="./img/icons/Button_Post.png" class="moveButton"> 
-            <img id="petstorebutton" src="./img/icons/Button_PetStore.png" class="moveButton"> 
-            <img id="somestorebutton" src="./img/icons/SomeStoreSprite.png" class="moveButton">
+            <img id="mallbutton" src="./img/icons/Button_Mall.png" class="moveButton"> 
+            <img id="forestbutton" src="./img/icons/Button_Tree.png" class="moveButton"> 
+            <img id="sportsbutton" src="./img/icons/Button_Gym.png" class="moveButton">
             <img id="schoolbutton" src="./img/icons/Button_School.png" class="moveButton">
+            
         </div>
         
         <!--Game board-->
         <div class="container"></div>
         
         <div id="infoboxBase" class="infoboxBase"></div>
-        <button class="btn" id="move-player">Go to destination!</button><br>
+        <button class="btn move" id="move-player"><img src="./img/icons/Icon_RunningSprite.png" width="150px"></button>
         <div id="tempInfo"></div>
         <!-- <div class="dotsBase"></div> -->
         <div class="routeBase"></div>

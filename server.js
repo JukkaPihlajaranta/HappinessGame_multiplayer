@@ -36,6 +36,7 @@ io.sockets.on('connection', (socket) =>{
         console.log('A user disconnected: %s socket(s) connected', currentUserNumber.length);
         
         if (playerTempName != ''){
+
             UpdatePlayerListFromDisconnect(playerTempName);
         }
         
@@ -106,7 +107,7 @@ io.sockets.on('connection', (socket) =>{
         }
 
         //checks if 2 players are ready and then game starts
-        if (newIDList.length == 2){
+        if (newIDList.length == 2){ // 2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             const newGameId = guid();
             gameList[newGameId] = {
                 gameId: newGameId,

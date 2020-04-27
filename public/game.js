@@ -12,10 +12,10 @@ const btn_blockingPanel_centerTopic = document.getElementById('btn-blockingPanel
 const homeButton = 'homebutton';
 const betterHomeButton = 'betterhomebutton';
 const barButton = 'barbutton';
-const postButton = 'postbutton';
-const petstoreButton = 'petstorebutton';
-const somestoreButton = 'somestorebutton';
+const mallButton = 'mallbutton';
 const schoolbutton = 'schoolbutton';
+const forestButton = 'forestbutton';
+const sportsButton = 'sportsbutton';
 
 //Map variables
 const playerSizeX = player.clientWidth/2;
@@ -126,6 +126,8 @@ var socket = io.connect();
     });
 
 
+
+    
     // STARTING THE GAME-----------------------------------------------------------------------
     socket.on("ToClient_StartGame", (data) =>{
         
@@ -177,7 +179,7 @@ var socket = io.connect();
 
         anime({
             targets: opponent_time_bar,
-            width: (data.time/weeklytimeToCompare)*barWidth,
+            width: Math.ceil(data.time/weeklytimeToCompare*barWidth),
             easing: 'linear',
             duration: 500
     
@@ -211,36 +213,87 @@ var socket = io.connect();
 
     socket.on('ToClient_NewWeek', () =>{
     
-        
-
+        //Month change
         if (weekNumber % 4 == 0){
             console.log("month has changed.");
             
             ShowTempMessage("New month and new things! <span style='color:salmon;'>If you didn't pay your rent, cost has been doubled and credited from your bank account.</span>", 
             "sms");
 
-            if (currentPlayerAttributes.rentToDue){
-                
-                currentPlayerAttributes.moneyPoints -= rentHomes[currentPlayerAttributes.homeID].rent * 2;
-            }
-            else{
-                ShowTempMessage("New month and new things!", "sms");
-            }
+            if (currentPlayerAttributes.rentToDue){ currentPlayerAttributes.moneyPoints -= rentHomes[currentPlayerAttributes.homeID].rent * 2; }
+            else{ ShowTempMessage("New month and moon!", "sms"); }
             
             currentPlayerAttributes.rentToDue = true;
         }
 
 
-        if (weekNumber % 4 != 0){
+        // if (weekNumber % 4 != 0)
+        else {
             ShowTempMessage("New week and new things!", "sms");
+
+            if (currentPlayerAttributes.petWeeklyDue){
+                // console.log('Your pet is not feeling well. You had to take her to vegetarian.');
+                currentPlayerAttributes.moneyPoints -= pets[currentPlayerAttributes.petID].petCostWeek * 8;
+            }
+
+            //declining relationship
+            if (currentPlayerAttributes.relationshipID != 0){
+                console.log('relatinoship checkup')
+                currentPlayerAttributes.relationshipStrenght -= 3;
+
+                if (currentPlayerAttributes.relationshipStrenght <= 0){
+                    switch (currentPlayerAttributes.relationshipID){
+                        case 1: //complicated
+                            currentPlayerAttributes.relationshipID = 0;
+                            
+                            break;
+                        
+                        case 2: //just met
+                            currentPlayerAttributes.relationshipID = 0;
+                            
+                            break;
+
+                        case 3: //dating
+                            currentPlayerAttributes.relationshipID = 1;
+                            
+                            break;
+                        
+                        case 4: //relationship
+                            currentPlayerAttributes.relationshipID = 1;
+                            
+                            break;
+
+                    }
+                    
+                    currentPlayerAttributes.relationshipStrenght = 0;
+                }
+
+                
+                
+            }
+
+            //losing the job
+            if (currentPlayerAttributes.currentWorkId != 0){
+        
+                if (currentPlayerAttributes.workStress < 2){
+                    currentPlayerAttributes.currentWorkId = 0;
+                    console.log("you lost you job becuse you didn't work for this week");
+                }
+        
+                else if(currentPlayerAttributes.workStress > 5){
+                    weeklyTime -= 60;
+                    currentPlayerAttributes.moneyPoints -= 60;
+                    currentPlayerAttributes.happinessPoints -= 5;
+        
+                }
+        
+                currentPlayerAttributes.workStress = 0;
+            }
         }
 
-        if (currentPlayerAttributes.petMonthlyDue && currentPlayerAttributes.homeID != 0){
-            // console.log('Your pet is not feeling well. You had to take her to vegetarian.');
-            currentPlayerAttributes.moneyPoints -= pets[currentPlayerAttributes.petID].petCostWeek * 8;
-        }
 
-        currentPlayerAttributes.petMonthlyDue = true;
+
+        currentPlayerAttributes.petWeeklyDue = true;
         
         
         
@@ -251,12 +304,16 @@ var socket = io.connect();
         // $(infoboxObj).slideUp(500);
         ReduceTime_Check(0);
 
-
+        currentPlayerAttributes.randomForRenting = Math.floor(Math.random()*3);
+        // console.log(currentPlayerAttributes.randomForRenting);
+        if (currentPlayerAttributes.happinessTotal >= 100 ){
+            console.log("You have done it!");
+        }
 
     });
 
 
-    //THE GAME STARTS------------------------------------------------------------------
+//THE GAME STARTS------------------------------------------------------------------
 function GameStarts(){
     $("#game_ChatState").hide();
     // $("#game_ChatState").fadeOut(500);
@@ -402,9 +459,8 @@ function CreateMap(container, count){
     }
 
     //Different buildings
-    if (count == 2 || count == 3 || count == 21 || count == 22 ||
-        count == 35 || count == 36 || count == 37 || 
-        count == 45 || count == 50){
+    if (count == 2 || count == 3 || count == 21 || 
+        count == 35 || count == 36 || count == 37 || count == 50){
 
 
         const image = document.createElement('img');
@@ -442,13 +498,7 @@ function CreateMap(container, count){
     }
 
 
-    else if (count == 40 || count == 48){
-        const image = document.createElement('img');
-        image.src = "./img/Normal_House_Tilted.png";
-        image.setAttribute('height', elementSize);
-        containerElement.appendChild(image);
-        containerElement.id = "Obstacle";
-    }
+
 
 
     //STARTING HOME-----------------------------------------------------
@@ -467,14 +517,14 @@ function CreateMap(container, count){
     else if (count == 4){
         containerElement.id = "SomeStore"; //CHANGE---------------------------------
         const image = document.createElement('img');
-        image.src = "./img/Building_Functional_RightEnd.png";
+        image.src = "./img/Building_Basic_RightEnd.png";
         image.setAttribute('height', elementSize);
         containerElement.appendChild(image);
 
-        CreateButtonElement(containerElement, somestoreButton);
+        CreateButtonElement(containerElement, betterHomeButton); // changeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
     }
 
-    //BETTER APARTMENT--------------------------------------------------change from student apartment to better one, make function
+    //BETTER APARTMENT
     else if (count == 17){
         containerElement.id = "BetterHome";
         const image = document.createElement('img');
@@ -487,21 +537,9 @@ function CreateMap(container, count){
 
     //PETSTORE-------------------------------------------------------
     else if (count == 20){
-        containerElement.id = "PetStore";
-        const image = document.createElement('img');
-        image.src = "./img/Building_Functional.png";
-        image.setAttribute('height', elementSize);
-        containerElement.appendChild(image);
-
-        CreateButtonElement(containerElement, petstoreButton);
-    }
-
-
-    //SCHOOL---------------------------------------------------------
-    else if (count == 23){
         containerElement.id = "School";
         const image = document.createElement('img');
-        image.src = "./img/Building_Functional_RightEnd.png";
+        image.src = "./img/Building_Functional.png";
         image.setAttribute('height', elementSize);
         containerElement.appendChild(image);
 
@@ -509,11 +547,51 @@ function CreateMap(container, count){
     }
 
 
+    //FOREST, NOT SCHOOL---------------------------------------------------------
+    else if (count == 23){
+        containerElement.id = "Forest";
+        const image = document.createElement('img');
+        image.src = "./img/Building_Forest.png";
+        image.setAttribute('height', elementSize);
+        containerElement.appendChild(image);
+
+        CreateButtonElement(containerElement, forestButton);
+    }
+
+    //FOREST2
+    else if (count == 22){
+        containerElement.id = "Obstacle";
+        const image = document.createElement('img');
+        image.src = "./img/Building_Forest.png";
+        image.setAttribute('height', elementSize);
+        containerElement.appendChild(image);
+    }
+
+    //SPORTS
+    else if (count == 48){
+        containerElement.id = "Sports";
+        const image = document.createElement('img');
+        image.src = "./img/Building_Sports.png";
+        image.setAttribute('height', elementSize);
+        containerElement.appendChild(image);
+
+        CreateButtonElement(containerElement, sportsButton);
+    }
+
+    else if (count == 40){
+        const image = document.createElement('img');
+        image.src = "./img/Building_Sports2.png";
+        image.setAttribute('height', elementSize);
+        containerElement.appendChild(image);
+        containerElement.id = "Obstacle";
+    }
+
+
     //BAR------------------------------------------------------------
     else if (count == 34){
         containerElement.id = "Bar";
         const image = document.createElement('img');
-        image.src = "./img/Building_Functional_LeftEnd.png";
+        image.src = "./img/Building_Bar.png";
         image.setAttribute('height', elementSize);
         containerElement.appendChild(image);
 
@@ -523,13 +601,26 @@ function CreateMap(container, count){
     //POST OFFICE-----------------------------------------------------
     else if (count == 46){
         
-        containerElement.id = "PostOffice";
+        containerElement.id = "Mall";
         const image = document.createElement('img');
-        image.src = "./img/Building_Functional_RightEnd.png";
+        image.src = "./img/Building_MallRight.png";
         image.setAttribute('height', elementSize);
         containerElement.appendChild(image);
 
-        CreateButtonElement(containerElement, postButton);
+        CreateButtonElement(containerElement, mallButton);
+
+    }
+
+    //Mall OFFICE-----------------------------------------------------
+    else if (count == 45){
+        
+        containerElement.id = "Building";
+        const image = document.createElement('img');
+        image.src = "./img/Building_MallLeft.png";
+        image.setAttribute('height', elementSize);
+        containerElement.appendChild(image);
+
+        // CreateButtonElement(containerElement, postButton);
 
     }
 
@@ -895,7 +986,7 @@ function DrawDots(el, endDot){
     if (endDot){
         const temp = document.createElement('img');
         const desiredX = document.getElementById(el).getBoundingClientRect().x - containerRects.left + elementSize/2-2;
-        const desiredY = document.getElementById(el).getBoundingClientRect().y - containerRects.height - containerRects.top -8/*+ elementSize/3*/;
+        const desiredY = document.getElementById(el).getBoundingClientRect().y - containerRects.height - containerRects.top +14/*-8+ elementSize/3*/;
         temp.src = "./img/icons/x-mark.png"
         temp.className = "end-dot";
         temp.style.transform = `translate3d(${desiredX}px, ${desiredY}px, 0)`;
@@ -906,7 +997,7 @@ function DrawDots(el, endDot){
     else{
         const temp = document.createElement('div');
         const desiredX = document.getElementById(el).getBoundingClientRect().x - containerRects.left + elementSize/2-2;
-        const desiredY = document.getElementById(el).getBoundingClientRect().y - containerRects.height - containerRects.top -5/* + elementSize/2.5*/;
+        const desiredY = document.getElementById(el).getBoundingClientRect().y - containerRects.height - containerRects.top +17/*-5 + elementSize/2.5*/;
         
         temp.className = "route-dots";
         temp.style.transform = `translate3d(${desiredX}px, ${desiredY}px, 0)`;
