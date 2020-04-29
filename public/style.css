@@ -33,13 +33,19 @@ body{
     border: 1px solid black;
     border-radius: 5%;
     width:var(--scoreboard-wrapper-width);
-    /* transform: translate(0px, 0px); */
     overflow-y: auto;
     overflow-x: hidden;
-    /* overflow: auto; */
-    /* transform: translate3d(0px, 0px, 0); */
     max-height: calc(40px*7);
     z-index: 1;
+}
+
+.infoboxBase.lux{
+    background: linear-gradient(to right, rgb(99, 99, 99),  rgb(84, 120, 129)  );
+    /* background-color: red; */
+}
+
+.infoboxBase.net{
+    background-color: rgb(97, 115, 136);
 }
 
 .opponent_eventContainer{
@@ -53,10 +59,6 @@ body{
     width:var(--scoreboard-wrapper-width);
     overflow-y: auto;
     overflow-x: hidden;
-}
-
-.infoboxBase.net{
-    background-color: rgb(97, 115, 136);
 }
 
 #tempInfo{
@@ -135,6 +137,12 @@ body{
     margin-left: 5px;
     margin-right: 5px;
     border: 1px solid rgb(223, 218, 192);
+}
+
+.oneColumn.underline{
+    margin-left: 5px;
+    margin-right: 60%;
+    border-bottom: 2px solid rgb(223, 218, 192);
 }
 
 

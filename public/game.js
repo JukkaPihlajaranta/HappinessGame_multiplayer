@@ -163,7 +163,7 @@ var socket = io.connect();
         opponent_time_text.innerHTML = "Time: " + Math.ceil((data.time/weeklytimeToCompare)*100) + "%";
 
         if (data.time <= 0){
-            opponent_time_text.innerHTML = "<span class='optiontext red'>Week is over.</span> ";
+            opponent_time_text.innerHTML = "<span class='optiontext red'>Time's up!</span> ";
         }
 
         opponent_happiness_text.innerHTML = "Happiness: " + data.happinessPoints + "%";
@@ -216,11 +216,12 @@ var socket = io.connect();
         //Month change
         if (weekNumber % 4 == 0){
             console.log("month has changed.");
-            
-            ShowTempMessage("New month and new things! <span style='color:salmon;'>If you didn't pay your rent, cost has been doubled and credited from your bank account.</span>", 
-            "sms");
-
-            if (currentPlayerAttributes.rentToDue){ currentPlayerAttributes.moneyPoints -= rentHomes[currentPlayerAttributes.homeID].rent * 2; }
+ 
+            if (currentPlayerAttributes.rentToDue){ 
+                ShowTempMessage("New month and new things! <span style='color:salmon;'>If you didn't pay your rent, cost has been doubled and credited from your bank account.</span>", 
+                "sms");
+                currentPlayerAttributes.moneyPoints -= rentHomes[currentPlayerAttributes.homeID].rent * 2; 
+            }
             else{ ShowTempMessage("New month and moon!", "sms"); }
             
             currentPlayerAttributes.rentToDue = true;
@@ -228,84 +229,93 @@ var socket = io.connect();
 
 
         // if (weekNumber % 4 != 0)
-        else {
+        if (weekNumber % 4 != 0){
             ShowTempMessage("New week and new things!", "sms");
 
-            if (currentPlayerAttributes.petWeeklyDue){
-                // console.log('Your pet is not feeling well. You had to take her to vegetarian.');
-                currentPlayerAttributes.moneyPoints -= pets[currentPlayerAttributes.petID].petCostWeek * 8;
-            }
-
-            //declining relationship
-            if (currentPlayerAttributes.relationshipID != 0){
-                console.log('relatinoship checkup')
-                currentPlayerAttributes.relationshipStrenght -= 3;
-
-                if (currentPlayerAttributes.relationshipStrenght <= 0){
-                    switch (currentPlayerAttributes.relationshipID){
-                        case 1: //complicated
-                            currentPlayerAttributes.relationshipID = 0;
-                            
-                            break;
-                        
-                        case 2: //just met
-                            currentPlayerAttributes.relationshipID = 0;
-                            
-                            break;
-
-                        case 3: //dating
-                            currentPlayerAttributes.relationshipID = 1;
-                            
-                            break;
-                        
-                        case 4: //relationship
-                            currentPlayerAttributes.relationshipID = 1;
-                            
-                            break;
-
-                    }
-                    
-                    currentPlayerAttributes.relationshipStrenght = 0;
-                }
-
-                
-                
-            }
-
-            //losing the job
-            if (currentPlayerAttributes.currentWorkId != 0){
-        
-                if (currentPlayerAttributes.workStress < 2){
-                    currentPlayerAttributes.currentWorkId = 0;
-                    console.log("you lost you job becuse you didn't work for this week");
-                }
-        
-                else if(currentPlayerAttributes.workStress > 5){
-                    weeklyTime -= 60;
-                    currentPlayerAttributes.moneyPoints -= 60;
-                    currentPlayerAttributes.happinessPoints -= 5;
-        
-                }
-        
-                currentPlayerAttributes.workStress = 0;
-            }
         }
 
+        //declining relationship
+        if (currentPlayerAttributes.relationshipID != 0 && !currentPlayerAttributes.newlyMet){
+            console.log('relatinoship checkup')
+            currentPlayerAttributes.relationshipStrenght -= 3;
 
+            if (currentPlayerAttributes.relationshipStrenght <= 0){
+                switch (currentPlayerAttributes.relationshipID){
+                    case 1: //complicated
+                        currentPlayerAttributes.relationshipID = 0;
+                        
+                        break;
+                    
+                    case 2: //just met
+                        currentPlayerAttributes.relationshipID = 0;
+                        
+                        break;
 
-        currentPlayerAttributes.petWeeklyDue = true;
-        
-        
-        
-        
+                    case 3: //dating
+                        currentPlayerAttributes.relationshipID = 1;
+                        
+                        break;
+                    
+                    case 4: //relationship
+                        currentPlayerAttributes.relationshipID = 1;
+                        
+                        break;
+
+                }
+                
+                currentPlayerAttributes.relationshipStrenght = 0;
+            }
+
+            
+            
+        }
+
+        //losing the job
+        if (currentPlayerAttributes.currentWorkId != 0){
+    
+            if (currentPlayerAttributes.workStress < 1){ //don't go work at all
+                currentPlayerAttributes.currentWorkId = 0;
+                ShowTempMessage("You neglected your work. You are got fired.", 'sms');
+            }
+    
+            else if(currentPlayerAttributes.workStress > 5){
+                weeklyTime -= 60;
+                currentPlayerAttributes.moneyPoints -= 60;
+                currentPlayerAttributes.happinessPoints -= 5;
+                ShowTempMessage("You worked too much. You felt a little bit sick for awhile and visited a doctor. The fee was 60€", 'sms');
+            }
+    
+            currentPlayerAttributes.workStress = 0;
+        }
+
+        if (currentPlayerAttributes.petID == 1){
+
+            if (currentPlayerAttributes.petWeeklyDue){
+                console.log("pet decare");
+                ShowTempMessage("You haven't taken care of your pet. You had to take it to a vet. The fee was " + pets[currentPlayerAttributes.petID].petPenalty +"€", 'sms');
+                currentPlayerAttributes.moneyPoints -= pets[currentPlayerAttributes.petID].petPenalty;
+            }
+
+            currentPlayerAttributes.petFoodAmount == 0 ? currentPlayerAttributes.petFoodAmount == 0 : currentPlayerAttributes.petFoodAmount--;
+            currentPlayerAttributes.petWeeklyDue = true;
+        }
+
+        currentPlayerAttributes.forestHappiness = 2;
+        currentPlayerAttributes.internetHappiness = 1;
+        currentPlayerAttributes.exerciseLvl = 0;
+        currentPlayerAttributes.currentYogaEnhancer = 0;
+
+        currentPlayerAttributes.newlyMet = false;
+        PutLocalEvent(0,0,"newWeek");
+        console.log("new week");
         weekNumber++;
         weeklyTime = weeklytimeToCompare;
         ManageMoveButtons('off');
         // $(infoboxObj).slideUp(500);
         ReduceTime_Check(0);
 
-        currentPlayerAttributes.randomForRenting = Math.floor(Math.random()*3);
-        // console.log(currentPlayerAttributes.randomForRenting);
+        currentPlayerAttributes.randomForRenting = Math.floor(Math.random()*3); //randomizes renting options
+
         if (currentPlayerAttributes.happinessTotal >= 100 ){
             console.log("You have done it!");
         }
@@ -1002,6 +1012,26 @@ function DrawDots(el, endDot){
         temp.className = "route-dots";
         temp.style.transform = `translate3d(${desiredX}px, ${desiredY}px, 0)`;
         routeBase.appendChild(temp);
+    }
+
+}
+
+function PutLocalEvent(color, text, newWeek) {
+
+    if (newWeek == "newWeek"){
+        const newEvent = document.createElement('div');
+        
+        newEvent.innerHTML =`<span style='font-weight:700; color:lime'>-=New week=-</span>`;
+        
+        opponent_events.appendChild(newEvent);
+
+    }
+    else{
+        const newEvent = document.createElement('div');
+        
+        newEvent.innerHTML =`<span style='font-weight:700'>You</span> <span style='color:${color}'>${text}</span>`;
+        
+        opponent_events.appendChild(newEvent);
     }
 
 }
