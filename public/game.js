@@ -213,9 +213,11 @@ var socket = io.connect();
 
     socket.on('ToClient_NewWeek', () =>{
     
+        weeklyTime = weeklytimeToCompare;
+
         //Month change
         if (weekNumber % 4 == 0){
-            console.log("month has changed.");
+            // console.log("month has changed.");
  
             if (currentPlayerAttributes.rentToDue){ 
                 ShowTempMessage("New month and new things! <span style='color:salmon;'>If you didn't pay your rent, cost has been doubled and credited from your bank account.</span>", 
@@ -236,7 +238,7 @@ var socket = io.connect();
 
         //declining relationship
         if (currentPlayerAttributes.relationshipID != 0 && !currentPlayerAttributes.newlyMet){
-            console.log('relatinoship checkup')
+            // console.log('relatinoship checkup');
             currentPlayerAttributes.relationshipStrenght -= 3;
 
             if (currentPlayerAttributes.relationshipStrenght <= 0){
@@ -291,7 +293,7 @@ var socket = io.connect();
         if (currentPlayerAttributes.petID == 1){
 
             if (currentPlayerAttributes.petWeeklyDue){
-                console.log("pet decare");
+                // console.log("pet decare");
                 ShowTempMessage("You haven't taken care of your pet. You had to take it to a vet. The fee was " + pets[currentPlayerAttributes.petID].petPenalty +"€", 'sms');
                 currentPlayerAttributes.moneyPoints -= pets[currentPlayerAttributes.petID].petPenalty;
             }
@@ -304,12 +306,14 @@ var socket = io.connect();
         currentPlayerAttributes.internetHappiness = 1;
         currentPlayerAttributes.exerciseLvl = 0;
         currentPlayerAttributes.currentYogaEnhancer = 0;
+        currentPlayerAttributes.beautyFactor = 0;
+
 
         currentPlayerAttributes.newlyMet = false;
         PutLocalEvent(0,0,"newWeek");
-        console.log("new week");
+        
         weekNumber++;
-        weeklyTime = weeklytimeToCompare;
+        
         ManageMoveButtons('off');
         // $(infoboxObj).slideUp(500);
         ReduceTime_Check(0);
@@ -828,6 +832,11 @@ function TrackPoints(){
             x: firstOne.x - containerRects.x-5, 
             y: firstOne.y - containerRects.y -40,
         });
+
+        if (firstOne.x == null || firstOne.y == null){
+            console.log("error in movement!");
+            return;
+        }
 
         ChangeTempPlayerPos(firstOne);
         let index;

@@ -25,6 +25,8 @@ const icon_petfood1 = document.getElementById('icon_petfood1');
 const icon_petfood2 = document.getElementById('icon_petfood2');
 const icon_exercise = document.getElementById('icon_exercise');
 const icon_yoga = document.getElementById('icon_yoga');
+const icon_rent = document.getElementById('icon_rent');
+const icon_beauty = document.getElementById('icon_beauty');
 
 //OTHER SCOREBOARD TEXTS
 const happinessText = document.getElementById('happiness_text');
@@ -82,7 +84,7 @@ let currentPlayerAttributes = {
     currentYogaEnhancer: 0,
     exerciseLvl: 0,
 
-
+    beautyFactor: 0,
 
     relationshipID: 0,
     relationshipStrenght: 0,
@@ -139,7 +141,7 @@ const relationships = [
 
     {
         relationshipStatus: "Complicated",
-        happinessPoints: -3},
+        happinessPoints: -10},
     {
         relationshipStatus: "Just met",
         happinessPoints: 13},
@@ -149,7 +151,7 @@ const relationships = [
     {
         relationshipStatus: "Relationship",
         happinessPoints: 32},
-]
+];
 
 const pets = [
     {
@@ -165,7 +167,7 @@ const pets = [
         weeklyPetTime: 12,
         happinessPoints: 18}
     
-    ];
+];
 
 const education = [{
     degree: "Basic",
@@ -175,17 +177,17 @@ const education = [{
 {
     degree: "College",
     cost: 250,
-    happinessPoints: 9},
+    happinessPoints: 6},
 
 {
     degree: "Bachelor",
     cost: 430,
-    happinessPoints: 19},
+    happinessPoints: 14},
 
 {
     degree: "Master",
     cost: 980,
-    happinessPoints: 28},
+    happinessPoints: 22},
 
 ];
 
@@ -198,12 +200,12 @@ const rentHomes = [{
         rent: 449,
         homeName: "Luxurious home",
         deposit: 320,
-        happinessPoints: 18}
+        happinessPoints: 12}
 ];
 
 const jobs = [
 
-    //WORK LEVEL 1
+    //WORK LEVEL 0
     {
         id: 0,
         worklevel: 0,
@@ -218,49 +220,19 @@ const jobs = [
         id: 1,
         worklevel: 0,
         job: "Fast food cook",
-        energyConsumption: 33,
+        energyConsumption: 35,
         educationReq: 0,
-        salary: 41,
+        salary: 38,
         description: "You will prepare fast food meals.",
         happinessPoinst: 5},
     {
         id: 2,
         worklevel: 0,
         job: "Cleaner",
-        energyConsumption: 30,
-        educationReq: 0,
-        salary: 38,
-        description: "You will clean what you're told.",
-        happinessPoinst: 5},
-
-    {
-        id: 10,
-        worklevel: 0,
-        job: "Garbage driver",
-        energyConsumption: 43,
-        educationReq: 0,
-        salary: 45,
-        description: "Pla pla pla",
-        happinessPoinst: 5},
-
-    {
-        id: 11,
-        worklevel: 0,
-        job: "Postman",
         energyConsumption: 32,
         educationReq: 0,
-        salary: 39,
-        description: "Pla pla pla",
-        happinessPoinst: 5},
-
-    {
-        id: 12,
-        worklevel: 0,
-        job: "Factory worker",
-        energyConsumption: 44,
-        educationReq: 0,
-        salary: 45,
-        description: "Pla pla pla",
+        salary: 34,
+        description: "You will clean what you're told.",
         happinessPoinst: 5},
 
     {
@@ -273,48 +245,118 @@ const jobs = [
         description: "Hard work, somewhat good pay.",
         happinessPoinst: 5},
 
+    {
+        id: 10,
+        worklevel: 0,
+        job: "Garbage driver",
+        energyConsumption: 40,
+        educationReq: 0,
+        salary: 43,
+        description: "Pla pla pla",
+        happinessPoinst: 5},
 
-    //WORK LEVEL 1
+    {
+        id: 11,
+        worklevel: 0,
+        job: "Postman",
+        energyConsumption: 32,
+        educationReq: 0,
+        salary: 35,
+        description: "Pla pla pla",
+        happinessPoinst: 5},
+
+    {
+        id: 12,
+        worklevel: 0,
+        job: "Factory worker",
+        energyConsumption: 44,
+        educationReq: 0,
+        salary: 46,
+        description: "Pla pla pla",
+        happinessPoinst: 5},
+
+    {
+        id: 13,
+        worklevel: 0,
+        job: "Street fundraising",
+        energyConsumption: 10,
+        educationReq: 0,
+        salary: 17,
+        description: "Pla pla pla",
+        happinessPoinst: 10},
+
+    {
+        id: 14,
+        worklevel: 0,
+        job: "Birthday clown",
+        energyConsumption: 12,
+        educationReq: 0,
+        salary: 19,
+        description: "Pla pla pla",
+        happinessPoinst: 11},
+
+
+    //WORK LEVEL 1 -----------------------------------------------------------------------------------------------
     {
         id: 4,
         worklevel: 1,
         job: "Line manager",
-        energyConsumption: 62,
+        energyConsumption: 60,
         educationReq: 1,
-        salary: 89,
+        salary: 72,
         description: "Hard work, somewhat good pay.",
-        happinessPoinst: 10},
+        happinessPoinst: 8},
     {
         id: 5,
         worklevel: 1,
         job: "Receptionist",
-        energyConsumption: 35,
+        energyConsumption: 40,
         educationReq: 1,
-        salary: 59,
+        salary: 48,
         description: "You will work at the hotel reception.",
-        happinessPoinst: 10},
+        happinessPoinst: 12},
 
     {
         id: 6,
-        worklevel: 1,
+        worklevel: 0,
         job: "Tailor",
-        energyConsumption: 41,
+        energyConsumption: 43,
         educationReq: 1,
-        salary: 67,
+        salary: 52,
         description: "Your hands are your best tool.",
         happinessPoinst: 11},
 
+    {
+        id: 15,
+        worklevel: 0,
+        job: "Personal trainer",
+        energyConsumption: 40,
+        educationReq: 1,
+        salary: 48,
+        description: "Your hands are your best tool.",
+        happinessPoinst: 11},
+
+    {
+        id: 16,
+        worklevel: 0,
+        job: "Seller",
+        energyConsumption: 49,
+        educationReq: 1,
+        salary: 59,
+        description: "Sell! Sell! Sell! Sell! Sell! Seeeell! ",
+        happinessPoinst: 7},
     
-    //WORK LEVEL 2
+
+    //WORK LEVEL 2 -----------------------------------------------------------------------------------------------
     {
         id: 7,
         worklevel: 2,
-        job: "Factory manager",
-        energyConsumption: 67,
+        job: "Sales manager",
+        energyConsumption: 62,
         educationReq: 2,
-        salary: 120,
-        description: "You will be working as factory manager.",
-        happinessPoinst: 12},
+        salary: 93,
+        description: "You job is to sell as much as possible.",
+        happinessPoinst: 9},
 
     {
         id: 8,
@@ -322,19 +364,84 @@ const jobs = [
         job: "Real estate agent",
         energyConsumption: 71,
         educationReq: 2,
-        salary: 128,
+        salary: 107,
         description: "You're the one who gives home to people.",
-        happinessPoinst: 12},
+        happinessPoinst: 7},
 
     {
         id: 9,
-        worklevel: 2,
+        worklevel: 1,
         job: "Content creator",
         energyConsumption: 52,
         educationReq: 2,
-        salary: 98,
+        salary: 78,
         description: "You create digital content you desire the most.",
+        happinessPoinst: 15},
+
+    //WORK LEVEL 3 -----------------------------------------------------------------------------------------------
+
+    {
+        id: 19,
+        worklevel: 3,
+        job: "Factory manager",
+        energyConsumption: 67,
+        educationReq: 3,
+        salary: 134,
+        description: "?",
+        happinessPoinst: 10},
+
+    {
+        id: 20,
+        worklevel: 3,
+        job: "Coder",
+        energyConsumption: 57,
+        educationReq: 3,
+        salary: 114,
+        description: "?",
+        happinessPoinst: 10},
+
+    {
+        id: 21,
+        worklevel: 3,
+        job: "Pharmacist",
+        energyConsumption: 60,
+        educationReq: 3,
+        salary: 120,
+        description: "?",
+        happinessPoinst: 10},
+
+    //WORK LEVEL 4 -----------------------------------------------------------------------------------------------
+
+    {
+        id: 22,
+        worklevel: 4,
+        job: "Lawyer",
+        energyConsumption: 69,
+        educationReq: 3,
+        salary: 207,
+        description: "?",
+        happinessPoinst: 8},
+
+    {
+        id: 23,
+        worklevel: 4,
+        job: "Lawyer",
+        energyConsumption: 64,
+        educationReq: 3,
+        salary: 192,
+        description: "?",
+        happinessPoinst: 8},
+
+    {
+        id: 24,
+        worklevel: 4,
+        job: "Doctor",
+        energyConsumption: 67,
+        educationReq: 3,
+        salary: 201,
+        description: "?",
         happinessPoinst: 12},
+
 ];
 
 const onlineItems = [
@@ -489,7 +596,7 @@ function SetInfoBoxPosition(){
     infoboxWidth = infoboxObj.getBoundingClientRect().width;
     
     ManageMoveButtons('off');
-}
+};
 
 
 
@@ -567,27 +674,7 @@ function UpdateBarAndTexts(){
     //Checking relationship status
     if (currentPlayerAttributes.relationshipID != 0){
 
-        if (currentPlayerAttributes.relationshipStrenght >= 10){
-            switch (currentPlayerAttributes.relationshipID){
-                case 1: //complicated
-                    currentPlayerAttributes.relationshipID = 3;
-                    break;
-                
-                case 2: //just met
-                    currentPlayerAttributes.relationshipID = 3;
-                    break;
 
-                case 3: //dating
-                    currentPlayerAttributes.relationshipID = 4;
-                    break;
-                
-                case 4: //complicated
-                    currentPlayerAttributes.relationshipID = 4;
-                    break;
-
-            }
-            currentPlayerAttributes.relationshipStrenght = 0;
-        }
     }
 
     
@@ -605,36 +692,7 @@ function UpdateBarAndTexts(){
         currentPlayerAttributes.showPostMessage = false;
     }
 
-    //When jobs is pending
-    if (currentPlayerAttributes.jobIdPending != null && weeklyTime <= currentPlayerAttributes.jobPendingTime  ){
-        
-        const rand = Math.floor(Math.random()*5);
-        //Decider if you got the job or not
-        console.log(rand + " != 4???");
 
-        const tempJobPending = FindWithAttr(jobs, "id", currentPlayerAttributes.jobIdPending); //jobs is given with id number
-        if (jobs[tempJobPending].worklevel <= currentPlayerAttributes.playerWorkLevel && rand != 4){
-
-            currentPlayerAttributes.currentWorkId = tempJobPending;
-            ShowTempMessage(`Congratulations! You got the job!<br><br> Now you can start working as ${jobs[tempJobPending].job}.`, 'sms');
-            OpponentEvents(`got a job as a ${jobs[tempJobPending].job}!`);
-        }
-
-        else if (jobs[tempJobPending].worklevel > currentPlayerAttributes.playerWorkLevel){
-            ShowTempMessage("Unfortunately you didn't get the job. You are lacking work experience.", 'rejection');
-            OpponentEvents("failed to get a job.");
-        }
-
-        else{
-            ShowTempMessage("Unfortunately you didn't get the job. All of the candidates including you were really good, but you weren't the our choice.", 'rejection');
-            OpponentEvents("failed to get a job.");
-        }
-
-        showJobs = true;
-        currentPlayerAttributes.jobIdPending = null;
-        randomizeNewOnlineContent = true;
-        UpdateBarAndTexts();
-    }
 
     ManageScoreBoard_Images();
     OpponentUpdates(weeklyTime, currentPlayerAttributes.happinessTotal, currentPlayerAttributes.moneyPoints);
@@ -661,7 +719,7 @@ function ShowTempMessage(message, image){
 
         case 'package':
             tempInfo.innerHTML = `<div class="twoColumns20-80">
-                                    <div class="basicCell"><img src="./img/icons/Button_Post.png" height="40px"> </div>
+                                    <div class="basicCell"><img src="./img/icons/Icon_Letter.png" height="40px"> </div>
                                     <div class="optiontext green">${message}</div>
                                 </div>`;        
             break;
@@ -675,6 +733,47 @@ function ShowTempMessage(message, image){
     }
     
     
+}
+
+function WorkChecker(){
+
+    //When jobs is pending
+    if (currentPlayerAttributes.jobIdPending != null && weeklyTime <= currentPlayerAttributes.jobPendingTime  ){
+        
+        const rand = Math.floor(Math.random()*5);
+        //Decider if you got the job or not
+        console.log(rand + " != 4???");
+
+        const tempJobPending = FindWithAttr(jobs, "id", currentPlayerAttributes.jobIdPending); //jobs is given with id number
+        if (jobs[tempJobPending].worklevel <= currentPlayerAttributes.playerWorkLevel && rand != 4 && jobs[tempJobPending].educationReq <= currentPlayerAttributes.educationId){
+
+            currentPlayerAttributes.currentWorkId = tempJobPending;
+            ShowTempMessage(`Congratulations! You got the job!<br><br> Now you can start working as ${jobs[tempJobPending].job}.`, 'sms');
+            OpponentEvents(`got a job as a ${jobs[tempJobPending].job}!`);
+        }
+
+        else if (jobs[tempJobPending].worklevel > currentPlayerAttributes.playerWorkLevel){
+            ShowTempMessage("Unfortunately you didn't get the job. You are lacking work experience.", 'rejection');
+            OpponentEvents("failed to get a job.");
+        }
+
+        else if (jobs[tempJobPending].educationReq > currentPlayerAttributes.educationId){
+            ShowTempMessage("Unfortunately you didn't get the job. You are lacking some education.", 'rejection');
+            OpponentEvents("failed to get a job.");
+        }
+
+        else{
+            ShowTempMessage("Unfortunately you didn't get the job. All of the candidates including you were really good, but you weren't the our choice.", 'rejection');
+            OpponentEvents("failed to get a job.");
+        }
+
+        showJobs = true;
+        currentPlayerAttributes.jobIdPending = null;
+        RandomizeJobs();
+        // randomizeNewOnlineContent = true;
+    }
+
+
 }
 
 function ReduceTime_Check(decreaseTimeAmount){
@@ -712,7 +811,7 @@ function ReduceTime_Check(decreaseTimeAmount){
     weekText.innerText = "Week # " + weekNumber;
 
     
-    
+    WorkChecker();
     
     UpdateBarAndTexts();
 }
@@ -745,7 +844,29 @@ function TotalHappinessCalculation(){
 
 }
 
+function RandomizeJobs(){
 
+    randomizedOnlineJobs = [];
+    let jobsToShow = [];
+
+    //make a copy of jobs array
+    jobs.forEach(el => {  // jobsToShow = {...jobs};
+        jobsToShow.push(el);
+    });
+
+    //First Delete current and unemloyment jobs from the list
+    jobsToShow.splice(currentPlayerAttributes.currentWorkId, 1);
+    if (currentPlayerAttributes.currentWorkId != 0){
+        jobsToShow.splice(0, 1);
+    }
+    
+    //Push to randomizejob list and delete from temp list        
+    for (var i = 0; i < 4; i++){
+        let randJob = Math.floor(Math.random()*jobsToShow.length);
+        randomizedOnlineJobs.push(jobsToShow[randJob]);
+        jobsToShow.splice(randJob, 1); //delete jobs, which are listed from the temp array
+    }
+}
 
 //EXECUTED FROM game.js
 function ChooseDirection(destination){
@@ -850,12 +971,12 @@ function ChooseDirection(destination){
                                     <div class="UI_text description">Everything you need and little bit more.</div>
                                     <div class="oneColumn border"></div>
                                     <br>
-                                    
+                                         
                                     <div class="UI_text middleTopic">Barber - beauty saloon</div>
                                     <div class="oneColumn underline"></div>
                                     <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="">Purchase</button></div>
-                                        <div id="xx" class="optiontext green">Makes you more appealing.</div>
+                                        <div class="basicCell"><button class="btn" onclick="MallActions('beauty')">Purchase</button></div>
+                                        <div id="xx" class="optiontext green">Makes you more appealing. Cost 50€.</div>
                                     </div>
 
                                     
@@ -1076,27 +1197,8 @@ function EnteringHome(){ //entering some of the homes
         }
         
 
-        
-        randomizedOnlineJobs = [];
-        let jobsToShow = [];
-    
-        //make a copy of jobs array
-        jobs.forEach(el => {  // jobsToShow = {...jobs};
-            jobsToShow.push(el);
-        });
-    
-        //First Delete current and unemloyment jobs from the list
-        jobsToShow.splice(currentPlayerAttributes.currentWorkId, 1);
-        if (currentPlayerAttributes.currentWorkId != 0){
-            jobsToShow.splice(0, 1);
-        }
-        
-        //Push to randomizejob list and delete from temp list        
-        for (var i = 0; i < 4; i++){
-            let randJob = Math.floor(Math.random()*jobsToShow.length);
-            randomizedOnlineJobs.push(jobsToShow[randJob]);
-            jobsToShow.splice(randJob, 1); //delete jobs, which are listed from the temp array
-        }
+        RandomizeJobs();
+
 
         randomizeNewOnlineContent = false;
     }
@@ -1282,7 +1384,7 @@ function ActionsAtHome(action){
 
             else{
                 
-                elem.innerHTML = "You are too tired to do that. Get some sleep.";
+                elem.innerHTML = "You are too tired to do that. Get some rest.";
                 elem.className = "optiontext red";
             }
 
@@ -1351,7 +1453,7 @@ function ActionsAtHome(action){
                                     </div>
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="RelationshipAction('relationship_restaurant')">Restaurant</button></div>
-                                        <div class="optiontext green">Eat in a restaurant. Cost 80€.</div>
+                                        <div class="optiontext green">Eat in a restaurant. Cost 120€.</div>
                                     </div>
                                 `;
                                     
@@ -1400,7 +1502,7 @@ function OpenOnlineJobs(){
     function ShowJobs(allwork){
 
         //different color, if worklevel is too high
-        if (currentPlayerAttributes.playerWorkLevel < allwork.worklevel) {
+        if (currentPlayerAttributes.playerWorkLevel < allwork.worklevel || currentPlayerAttributes.educationId < allwork.educationReq) {
             return  `
             <div class="twoColumns40-60 topicBorder">
                 <div class="optiontext orange">${allwork.job}</div><div class="optiontext dark">${AddJobApplyButton(allwork)}</div>
@@ -1544,10 +1646,7 @@ function MallActions(action){
     switch (action){
         case 'postPackage':
             if (currentPlayerAttributes.postPackageInPost){
-                // infoboxObj.innerHTML += `<div class="twoColumns20-80">
-                //                             <div class="basicCell"><img src="./img/icons/PostPackageSprite.png" height="40px"></div>
-                //                             <div class="optiontext green">Here's your package.</div>
-                //                         </div>`;
+
                 currentPlayerAttributes.currentItems.push(FindWithAttr(onlineItems, "itemId", postPackagePending));
                 
                 postPackagePending = 0;
@@ -1559,8 +1658,13 @@ function MallActions(action){
         
             break;
 
-        case 'xxxxxxxxx':
-
+        case 'beauty':
+            if (currentPlayerAttributes.beautyFactor == 0 && currentPlayerAttributes.moneyPoints >= 50) {
+                currentPlayerAttributes.moneyPoints -= 50;
+                currentPlayerAttributes.beautyFactor += 5;
+                OpponentEvents('went to beauty salon.');
+            }
+            ReduceTime_Check(5);
             break;
 
 
@@ -1611,9 +1715,9 @@ function BarAction(action){
             break;
 
         case 'sosialize':
-            const rand1 = Math.floor(Math.random()*(15 - currentPlayerAttributes.intoxicationLevel));
-            
-            if (rand1 == 1 && currentPlayerAttributes.relationshipID == 0){
+            const rand1 = Math.floor(Math.random()*(30 - currentPlayerAttributes.intoxicationLevel - currentPlayerAttributes.beautyFactor - (currentPlayerAttributes.educationId*3)));
+                // console.log(rand1);
+            if (rand1 == 5 && currentPlayerAttributes.relationshipID == 0 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4) {
                 const sosializeText = document.getElementById('sosialize_bar');
                 sosializeText.innerHTML = 'You found some company!'
                 sosializeText.className = 'optiontext magenta'
@@ -1625,13 +1729,13 @@ function BarAction(action){
                 OpponentEvents('is trying to talk to people..');
             }
             
-            ReduceTime_Check(2); //executes also update function
+            ReduceTime_Check(4); //executes also update function
             break;
         
         case 'dance':
-            const rand2 = Math.floor(Math.random()*(13 + currentPlayerAttributes.intoxicationLevel))
+            const rand2 = Math.floor(Math.random()*(27 + currentPlayerAttributes.intoxicationLevel - Math.floor(1.5*currentPlayerAttributes.beautyFactor)  - currentPlayerAttributes.educationId))
             
-            if (rand2 == 1 && currentPlayerAttributes.relationshipID == 0){
+            if (rand2 == 5 && currentPlayerAttributes.relationshipID == 0 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4){
                 const danceText = document.getElementById('dance_bar');
                 danceText.innerHTML = 'You were able charm someone with your dancing!';
                 danceText.className = 'optiontext magenta';
@@ -1641,7 +1745,7 @@ function BarAction(action){
 
             OpponentEvents('is showing some dance moves!');
 
-            ReduceTime_Check(1); //executes also update function
+            ReduceTime_Check(4); //executes also update function
             break;
     }
     // UpdateBarAndTexts();
@@ -1660,19 +1764,37 @@ function RelationshipAction(id){
             break;
     
         case 'relationship_restaurant':
-            if (currentPlayerAttributes.moneyPoints >= 80){
+            if (currentPlayerAttributes.moneyPoints >= 120){
                 currentPlayerAttributes.relationshipStrenght +=2;
-                currentPlayerAttributes.moneyPoints -= 80;
+                currentPlayerAttributes.moneyPoints -= 120;
                 // ShowTempMessage('Very romantic lunch. The cost was 80€ and good stable relationship.', 'relationship');
                 ReduceTime_Check(7);
             }
             
             break;
 
-        // case 'relationship_':
+    }
 
+    if (currentPlayerAttributes.relationshipStrenght > 9){
+        switch (currentPlayerAttributes.relationshipID){
+            case 1: //complicated
+                currentPlayerAttributes.relationshipID = 3;
+                break;
             
-        //     break;
+            case 2: //just met
+                currentPlayerAttributes.relationshipID = 3;
+                break;
+
+            case 3: //dating
+                currentPlayerAttributes.relationshipID = 4;
+                break;
+            
+            case 4: //complicated
+                currentPlayerAttributes.relationshipID = 4;
+                break;
+
+        }
+        currentPlayerAttributes.relationshipStrenght = 0;
     }
 
 };
@@ -1863,6 +1985,9 @@ function ManageScoreBoard_Images(){
     currentPlayerAttributes.postPackageInPost ? icon_postpackage.style.display ="block" : icon_postpackage.style.display ="none";
     currentPlayerAttributes.exerciseLvl == 0 ? icon_exercise.style.display ="none" : icon_exercise.style.display ="block";
     currentPlayerAttributes.currentYogaEnhancer == 0 ? icon_yoga.style.display = "none" : icon_yoga.style.display = "block";
+    currentPlayerAttributes.rentToDue ? icon_rent.style.display = "block" : icon_rent.style.display = "none";
+    currentPlayerAttributes.beautyFactor ? icon_beauty.style.display = "block" : icon_beauty.style.display = "none";
+
 
     switch (currentPlayerAttributes.petFoodAmount){
         case 0:
@@ -1895,7 +2020,6 @@ function ColorTimeBar(weeklyTime, barName){
         barName.style.background = "linear-gradient(to right, white, red)";
     }
 }
-
 
 
 function OrderOnlineItem(itemId, cost){
