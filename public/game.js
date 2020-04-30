@@ -277,6 +277,7 @@ var socket = io.connect();
     
             if (currentPlayerAttributes.workStress < 1){ //don't go work at all
                 currentPlayerAttributes.currentWorkId = 0;
+                currentPlayerAttributes.happinessPoints -= 10;
                 ShowTempMessage("You neglected your work. You are got fired.", 'sms');
             }
     
@@ -321,7 +322,7 @@ var socket = io.connect();
         currentPlayerAttributes.randomForRenting = Math.floor(Math.random()*3); //randomizes renting options
 
         if (currentPlayerAttributes.happinessTotal >= 100 ){
-            console.log("You have done it!");
+            
         }
 
     });

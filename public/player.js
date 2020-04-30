@@ -186,7 +186,7 @@ const education = [{
 
 {
     degree: "Master",
-    cost: 980,
+    cost: 590,
     happinessPoints: 22},
 
 ];
@@ -385,7 +385,7 @@ const jobs = [
         worklevel: 3,
         job: "Factory manager",
         energyConsumption: 67,
-        educationReq: 3,
+        educationReq: 2,
         salary: 134,
         description: "?",
         happinessPoinst: 10},
@@ -395,7 +395,7 @@ const jobs = [
         worklevel: 3,
         job: "Coder",
         energyConsumption: 57,
-        educationReq: 3,
+        educationReq: 2,
         salary: 114,
         description: "?",
         happinessPoinst: 10},
@@ -405,7 +405,7 @@ const jobs = [
         worklevel: 3,
         job: "Pharmacist",
         energyConsumption: 60,
-        educationReq: 3,
+        educationReq: 2,
         salary: 120,
         description: "?",
         happinessPoinst: 10},
@@ -597,8 +597,6 @@ function SetInfoBoxPosition(){
     
     ManageMoveButtons('off');
 };
-
-
 
 
 
@@ -841,6 +839,9 @@ function TotalHappinessCalculation(){
     extraHappinesPoints += currentPlayerAttributes.intoxicationLevel;
     currentPlayerAttributes.happinessTotal = currentPlayerAttributes.happinessPoints + extraHappinesPoints;
 
+    if (currentPlayerAttributes.happinessTotal > 100){
+        currentPlayerAttributes.happinessTotal = 100;
+    }
 
 }
 
