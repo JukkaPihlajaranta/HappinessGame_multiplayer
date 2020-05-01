@@ -1,7 +1,7 @@
 /* @import url('./buttons.css'); */
 
 :root{
-    --text-bar-height: 25px;
+    --text-bar-height: 20px;
     --scoreboard-wrapper-width: calc(40px*8)/*20rem*/;
 }
 
@@ -10,7 +10,7 @@ body{
     /* font-family: 'Patrick Hand', cursive; */
     font-family: 'Raleway', sans-serif;
     /* font-family: 'Patrick Hand SC', cursive; */
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
 .container{
@@ -118,6 +118,7 @@ body{
     grid-template-columns: 40% 60%;
     grid-template-rows: auto;
     display: grid;
+    
 }
 
 .twoColumns40-60.moreBottom{
@@ -287,6 +288,13 @@ body{
     background-color: lime;
 }
 
+.moveButton.start{
+    height: 60px;
+    text-shadow:1px 1px rgb(70, 70, 70);
+    font-size: 1rem;
+    background: rgb(240, 240, 240);
+}
+
 .btn.move{
     position: absolute;
     border: none;
@@ -376,7 +384,8 @@ body{
 }
 
 #happiness_bar,
-#opponent_happiness_bar{
+#opponent_happiness_bar,
+#opponent_happiness_bar2{
     background:linear-gradient(to right, white, yellow);
     position: static;
     height: var(--text-bar-height);
@@ -401,7 +410,8 @@ body{
 }
 
 #monthly_time_bar,
-#opponent_time_bar{
+#opponent_time_bar,
+#opponent_time_bar2{
     background: linear-gradient(to right, white, lime);
     position: static;
     height: var(--text-bar-height);
@@ -442,23 +452,36 @@ body{
 
 }
 
-
-#opponent{
+.playersMovingObjects{
     position: absolute;
-    background: red;
     width: 10px;
     height: 10px;
     border-radius: 50%;
     border: 1px black solid;
 }
 
+.opponentHoverName{
+    transform: translate3d(-20px, -20px, 0);
+    font-weight: 900;
+    text-align: center;
+    color:lime;
+} 
+
+/* #opponent{
+    background: red;
+}
+
+#opponent2{
+    background: rgb(8, 4, 255);
+} */
+
 #player{
-    position: absolute;
+    /* position: absolute;
 
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    border: 1px black solid;
+    border: 1px black solid; */
     background: coral;
 
     /* transform: translate3d(0px, 0px, 0); */

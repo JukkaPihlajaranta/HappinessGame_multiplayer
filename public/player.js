@@ -24,6 +24,10 @@ const icon_postpackage = document.getElementById('icon_postpackage');
 const icon_petfood1 = document.getElementById('icon_petfood1');
 const icon_petfood2 = document.getElementById('icon_petfood2');
 const icon_exercise = document.getElementById('icon_exercise');
+const icon_exercise2 = document.getElementById('icon_exercise2');
+const icon_exercise3 = document.getElementById('icon_exercise3');
+const icon_exercise4 = document.getElementById('icon_exercise4');
+const icon_exercise5 = document.getElementById('icon_exercise5');
 const icon_yoga = document.getElementById('icon_yoga');
 const icon_rent = document.getElementById('icon_rent');
 const icon_beauty = document.getElementById('icon_beauty');
@@ -47,18 +51,31 @@ const moveButtons = document.querySelector('.moveButtons');
 //Opponent
 const opponent_time_text = document.getElementById('opponent_time_text');
 const opponent_time_bar = document.getElementById('opponent_time_bar');
+const opponent_time_text2 = document.getElementById('opponent_time_text2');
+const opponent_time_bar2 = document.getElementById('opponent_time_bar2');
 const opponent_happiness_text = document.getElementById('opponent_happiness_text');
 const opponent_happiness_bar = document.getElementById('opponent_happiness_bar');
+const opponent_happiness_text2 = document.getElementById('opponent_happiness_text2');
+const opponent_happiness_bar2 = document.getElementById('opponent_happiness_bar2');
 const opponent_moneyText = document.getElementById('opponent_moneyText');
+const opponent_moneyText2 = document.getElementById('opponent_moneyText2');
+
+const opponent_icon_house = document.getElementById('opponent_icon_house');
+const opponent_icon_houselux = document.getElementById('opponent_icon_houselux');
+const opponent_icon_education = document.getElementById('opponent_icon_education');
+const opponent_icon_pet = document.getElementById('opponent_icon_pet');
+const opponent_icon_relationship = document.getElementById('opponent_icon_relationship');
+
+const opponent_icon_house2 = document.getElementById('opponent_icon_house2');
+const opponent_icon_houselux2 = document.getElementById('opponent_icon_houselux2');
+const opponent_icon_education2 = document.getElementById('opponent_icon_education2');
+const opponent_icon_pet2 = document.getElementById('opponent_icon_pet2');
+const opponent_icon_relationship2 = document.getElementById('opponent_icon_relationship2');
+
+//General
 const opponent_events = document.getElementById('opponent_events');
 
-//add back button to "browser"
-//put tinder and relationship ready -- maybe with functino
 
-//pet things
-//add item show page to home
-//change the better home background to something else
-//bar hookup thing better
 
 //Player attributes
 let currentPlayerAttributes = {
@@ -68,8 +85,8 @@ let currentPlayerAttributes = {
     energyLevel: 50,
     intoxicationLevel: 0,
     
+    //Pet
     petID: 0,
-    // hasPet: false,
     petFoodAmount: 0,
     petWeeklyDue: false,
 
@@ -88,7 +105,6 @@ let currentPlayerAttributes = {
 
     relationshipID: 0,
     relationshipStrenght: 0,
-    tinderPossibilites: 0,
     newlyMet: false,
 
     currentWorkId: 0,
@@ -129,8 +145,6 @@ let postPackagePending = 0;
 let showJobs = true; //show jobs if applied or not
 
 let randomizedOnlineJobs = [];
-
-currentPlayerAttributes.tinderPossibilites = 5+Math.floor(Math.random()*34);
 
 
 //OBJECTS LISTS
@@ -676,12 +690,10 @@ function UpdateBarAndTexts(){
     }
 
     
-    salaryText.innerHTML =  jobs[currentPlayerAttributes.currentWorkId].salary + "€/day";
+    // salaryText.innerHTML =  
     currentPlayerAttributes.moneyPoints > 0 ? moneyText.className = "UI_text scoreboard green" : moneyText.className = "UI_text scoreboard red";
-    moneyText.innerHTML = currentPlayerAttributes.moneyPoints + '€';
+    moneyText.innerHTML = currentPlayerAttributes.moneyPoints + '€ <span style="color:black; text-weight:500">' + jobs[currentPlayerAttributes.currentWorkId].salary + "€/day</span>";;
     
-
-
 
     if (postPackagePending != 0 && weeklyTime <= currentPlayerAttributes.itemInPostAnnouncement  && currentPlayerAttributes.showPostMessage){
         ShowTempMessage('Package in post!', 'package');
@@ -693,7 +705,7 @@ function UpdateBarAndTexts(){
 
 
     ManageScoreBoard_Images();
-    OpponentUpdates(weeklyTime, currentPlayerAttributes.happinessTotal, currentPlayerAttributes.moneyPoints);
+    OpponentUpdates();
 }
 
 function ShowTempMessage(message, image){
@@ -855,7 +867,7 @@ function RandomizeJobs(){
         jobsToShow.push(el);
     });
 
-    //First Delete current and unemloyment jobs from the list
+    //First Delete current and unemloyment jobs from the  
     jobsToShow.splice(currentPlayerAttributes.currentWorkId, 1);
     if (currentPlayerAttributes.currentWorkId != 0){
         jobsToShow.splice(0, 1);
@@ -935,6 +947,7 @@ function ChooseDirection(destination){
             break;
 
         case "Bar":
+            infoboxObj.className = "infoboxBase";
             infoboxObj.innerHTML = `<div class="UI_text center">
                                         <img src="./img/building_texts/In_BarImg.png" width="${infoboxWidth}px">
                                     </div>
@@ -962,9 +975,21 @@ function ChooseDirection(destination){
                                         </div>
 
                                     `;
+            
+            if (currentPlayerAttributes.randomForRenting == 1){
+                infoboxObj.innerHTML += `<div class="twoColumns40-60">
+                                        <div class="basicCell"><button class="btn" onclick="BarAction('gig')">Go to gig!</button></div>
+                                        <div id="gig_bartext" class="optiontext green">There is a gig downstairs. This is the most popular band in town. The tickets cost 59€/pcs.</div>
+                                        </div>`;
+
+            }
+                
+
+
                                     break;
 
         case "Mall":
+            infoboxObj.className = "infoboxBase";
             infoboxObj.innerHTML = `<div class="UI_text center">
                                     <img src="./img/building_texts/In_PostImg.png" width="${infoboxWidth}px">
                                     </div>
@@ -1045,6 +1070,7 @@ function ChooseDirection(destination){
             break;
         
         case "Forest":
+            infoboxObj.className = "infoboxBase";
             infoboxObj.innerHTML =  `<div class="UI_text center">
                                     <img src="./img/building_texts/In_ForestImg.png" width="${infoboxWidth}px">
                                     </div>
@@ -1068,6 +1094,7 @@ function ChooseDirection(destination){
             break;
 
         case "School":
+            infoboxObj.className = "infoboxBase";
             infoboxObj.innerHTML = `<div class="text-topic">School</div>
                                     <div class="UI_text description">Here you are able to study and enhance your knowledge on things you're interested in.</div>
                                     
@@ -1103,6 +1130,7 @@ function ChooseDirection(destination){
 
 
         case "Sports":
+            infoboxObj.className = "infoboxBase";
             infoboxObj.innerHTML = `<div class="UI_text center">
                                     <img src="./img/building_texts/In_SportsImg.png" width="${infoboxWidth}px">
                                     </div>
@@ -1220,8 +1248,16 @@ function EnteringHome(){ //entering some of the homes
         `;
     }
 
+    // <div class="twoColumns40-60">
+    // <div class="basicCell">${AddHomeStuffButton("Test test", 'tinder')}</div>
+    // <div class="optiontext magenta">Try to hook up with someone.</div>
+    // </div>
+
     infoboxObj.innerHTML += `<div class="UI_text middleTopic">Home activities</div>
-        
+
+
+
+
                             <div class="twoColumns40-60">
                                 <div class="basicCell">${AddHomeStuffButton("Rest", 'sleep')}</div>
                                 <div class="optiontext green" id="sleeptext_home">Take a rest and increase your energy.</div>
@@ -1246,10 +1282,6 @@ function EnteringHome(){ //entering some of the homes
                             `;
 
 
-                            // <div class="twoColumns40-60">
-                            //     <div class="basicCell">${AddHomeStuffButton("Tinder", 'tinder')}</div>
-                            //     <div class="optiontext magenta">Try to hook up with someone.</div>
-                            // </div>
 
 
 
@@ -1314,8 +1346,6 @@ function EnteringHome(){ //entering some of the homes
     UpdateBarAndTexts();
 };
 
-
-
 function ActionsAtHome(action){
 
     switch (action){
@@ -1336,8 +1366,9 @@ function ActionsAtHome(action){
         case 'tinder':
             //consumes time and add longterm happiness possibility
             OpponentEvents('is checking the tinder.');
-
+            // currentPlayerAttributes.happinessPoints = 100;
             ReduceTime_Check(60); //executes also update function 3
+            
             break;
 
         case 'internettime':
@@ -1668,11 +1699,6 @@ function MallActions(action){
             ReduceTime_Check(5);
             break;
 
-
-
-
-
-
     }
 
 
@@ -1734,7 +1760,7 @@ function BarAction(action){
             break;
         
         case 'dance':
-            const rand2 = Math.floor(Math.random()*(27 + currentPlayerAttributes.intoxicationLevel - Math.floor(1.5*currentPlayerAttributes.beautyFactor)  - currentPlayerAttributes.educationId))
+            const rand2 = Math.floor(Math.random()*(27 + currentPlayerAttributes.intoxicationLevel - Math.floor(1.5*currentPlayerAttributes.beautyFactor)  - currentPlayerAttributes.educationId));
             
             if (rand2 == 5 && currentPlayerAttributes.relationshipID == 0 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4){
                 const danceText = document.getElementById('dance_bar');
@@ -1748,7 +1774,30 @@ function BarAction(action){
 
             ReduceTime_Check(4); //executes also update function
             break;
+
+        case 'gig':
+            if (currentPlayerAttributes.moneyPoints >= 59){
+                currentPlayerAttributes.moneyPoints -= 59;
+                currentPlayerAttributes.happinessPoints += 3;
+
+                const rand2 = Math.floor(Math.random()*(27 + currentPlayerAttributes.intoxicationLevel - Math.floor(1.5*currentPlayerAttributes.beautyFactor)  - currentPlayerAttributes.educationId));
+
+                if(rand2 == 5 && currentPlayerAttributes.relationshipID == 0 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4){
+                    currentPlayerAttributes.relationshipID = 2;
+                }
+                
+                ReduceTime_Check(5);
+            }
+            else{
+                const gig_bartext = document.getElementById('gig_bartext');
+                gig_bartext.innerHTML = "You don't have this kind of money. Go away!";
+                gig_bartext.className= "optiontext red";
+            }
+        
+        
     }
+
+
     // UpdateBarAndTexts();
 };
 
@@ -1888,6 +1937,7 @@ function SchoolAction(){
         currentPlayerAttributes.educationEnroll = true;
         ChooseDirection('School'); //for reload
         ShowTempMessage('You puchased enroll for ' + education[currentPlayerAttributes.educationId+1].degree, 'sms');
+        ReduceTime_Check(0);
     }
 
     else if(currentPlayerAttributes.educationEnroll && weeklyTime > studyingTimeToConsume){
@@ -1984,10 +2034,59 @@ function ManageScoreBoard_Images(){
     currentPlayerAttributes.homeID == 1 ? icon_houselux.style.display ="block" : icon_houselux.style.display ="none";
     currentPlayerAttributes.jobIdPending ? icon_jobapplication.style.display ="block" : icon_jobapplication.style.display ="none";
     currentPlayerAttributes.postPackageInPost ? icon_postpackage.style.display ="block" : icon_postpackage.style.display ="none";
-    currentPlayerAttributes.exerciseLvl == 0 ? icon_exercise.style.display ="none" : icon_exercise.style.display ="block";
+    // currentPlayerAttributes.exerciseLvl == 0 ? icon_exercise.style.display ="none" : icon_exercise.style.display ="block";
+    
     currentPlayerAttributes.currentYogaEnhancer == 0 ? icon_yoga.style.display = "none" : icon_yoga.style.display = "block";
     currentPlayerAttributes.rentToDue ? icon_rent.style.display = "block" : icon_rent.style.display = "none";
     currentPlayerAttributes.beautyFactor ? icon_beauty.style.display = "block" : icon_beauty.style.display = "none";
+
+    switch (currentPlayerAttributes.exerciseLvl){
+        case 0:
+            icon_exercise.style.display ="none";
+            icon_exercise2.style.display ="none";
+            icon_exercise3.style.display ="none";
+            icon_exercise4.style.display ="none";
+            icon_exercise5.style.display ="none";
+        break;
+        
+        case 1:
+            icon_exercise.style.display ="block";
+            icon_exercise2.style.display ="none";
+            icon_exercise3.style.display ="none";
+            icon_exercise4.style.display ="none";
+            icon_exercise5.style.display ="none";
+        break;
+        case 2:
+            icon_exercise.style.display ="block";
+            icon_exercise2.style.display ="block";
+            icon_exercise3.style.display ="none";
+            icon_exercise4.style.display ="none";
+            icon_exercise5.style.display ="none";
+        break;
+        case 3:
+            icon_exercise.style.display ="block";
+            icon_exercise2.style.display ="block";
+            icon_exercise3.style.display ="block";
+            icon_exercise4.style.display ="none";
+            icon_exercise5.style.display ="none";
+        break;
+        case 4:
+            icon_exercise.style.display ="block";
+            icon_exercise2.style.display ="block";
+            icon_exercise3.style.display ="block";
+            icon_exercise4.style.display ="block";
+            icon_exercise5.style.display ="none";
+        break;
+        case 5:
+            icon_exercise.style.display ="block";
+            icon_exercise2.style.display ="block";
+            icon_exercise3.style.display ="block";
+            icon_exercise4.style.display ="block";
+            icon_exercise5.style.display ="block";
+        break;
+
+    }
+
 
 
     switch (currentPlayerAttributes.petFoodAmount){

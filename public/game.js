@@ -1,10 +1,14 @@
-const containerRects = document.querySelector('.container').getBoundingClientRect();
+const containerGame = document.getElementById('gameContainer');
+const moveButtonsRect = document.querySelector('.moveButtons').getBoundingClientRect();
 const routeBase = document.querySelector('.routeBase');
 const movePlayerButton = document.getElementById('move-player');
 
+let containerRects = document.querySelector('.container').getBoundingClientRect();
+
 //Player and opponent
 const player = document.getElementById('player');
-const opponent = document.getElementById('opponent');
+const opponentObject_1 = document.getElementById('opponent');
+const opponentObject_2 = document.getElementById('opponent2');
 
 //Buttons
 const btn_blockingPanel = document.getElementById('btn-blockingPanel');
@@ -28,7 +32,7 @@ const elementCount = 56; //must be devided by 8
 const elementSize = 40; //element size*size
 let allElementsList = []; //not sure if needed
 let allRoadElements = [];
-
+let numberOfPlayersForGame = 2;
 
 //ROUTE CALCULATION
 let positionToMove; //Set player position to move
@@ -50,20 +54,20 @@ let positionsForAnimation; /*= {x: 0, y: 40};*/
 
 
 //MULTIPLAYER INFO
-let playerLocalName = '';
 const chatArea = document.getElementById('chatArea');
 const inputChat = document.getElementById('inputChat');
 const list_of_players = document.getElementById('list_of_players');
-const opponentInfo = document.getElementById('opponentInfo');
+const opponentName1 = document.getElementById('opponentName1');
+const opponentName2 = document.getElementById('opponentName2');
 
-
+let playerLocalName = '';
 let playerId;
-let opponentId;
-let opponentName;
+let opponentId = [];
+let opponentName = [];
 let gameId;
 
 let playerNumberInArray;
-let opponentNumberInArray;
+let opponentNumberInArray = [];
 
 let playerColor;
 
@@ -83,46 +87,111 @@ var socket = io.connect();
             document.getElementById('first_Topic').innerHTML = 'Welcome ' + name + "!";
             
             socket.emit('ToServer_UpdatePlayerName', name);
-            socket.emit('ToServer_UpdatePlayersStatus');
+            // socket.emit('ToServer_UpdatePlayersStatus');
+            socket.emit('ToServer_UpdateWholePlayerList');
         }
 
     });
 
+    //BUTTONS
     $('#chatBtn').click(function() {
         socket.emit('ToServer_Chat', inputChat.value);
         inputChat.value = '';
     });
     
-    //set client ready
-    $('#readyBtn').click(function() {
-        socket.emit('ToServer_readyToPlay'); //change status
-        socket.emit('ToServer_UpdatePlayersStatus'); //update texts
-    });
+    // $('#createGame').click(function() {
 
-    socket.on('ToClient_addToChat', (data) =>{
+
+        
+
+    //     // socket.emit('ToServer_UpdatePlayersStatus'); //update texts
+    // });
+
+
+
+    //RECEIVE A CHAT
+    socket.on('ToClient_updateChat', (data) =>{
         chatArea.innerHTML += `<div>${data}</div>`;
     });
 
+
     socket.on('ToClient_readyToPlay', (id) => {
-        document.getElementById('readyBtn').innerHTML = 'Ready!'
         playerId = id;
+        // console.log('playerId ' + id);
+        // document.getElementById('enterBtn').innerHTML = 'Created!'
+        
         
     });      
 
-    socket.on('ToClient_UpdatePlayerList', (data) =>{
-        
-        list_of_players.innerHTML = '<div><b>List of Players:</b></div>';
-        
-        for(var i = 0; i < data.length; i++){
-            if (data[i].playerName != ''){
-                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[i].playerName}</span> -
-                ${data[i].isReady ? 
-                "<span style='color:lime; font-weight:900;'>ready</span>":
-                "<span style='color:red;'>not ready</span>"}</div>`;
-                }
+    //RECEIVE UPDATED PLAYERLIST
+    socket.on('ToClient_UpdateWholePlayerList', (data) => {
+
+        list_of_players.innerHTML = '';
+
+        for (const obj in data){
+
+            //Is game creator and doesn't show the join button
+            if (data[obj].isGameCreator && data[obj].thisGameCreatorsList[0] == playerId){
+                // console.log(data[obj].thisGameCreatorsList[0], " ", playerId);
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> <span style='color:lime; font-weight:900;'>${data[obj].thisGameCreatorsList.length}/${data[obj].maxPlayers} 
+                ready!</span>`;
+                // console.log("is the game creator, not showing the button");
+            }
+
+            //Show join button next to game creator
+            else if (data[obj].isGameCreator){
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> <span style='color:lime; font-weight:900;'>${data[obj].thisGameCreatorsList.length}/${data[obj].maxPlayers} 
+                 ready!   <button class="btn" onclick="JoinGame('${data[obj].playersGameId}')">Join!</button></span>`;
+                //  ${data[obj].playerName}'s game
+                 //  console.log("show the button");
+            }
+
+            // else if (data[obj].isGameCreator && data[obj.isReady]){
+
+
+            // }
+
+            else if (data[obj].playersGameId != 'none'){
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> <span style='color:lime; font-weight:900;'>ready for a game!</span>`;
+                // console.log("joined the game");
+            }
+            else{
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span>`;
             }
             
+        }
+
+
+    });
+
+    function JoinGame(gameId){
+        socket.emit('ToServer_JoinGame', gameId);
+    }
+
+    function CreatingGame(amount){
         
+        numberOfPlayersForGame = amount;
+        socket.emit('ToServer_CreateGame', numberOfPlayersForGame); //CREATE A GAME
+        // socket.emit('Update_ServerPlayerNumber', amount); //change status
+        socket.emit('ToServer_Chat', "<span style='color:green'>created a game!</span>");
+        $("#gameCreateButtons").fadeOut(300);
+    }
+
+    socket.on('ToClient_UpdatePlayerList', (data) =>{
+        
+        //this is the player list, join game buttons and player who are ready
+        list_of_players.innerHTML = 'Welcome to lobby';
+
+        for(var i = 0; i < data.gamePlayerList.length; i++){
+            if (data.gamePlayerList[i] != ''){
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data.gamePlayerList[i]}</span> <span style='color:lime; font-weight:900;'>${data.id.length}/${numberOfPlayersForGame} ready!</span>`;
+
+            }
+            else{
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[i].gamePlayerList}</span>`;
+            }
+        }
+
     });
 
 
@@ -130,85 +199,202 @@ var socket = io.connect();
     
     // STARTING THE GAME-----------------------------------------------------------------------
     socket.on("ToClient_StartGame", (data) =>{
-        
+        opponentObject_2.style.display = "none";
         playerColor = data.color;
+        gameId = data.gameId;
+        numberOfPlayersForGame = data.gameMaxPlayers;
 
-        for(i = 0; i < data.playerName.length; i++){
+        // console.log("wholedata: ", data);
+        for(i = 0; i < data.playerNameList.length; i++){
             // const newPlayer = document.createElement('div');
             
-            if (data.id[i] == playerId){
+            if (data.playerIdList[i] == playerId){ //checks which object is this player
                 playerNumberInArray = i;
+                const playerText = document.createElement('div');
+                playerText.className = "opponentHoverName";
+                playerText.innerHTML = playerLocalName;
+                player.appendChild(playerText);
             }
-            else if (data.id[i] != playerId){
+            else if (data.playerIdList[i] != playerId){
 
-                opponentNumberInArray = i;
-                opponentId = data.id[i];
-                opponentName = data.playerName[i];
-                opponentInfo.innerHTML = `Opponent: <span style='font-weight:900;color:${playerColor[opponentNumberInArray]};'>${opponentName}</span>`;
+                opponentNumberInArray.push(i);
+                opponentId.push(data.playerIdList[i]);
+                
+                opponentName.push(truncate(data.playerNameList[i], 13));
 
             }
-            
         }
-        
 
         player.style.background = playerColor[playerNumberInArray];
-        opponent.style.background = playerColor[opponentNumberInArray];
-        gameId = data.gameId
+        
+        opponentName1.innerHTML = `<span style='font-weight:900;color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
+        opponentObject_1.style.background = playerColor[opponentNumberInArray[0]];
+        
+        const opp_text = document.createElement('div');
+        opp_text.className = "opponentHoverName";
+        opp_text.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
+        opponentObject_1.appendChild(opp_text);
+
+        if (numberOfPlayersForGame > 2){
+            opponentName2.innerHTML = `<span style='font-weight:900;color:${playerColor[opponentNumberInArray[1]]};'>${opponentName[1]}</span>`;
+            opponentObject_2.style.background = playerColor[opponentNumberInArray[1]];
+
+            const opp_text2 = document.createElement('div');
+            opp_text2.className = "opponentHoverName";
+            opp_text2.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[1]]};'>${opponentName[1]}</span>`;
+            opponentObject_2.appendChild(opp_text2);
+            opponentObject_2.style.display = "block";
+        }
+
+        else {
+            opponent_icon_house2.style.display = "none";
+            opponent_icon_houselux2.style.display = "none";
+            opponent_icon_education2.style.display = "none";
+            opponent_icon_pet2.style.display = "none";
+            opponent_icon_relationship2.style.display = "none";
+        }
+       
+        
         GameStarts();
     });
 
-    //UPDATE DURING THE GAME-------------------------------------------------------------------
+    //UPDATES DURING THE GAME-------------------------------------------------------------------
     socket.on('ToClient_OpponentStats', (data) =>{
-        
-        opponent_time_text.innerHTML = "Time: " + Math.ceil((data.time/weeklytimeToCompare)*100) + "%";
 
-        if (data.time <= 0){
-            opponent_time_text.innerHTML = "<span class='optiontext red'>Time's up!</span> ";
+        if (data.targetId == opponentId[0]){
+            opponent_time_text.innerHTML = "Time: " + Math.ceil((data.time/weeklytimeToCompare)*100) + "%";
+
+
+            if (data.time <= 0){
+                opponent_time_text.innerHTML = "<span class='optiontext red'>Time's up!</span> ";
+            }
+
+            opponent_happiness_text.innerHTML = "Happiness: " + data.happinessPoints + "%";
+            opponent_moneyText.innerHTML = data.moneyPoints + "€";
+            data.moneyPoints> 0 ? opponent_moneyText.className = "UI_text scoreboard green" : opponent_moneyText.className = "UI_text scoreboard red";
+
+            anime({
+                targets: opponent_happiness_bar,
+                width: data.happinessPoints,
+                easing: 'linear',
+                duration: 500
+        
+            });
+    
+            anime({
+                targets: opponent_time_bar,
+                width: Math.ceil(data.time/weeklytimeToCompare*barWidth),
+                easing: 'linear',
+                duration: 500
+        
+            });
+
+            
+
+            data.homeId == 0 ?  opponent_icon_house.style.display = "block" : opponent_icon_house.style.display = "none";
+            data.homeId == 1 ?  opponent_icon_houselux.style.display = "block" : opponent_icon_houselux.style.display = "none";
+            data.educationId > 1 ?  opponent_icon_education.style.display = "block" : opponent_icon_education.style.display = "none";
+            data.petId > 0 ?  opponent_icon_pet.style.display = "block" : opponent_icon_pet.style.display = "none";
+            data.relationshipId > 0 ?  opponent_icon_relationship.style.display = "block" : opponent_icon_relationship.style.display = "none";
+            
+            ColorTimeBar(data.time, opponent_time_bar);
         }
 
-        opponent_happiness_text.innerHTML = "Happiness: " + data.happinessPoints + "%";
-        opponent_moneyText.innerHTML = data.moneyPoints + "€";
+        else if (data.targetId == opponentId[1]){
+            
+            opponent_time_text2.innerHTML = "Time: " + Math.ceil((data.time/weeklytimeToCompare)*100) + "%";
 
-        anime({
-            targets: opponent_happiness_bar,
-            width: data.happinessPoints,
-            easing: 'linear',
-            duration: 500
-    
-        });
 
-        anime({
-            targets: opponent_time_bar,
-            width: Math.ceil(data.time/weeklytimeToCompare*barWidth),
-            easing: 'linear',
-            duration: 500
+            if (data.time <= 0){
+                opponent_time_text2.innerHTML = "<span class='optiontext red'>Time's up!</span> ";
+            }
+
+            opponent_happiness_text2.innerHTML = "Happiness: " + data.happinessPoints + "%";
+            
+            data.moneyPoints> 0 ? opponent_moneyText2.className = "UI_text scoreboard green" : opponent_moneyText2.className = "UI_text scoreboard red";
+            opponent_moneyText2.innerHTML = data.moneyPoints + "€";
     
-        });
+
+            anime({
+                targets: opponent_happiness_bar2,
+                width: data.happinessPoints,
+                easing: 'linear',
+                duration: 500
         
-        ColorTimeBar(data.time, opponent_time_bar);
+            });
+    
+            anime({
+                targets: opponent_time_bar2,
+                width: Math.ceil(data.time/weeklytimeToCompare*barWidth),
+                easing: 'linear',
+                duration: 500
+        
+            });
+
+            data.homeId == 0 ?  opponent_icon_house2.style.display = "block" : opponent_icon_house2.style.display = "none";
+            data.homeId == 1 ?  opponent_icon_houselux2.style.display = "block" : opponent_icon_houselux2.style.display = "none";
+            data.educationId > 1 ?  opponent_icon_education2.style.display = "block" : opponent_icon_education2.style.display = "none";
+            data.petId > 0 ?  opponent_icon_pet2.style.display = "block" : opponent_icon_pet2.style.display = "none";
+            data.relationshipId > 0 ?  opponent_icon_relationship2.style.display = "block" : opponent_icon_relationship2.style.display = "none";
+            
+            ColorTimeBar(data.time, opponent_time_bar2);
+        }
+
+        
+        
 
     });
-
 
     socket.on('ToClient_OpponentEvents', (data) =>{
         
         const newEvent = document.createElement('div');
-        
-        newEvent.innerHTML =`<span style='font-weight:700; color:${playerColor[opponentNumberInArray]}'> ${opponentName}</span> ${data.eventText}`;
+
+        if (data.targetId == opponentId[0]){
+
+            newEvent.innerHTML =`<span style='font-weight:700; color:${playerColor[opponentNumberInArray[0]]}'> ${opponentName[0]}</span> ${data.eventText}`;
+        }
+
+        else if (data.targetId == opponentId[1]){
+            newEvent.innerHTML =`<span style='font-weight:700; color:${playerColor[opponentNumberInArray[1]]}'> ${opponentName[1]}</span> ${data.eventText}`;
+        }
+
         
         opponent_events.appendChild(newEvent);
-        newEvent.scrollIntoView(false);
+        // newEvent.scrollIntoView(false);
+        opponent_events.scrollTo(0,opponent_events.scrollHeight);
+        // console.log(opponent_events.scrollHeight);
     });
   
     socket.on('ToClient_OpponentMovement', (data) =>{
         
+        let movingOpp = null;
+
+        if (data.movingPlayerId == opponentId[0]){
+            movingOpp = opponentObject_1;
+        }
+
+        else if (data.movingPlayerId == opponentId[1]){
+            movingOpp = opponentObject_2;
+        }
+
         anime({
-            targets: opponent,
+            targets: movingOpp,
             translateX: data.x,
             translateY: data.y,
             easing: 'linear',
             duration: 500
         });
+
+        // if (numberOfPlayersForGame > 2){
+        //     anime({
+        //         targets: opponentObject_2,
+        //         translateX: data.x,
+        //         translateY: data.y,
+        //         easing: 'linear',
+        //         duration: 500
+        //     });
+        // }
+
     });
 
     socket.on('ToClient_NewWeek', () =>{
@@ -322,11 +508,25 @@ var socket = io.connect();
         currentPlayerAttributes.randomForRenting = Math.floor(Math.random()*3); //randomizes renting options
 
         if (currentPlayerAttributes.happinessTotal >= 100 ){
+
+            const winnderData = {
+                playerId: playerId,
+                playerLocalName, playerLocalName,
+                opponentId, opponentId
+            }
+
+            // const winnerdata = [playerId, playerLocalName, opponentId];
+            socket.emit('ToServer_GameWinner', winnderData);
+            GameEnds();
+            socket.emit('ToServer_ChatWinner');
             
         }
 
     });
 
+    socket.on('gameEndsOpponent',() => {
+        GameEnds();
+    });
 
 //THE GAME STARTS------------------------------------------------------------------
 function GameStarts(){
@@ -340,16 +540,28 @@ function GameStarts(){
     SetInfoBoxPosition();
 }
 
+function GameEnds(){
+    containerGame.innerHTML = '';
 
-function OpponentUpdates(time, happinessPoints, moneyPoints){
+    $("#GameArea").hide();
+    $("#game_ChatState").show();
+    socket.emit('ToServer_Chat', "grats...");
+}
+
+function OpponentUpdates(){
     
     //INFORMATION TO OPPONENT => info to sent out
     const tempPackage = {
         opponentId: opponentId,
-        happinessPoints: happinessPoints,
-        time: time,
-        moneyPoints: moneyPoints
+        happinessPoints: currentPlayerAttributes.happinessTotal,
+        time: weeklyTime,
+        moneyPoints: currentPlayerAttributes.moneyPoints,
+        homeId: currentPlayerAttributes.homeID,
+        educationId: currentPlayerAttributes.educationId,
+        petId: currentPlayerAttributes.petID,
+        relationshipId: currentPlayerAttributes.relationshipID
     }
+    
     
     socket.emit('ToServer_OpponentStats', (tempPackage));
 }
@@ -379,11 +591,7 @@ function OpponentEndOfWeek(){
 }
 
 
-//ACTUAL GAME--------------------------------------------------------------------------
-
-// StartGame();
-// SetInfoBoxPosition();
-
+//ACTUAL GAME-----------------------------------------------------------------------------------------------
 
 function StartGame(){
     allElementsList  =[];
@@ -406,11 +614,12 @@ function StartGame(){
 
 
     targetDestinationID = "Home";
-    // player.style.transform = `translate3d(${tempPos.x}px, ${tempPos.y}px, 0)`;
     MovePlayer(tempPos);
     ChooseDirection(targetDestinationID);
     $(movePlayerButton).fadeOut(0);
     
+    window.scrollTo(0,0);
+    containerRects = document.querySelector('.container').getBoundingClientRect();
 };
 
 //Creating the current map
@@ -440,6 +649,8 @@ function CreateMap(container, count){
         document.getElementById(buttonID).addEventListener('click', () =>{
 
             if (!playerMoving){
+                window.scrollTo(0,0);
+
                 //Gets the element position below
                 const index = allElementsList.findIndex( (x) => {return x == containerElement.id});
                 positionToMove = document.getElementById(allElementsList[index+8]).getBoundingClientRect();
@@ -449,7 +660,7 @@ function CreateMap(container, count){
                 if (activeButton != null){
                     activeButton.className = "moveButton";
                 }
-
+                
                 $(infoboxObj).slideUp(500);
                 document.getElementById(buttonID).className = "moveButton active";
 
@@ -717,7 +928,7 @@ function CreateMap(container, count){
 // })
 
 
-function ChangeTempPlayerPos (elementPos){
+function ChangeTempPlayerPos(elementPos){
     tempPlayerPosition.x = elementPos.x - containerRects.x;
     tempPlayerPosition.y = elementPos.y - containerRects.y;
     // console.log("Updated temp Playerpos: ", tempPlayerPosition.x, " ", tempPlayerPosition.y);
@@ -757,7 +968,6 @@ function ShowRoute_NewTry(destination, destinationID){
     }
     
 }
-
 
 
 function TrackPoints(){
@@ -826,7 +1036,11 @@ function TrackPoints(){
         }
     
         // console.log("chosen one: " + firstOne.id);
-        
+
+        if (firstOne.x == undefined || firstOne.y == undefined){
+            console.log("error in movement!");
+            return;
+        }
 
         //adding to animation array
         positionsForAnimation.push({
@@ -834,10 +1048,7 @@ function TrackPoints(){
             y: firstOne.y - containerRects.y -40,
         });
 
-        if (firstOne.x == null || firstOne.y == null){
-            console.log("error in movement!");
-            return;
-        }
+
 
         ChangeTempPlayerPos(firstOne);
         let index;
@@ -923,13 +1134,9 @@ function MovePlayer(position){
     const newPosX = position.x;
     const newPosY = position.y;
 
-    //CALCULATE THE DISTANCE
-    // const distanceX = (Math.abs((newPosX + mapOffSetX + playerSizeX) - (player.getBoundingClientRect().x)))/elementSize;
-    // const distanceY = (Math.abs((newPosY + containerRects.top) - (player.getBoundingClientRect().y)))/elementSize;
 
     routeBase.innerHTML = '';
     
-    // player.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY }px, 0)`;
     playerPos.x = newPosX;
     playerPos.y = newPosY;
 
@@ -941,9 +1148,10 @@ function MovePlayer(position){
     //in the start if there isn't position
     if (positionsForAnimation == undefined){
         player.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY }px, 0)`;
-        opponent.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY }px, 0)`;
-        
+        opponentObject_1.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY}px, 0)`;
+        opponentObject_2.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY }px, 0)`;
         playerMoving = false;
+        console.log(newPosX, " ", newPosY);
     }
 
     
@@ -971,10 +1179,11 @@ function ShowMoveAnimation(){
     const tempYPos = positionsForAnimation[animationCount].y;
 
     const opponentMove = {
-        opponentId: opponentId,
-        x: tempXPos, 
-        y: tempYPos
+        opponentId: opponentId, //which opponents to send (array)
+        x: tempXPos,            //x movement
+        y: tempYPos             //y movement
     }
+    // - containerRects.height - moveButtonsRect.height
 
     OpponentMovement(opponentMove);
     ReduceTime_Check(0.2);
@@ -1045,4 +1254,8 @@ function PutLocalEvent(color, text, newWeek) {
     }
 
 }
+
+function truncate(str, n){
+    return (str.length > n) ? str.substr(0, n-1) + '&hellip;' : str;
+  };
 

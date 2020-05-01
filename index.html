@@ -68,10 +68,15 @@
             <div class="twoColumns50-50">
     
                 <div class="score-element">
-                    <img src="./img/icons/Icon_SalarySprite.png" class="scoreboard-icon">
+                    <img src="./img/icons/Icon_RelationshipSprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="relationship_bar" class="shared-bar"></div>
+                        <div id="relationship_obj" class="UI_text scoreboard">Rela: x</div>
+                    </div>
+                    <!-- <img src="./img/icons/Icon_SalarySprite.png" class="scoreboard-icon">
                     <div id='meter'>
                         <div id="salaryText">Salary: x</div>
-                    </div>
+                    </div> -->
                 </div>
                 
                 <div class="score-element">
@@ -91,11 +96,13 @@
                 </div>
         
                 <div class="score-element">
-                    <img src="./img/icons/Icon_RelationshipSprite.png" class="scoreboard-icon">
-                    <div id='meter'>
-                        <div id="relationship_bar" class="shared-bar"></div>
-                        <div id="relationship_obj" class="UI_text scoreboard">Rela: x</div>
-                    </div>
+                    <img src="./img/icons/Icon_Yoga.png" class="scoreboard-icon" id="icon_yoga">
+                    <img src="./img/icons/Icon_Exercise.png" class="scoreboard-icon" id="icon_exercise">
+                    <img src="./img/icons/Icon_Exercise.png" class="scoreboard-icon" id="icon_exercise2">
+                    <img src="./img/icons/Icon_Exercise.png" class="scoreboard-icon" id="icon_exercise3">
+                    <img src="./img/icons/Icon_Exercise.png" class="scoreboard-icon" id="icon_exercise4">
+                    <img src="./img/icons/Icon_Exercise.png" class="scoreboard-icon" id="icon_exercise5">
+
                 </div>
 
                 <div class="score-element">
@@ -110,12 +117,10 @@
                 <div class="score-element">
                     <img src="./img/icons/Button_Home_New.png" class="scoreboard-icon" id="icon_house">
                     <img src="./img/icons/Button_HomeLux_New.png" class="scoreboard-icon" id="icon_houselux">
-                    <img src="./img/icons/Icon_RentDue.png" class="scoreboard-icon" id="icon_rent">
                     <img src="./img/icons/Icon_Pet.png" class="scoreboard-icon" id="icon_pet">
                     <img src="./img/icons/Icon_PetFood1.png" class="scoreboard-icon" id="icon_petfood1">
                     <img src="./img/icons/Icon_PetFood2.png" class="scoreboard-icon" id="icon_petfood2">
-                    <img src="./img/icons/Icon_Exercise.png" class="scoreboard-icon" id="icon_exercise">
-                    <img src="./img/icons/Icon_Yoga.png" class="scoreboard-icon" id="icon_yoga">
+                    <img src="./img/icons/Icon_RentDue.png" class="scoreboard-icon" id="icon_rent">
                     <img src="./img/icons/Icon_Beauty.png" class="scoreboard-icon" id="icon_beauty">
                     <img src="./img/icons/JobApplicationSprite.png" class="scoreboard-icon" id="icon_jobapplication">
                     <img src="./img/icons/PostPackageSprite.png" class="scoreboard-icon" id="icon_postpackage">
@@ -124,14 +129,13 @@
 
 
                 </div>
-
-
-    
             </div>
         </div>
         
-        <div id="player"></div>
-        <div id="opponent"></div>
+        <div id="opponent" class="playersMovingObjects"></div>
+        <div id="opponent2" class="playersMovingObjects"></div>
+        <div id="player" class="playersMovingObjects"></div>
+
         
     
         <div class="moveButtons">
@@ -149,18 +153,19 @@
         </div>
         
         <!--Game board-->
-        <div class="container"></div>
+        <div class="container" id="gameContainer"></div>
         
         <div id="infoboxBase" class="infoboxBase"></div>
         <button class="btn move" id="move-player"><img src="./img/icons/Icon_RunningSprite.png" width="150px"></button>
         <div id="tempInfo"></div>
-        <!-- <div class="dotsBase"></div> -->
         <div class="routeBase"></div>
         <div class="prefs-wrapper">
 
-            <div id="opponentInfo" class="UI_text opponent"></div>
-            <!-- <br> -->
+
             <div class="twoColumns50-50">
+            <div id="opponentName1" class="UI_text opponent"></div>
+            <div id="opponentName2" class="UI_text opponent">N/A</div>
+            
                 <div class="score-element">
                     <img src="./img/icons/Icon_ClockSprite.png" class="scoreboard-icon">
                     <div id='meter'>
@@ -170,38 +175,65 @@
                 </div>
 
                 <div class="score-element">
+                    <img src="./img/icons/Icon_ClockSprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id='opponent_time_bar2' class="shared-bar"></div>
+                        <div id="opponent_time_text2" class="UI_text scoreboard">N/A</div>
+                    </div>
+                </div>
+
+                <div class="score-element">
                     <img src="./img/icons/Icon_HappinessSprite.png" class="scoreboard-icon">
                     <div id='meter'>
                         <div id="opponent_happiness_bar" class="shared-bar"></div>
-                        <div id="opponent_happiness_text" class="UI_text scoreboard">Happiness: x</div>
+                        <div id="opponent_happiness_text" class="UI_text scoreboard">N/A</div>
                         
                     </div>
                 </div>
 
+                <div class="score-element">
+                    <img src="./img/icons/Icon_HappinessSprite.png" class="scoreboard-icon">
+                    <div id='meter'>
+                        <div id="opponent_happiness_bar2" class="shared-bar"></div>
+                        <div id="opponent_happiness_text2" class="UI_text scoreboard">N/A</div>
+                        
+                    </div>
+                </div>
 
-            </div>
-            <div class="twoColumns50-50">
+                <div class="score-element">
+                    <img src="./img/icons/Icon_MoneySprite.png" class="scoreboard-icon">
+                    
+                    <div id='meter'>
+                        <div id="opponent_moneyText">N/A</div>
+                    </div>
+                    <img src="./img/icons/Button_Home_New.png" class="scoreboard-icon" id="opponent_icon_house">
+                    <img src="./img/icons/Button_HomeLux_New.png" class="scoreboard-icon" id="opponent_icon_houselux">
+                    <img src="./img/icons/Icon_EducationSprite.png" class="scoreboard-icon" id="opponent_icon_education">
+                    <img src="./img/icons/Icon_Pet.png" class="scoreboard-icon" id="opponent_icon_pet">
+                    <img src="./img/icons/Icon_RelationshipSprite.png" class="scoreboard-icon" id="opponent_icon_relationship">
+                </div>
+
                 <div class="score-element">
                     <img src="./img/icons/Icon_MoneySprite.png" class="scoreboard-icon">
                     <div id='meter'>
-                        <div id="opponent_moneyText">Money: x</div>
+                        <div id="opponent_moneyText2">N/A</div>
                     </div>
+                    <img src="./img/icons/Button_Home_New.png" class="scoreboard-icon" id="opponent_icon_house2">
+                    <img src="./img/icons/Button_HomeLux_New.png" class="scoreboard-icon" id="opponent_icon_houselux2">
+                    <img src="./img/icons/Icon_EducationSprite.png" class="scoreboard-icon" id="opponent_icon_education2">
+                    <img src="./img/icons/Icon_Pet.png" class="scoreboard-icon" id="opponent_icon_pet2">
+                    <img src="./img/icons/Icon_RelationshipSprite.png" class="scoreboard-icon" id="opponent_icon_relationship2">
                 </div>
 
-                <div class="score-element">
-                    <img src="" class="scoreboard-icon">
-                    <div id='meter'>
-                        <div id="xx">Nothing yet</div>
-                    </div>
-                </div>
+
             </div>
-            <div class="UI_text opponent">Events:</div>
+            <!-- <div class="UI_text opponent">Events:</div> -->
             <!-- <br> -->
             <div id="opponent_events" class="opponent_eventContainer"></div>
         </div>
 </div>
 
-    <div id="startUp_element">
+<div id="startUp_element">
         Enter your name and start chasing<br> for happiness!<br>
         <input id="playerNameText" type="text">
         <button id="enterBtn" class="btn">Enter</button>
@@ -210,20 +242,26 @@
     <div id="game_ChatState">
         <img src="./img/building_texts/Home_Image.png" height="100px">
         <br>
-        <h2 id="first_Topic">Welcome to happiness game</h2><br>
+        <h2 id="first_Topic">Welcome to happiness game</h2>
+        Current players:
         <div class="prefs-wrapper">
             <div id="list_of_players"></div><br>
 
         </div>
         
-        <button id="readyBtn" class="btn">Ready to play?</button>
+        <!-- <button id="createGame" class="btn">Create a game</button> -->
+        <div id="gameCreateButtons">
+            <button onclick="CreatingGame(2)" class="moveButton start"><span style="color:orange;">Create <br>P2 game</span></button>
+            <button onclick="CreatingGame(3)" class="moveButton start"><span style="color:rgb(255, 81, 0);">Create <br>P3 game</span></button>
+            
+        </div>
         
         <div class="prefs-wrapper">
             <div id="chatArea"></div>
         </div>
         <input id="inputChat" type="text">
         <button id="chatBtn" class="btn">Chat</button>
-    </div>
+</div>
 
   
 </body>
