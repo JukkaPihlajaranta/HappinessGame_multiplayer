@@ -777,7 +777,7 @@ function WorkChecker(){
 
 function ReduceTime_Check(decreaseTimeAmount){
 
-    Math.ceil(currentPlayerAttributes.weeklyTime -= decreaseTimeAmount) ;
+    currentPlayerAttributes.weeklyTime -= decreaseTimeAmount;
     
     if (currentPlayerAttributes.weeklyTime < 0){
         
