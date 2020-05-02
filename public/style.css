@@ -466,15 +466,10 @@ body{
     font-weight: 900;
     text-align: center;
     color:lime;
+    text-shadow: 1px 1px black;
+    /* color: ; */
 } 
 
-/* #opponent{
-    background: red;
-}
-
-#opponent2{
-    background: rgb(8, 4, 255);
-} */
 
 #player{
     /* position: absolute;
@@ -483,7 +478,7 @@ body{
     height: 10px;
     border-radius: 50%;
     border: 1px black solid; */
-    background: coral;
+    background: lime;
 
     /* transform: translate3d(0px, 0px, 0); */
     /* transition: transform .3s ease-in-out; */
@@ -498,6 +493,11 @@ body{
     border-radius: 30%;
     border: 1px black solid;
     background-color: lime;
+}
+
+.route-dots.red{
+    
+    background-color: red;
 }
 
 /* X-MARK */

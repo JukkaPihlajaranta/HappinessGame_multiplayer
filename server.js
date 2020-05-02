@@ -42,25 +42,18 @@ io.sockets.on('connection', (socket) =>{
     //DISCONNECT
     socket.on('disconnect', () =>{
         const playerTempName = currentPlayerList[socket.id].playerName;
-        console.log(playerTempName);
+
         if (playerTempName != ''){
 
             PlayerDisconnects(playerTempName);
         }
 
-        // else{
-
-        //     delete currentPlayerList[socket.id];
-        // }
-
         delete playerList[socket.id]; //deletes this for last
         
-        // connections.splice(connections.indexOf(socket), 1);
+
         const currentUserNumber = Object.keys(playerList);
         console.log('A user disconnected: %s socket(s) connected', currentUserNumber.length);
-        
-        //Jos pelaajan nimi ei ole tyhjä ==> disconnectaa pelaaja servulta
-
+       
         
     });
     
@@ -91,7 +84,7 @@ io.sockets.on('connection', (socket) =>{
             
             delete gameList[currentGameId];
 
-            console.log("currentPlayerList ",  currentPlayerList);
+            // console.log("currentPlayerList ",  currentPlayerList);
         }
 
         const leaveChatText = "<span style=color:red>" + playerTempName + " left the chat..</span>" ;
@@ -174,7 +167,7 @@ io.sockets.on('connection', (socket) =>{
         gameList[newGameId] = {
             gameId: newGameId,                              //game id
             gameCreatorId: socket.id,
-            color: ["salmon", "slateblue", "sienna"],
+            color: ["deepskyblue", "orange", "darkturquoise"],
             gameMaxPlayers: playerNumbers,
             playerIdList: newIDList,                                   //list of players                         
             playerNameList: newPlayerList,                   //list of player names
@@ -237,26 +230,6 @@ io.sockets.on('connection', (socket) =>{
         // console.log("Current Gamelist: ",  gameList);
     });
 
-
-
-    //UPDATE PLAYER STATUS ON CHAT
-    // socket.on('ToServer_UpdatePlayersStatus', () =>{
-
-    //     var packageToClient = [];
-
-    //     for(var i in playerList){
-    //         // playerList[i];
-    //         packageToClient.push({
-    //             playerName: playerList[i].playerName,
-    //             isReady: playerList[i].isReady,
-    //             id: playerList[i].id,
-    //         });
-    //     }
-
-    //     for (var i in playerList){
-    //         playerList[i].emit('ToClient_UpdatePlayerList', packageToClient);
-    //     }
-    // });
 
 
     //OPPONENT TRACKING EVENTS------------------------------------------------------------------------------------------------------------------------
@@ -331,7 +304,7 @@ io.sockets.on('connection', (socket) =>{
 
         
         if (tempReadyCount == gameList[data.gameId].gameMaxPlayers){
-            console.log('week have changed');
+            
 
             gameList[data.gameId].playerIdList.forEach(player => {
                 playerList[player].emit('ToClient_NewWeek');
@@ -353,12 +326,23 @@ io.sockets.on('connection', (socket) =>{
             winnerName: data.playerLocalName,
         };
 
+        //plyaers not ready and update list
+        gameList[data.gameId].playerIdList.forEach(player => {
+            currentPlayerList[player].playerState = 0;
+            currentPlayerList[player].isGameCreator = false;
+            currentPlayerList[player].thisGameCreatorsList = [];
+        });
+
 
         data.opponentId.forEach(id => {
-            currentPlayerList[id].playerState = 0;
+            
             playerList[id].emit('gameEndsOpponent', (dataToOpponent));
         });
         
+        for (var i in playerList){
+            playerList[i].emit('ToClient_UpdateWholePlayerList', currentPlayerList);
+        }
+
 
     });
 

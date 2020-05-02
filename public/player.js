@@ -37,7 +37,7 @@ const happinessText = document.getElementById('happiness_text');
 const monthlyTimeText = document.getElementById('monhlytime_text');
 const energyText = document.getElementById('energy_text');
 const intoxicationText = document.getElementById('intoxication_text');
-const salaryText = document.getElementById('salaryText'); //scoreboard salary text
+// const salaryText = document.getElementById('salaryText'); //scoreboard salary text
 const moneyText = document.getElementById('moneyText'); //scoreboard money text
 const relationshipObj = document.getElementById('relationship_obj'); //scoreboard relationshipstatus text
 const jobObj = document.getElementById('jobText');  //scoreboard job text
@@ -107,6 +107,8 @@ const startingAttributes = {
 
     beautyFactor: 0,
 
+    barGig: true,
+
     relationshipID: 0,
     relationshipStrenght: 0,
     newlyMet: false,
@@ -135,59 +137,7 @@ const startingAttributes = {
 
 
 //Player attributes
-let currentPlayerAttributes = {
-    // happinessTotal: 0,
-    // happinessPoints: 15,
-    // moneyPoints: 200,
-    // energyLevel: 50,
-    // intoxicationLevel: 0,
-    
-    // //time
-    // weeklyTime: 168,
-    // weekNumber: 1,
-
-    // //Pet
-    // petID: 0,
-    // petFoodAmount: 0,
-    // petWeeklyDue: false,
-
-    // homeID: 0,
-    // rentToDue: true,
-    // randomForRenting: 2,
-
-    // educationId: 0,
-    // educationProgress: 0,
-    // educationEnroll: false,
-
-    // currentYogaEnhancer: 0,
-    // exerciseLvl: 0,
-
-    // beautyFactor: 0,
-
-    // relationshipID: 0,
-    // relationshipStrenght: 0,
-    // newlyMet: false,
-
-    // currentWorkId: 0,
-    // playerWorkLevel: 0,
-    // jobPendingTime: 0,
-    // workExperience: 0,
-    // workStress: 0,
-    // showJobs: true,
-
-    // itemInPostAnnouncement: 0,
-    // jobIdPending: null,
-
-    // currentItems: [],              //purchased items
-    // postPackageInPost: false,
-    // showPostMessage: false,
-    // postPackagePending: 0,
-
-    // //different happinesses
-    // forestHappiness: 2,
-    // internetHappiness: 1,
-
-}
+let currentPlayerAttributes = {};
 
 const workExperienceRequired = 10;
 const weeklytimeToCompare = 168;
@@ -675,7 +625,6 @@ function UpdateBarAndTexts(){
     TotalHappinessCalculation();
     
     happinessText.innerHTML = 'Happiness: '+ currentPlayerAttributes.happinessTotal + "%";
-    
     anime({
         targets: happinessBar,
         width: currentPlayerAttributes.happinessTotal*(barWidth/100),
@@ -686,9 +635,6 @@ function UpdateBarAndTexts(){
 
 
     energyText.innerHTML = 'Energy: '+ currentPlayerAttributes.energyLevel + "%";
-    // energyBar.style.width = currentPlayerAttributes.energyLevel + "%";
-    
-    //Energybar anim
     anime({
         targets: energyBar,
         width: currentPlayerAttributes.energyLevel*(barWidth/100),
@@ -698,8 +644,6 @@ function UpdateBarAndTexts(){
     });
 
     intoxicationText.innerHTML = 'Intoxication: '+ currentPlayerAttributes.intoxicationLevel*20 + "%";
-    // intoxicationBar.style.width = currentPlayerAttributes.intoxicationLevel*20 + "%";
-
     anime({
         targets: intoxicationBar,
         width: (currentPlayerAttributes.intoxicationLevel *20)*(barWidth/100),
@@ -709,7 +653,6 @@ function UpdateBarAndTexts(){
     });
 
     jobObj.innerHTML = jobs[currentPlayerAttributes.currentWorkId].job;
-    
     anime({
         targets: jobBar,
         width: (currentPlayerAttributes.workExperience *10)*(barWidth/100),
@@ -720,7 +663,6 @@ function UpdateBarAndTexts(){
 
 
     relationshipObj.innerHTML = relationships[currentPlayerAttributes.relationshipID].relationshipStatus;
-
     anime({
         targets: relationshipBar,
         width: (currentPlayerAttributes.relationshipStrenght *10)*(barWidth/100),
@@ -730,7 +672,6 @@ function UpdateBarAndTexts(){
     });
 
     educationText.innerHTML = education[currentPlayerAttributes.educationId].degree;
-
     anime({
         targets: educationBar,
         width: (currentPlayerAttributes.educationProgress *20)*(barWidth/100),
@@ -739,14 +680,6 @@ function UpdateBarAndTexts(){
 
     });
 
-    //Checking relationship status
-    if (currentPlayerAttributes.relationshipID != 0){
-
-
-    }
-
-    
-    // salaryText.innerHTML =  
     currentPlayerAttributes.moneyPoints > 0 ? moneyText.className = "UI_text scoreboard green" : moneyText.className = "UI_text scoreboard red";
     moneyText.innerHTML = currentPlayerAttributes.moneyPoints + '€ <span style="color:black; text-weight:500">' + jobs[currentPlayerAttributes.currentWorkId].salary + "€/day</span>";;
     
@@ -844,7 +777,7 @@ function WorkChecker(){
 
 function ReduceTime_Check(decreaseTimeAmount){
 
-    currentPlayerAttributes.weeklyTime -= decreaseTimeAmount;
+    Math.ceil(currentPlayerAttributes.weeklyTime -= decreaseTimeAmount) ;
     
     if (currentPlayerAttributes.weeklyTime < 0){
         
@@ -866,7 +799,7 @@ function ReduceTime_Check(decreaseTimeAmount){
     
     anime({
         targets: timeProgressBar,
-        width: (currentPlayerAttributes.weeklyTime/weeklytimeToCompare)*barWidth,
+        width: Math.ceil(currentPlayerAttributes.weeklyTime/weeklytimeToCompare*barWidth),
         easing: 'linear',
         duration: 500
 
@@ -1142,9 +1075,10 @@ function ChooseDirection(destination){
                                     </div>
                                     <br>
                                     <div class="UI_text description">
-                                    Forest is a base of the nature where all the creatures live and where they breed.
-                                    Forest is a base of the nature where all the creatures live and where they breed. 
-                                    Forest is a base of the nature where all the creatures live and where they breed.</div>
+                                    I understand my comrades of the woods, And they know me completely. Not an oak
+                                    But is my brother, strong, reserved, sincere. Along the happy, peaceful forest ways
+                                    That wind so intimately through the trees I hold a calm communion with my friends,
+                                    The pines and gentle birches. </div>
                                     `;
         
             break;
@@ -1155,7 +1089,7 @@ function ChooseDirection(destination){
                                     <img src="./img/building_texts/In_SchoolImg.png" width="${infoboxWidth}px">
                                     </div>
                                     <div class="text-topic">School</div>
-                                    <div class="UI_text description">Here you are able to study and enhance your knowledge on things you're interested in.</div>
+                                    <div class="UI_text description">Here you are able to study and enhance your knowledge and get a degree.</div>
                                     
                                     <div class="oneColumn border"></div>
                                     <br>`
@@ -1201,13 +1135,18 @@ function ChooseDirection(destination){
                                     
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="SportsAction('sports')">Gym</button></div>
-                                        <div id="xxxx" class="optiontext green">Get some muscles pencil neck. You feel much happier after that.</div>
+                                        <div id="sports_gymText" class="optiontext green">Get some muscles pencil neck. You feel much happier after that.</div>
                                     </div>
 
 
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="SportsAction('yoga')">Yoga</button></div>
-                                    <div id="xxxxx" class="optiontext green">Yoga is the best for you mentally.</div>
+                                    <div id="sports_gymText" class="optiontext green">Yoga is the best for you mentally.</div>
+                                </div>
+
+                                <div class="twoColumns40-60">
+                                <div class="basicCell"><button class="btn" onclick="SportsAction('swim')">Swim</button></div>
+                                    <div id="sports_swimText" class="optiontext green">Take a swim. It reduces your work stress!</div>
                                 </div>
 
                                 `;
@@ -1218,10 +1157,10 @@ function ChooseDirection(destination){
     }
 
 
-    if (currentPlayerAttributes.weeklyTime > 0){
-        $(infoboxObj).slideDown(400);
-    }
-    
+    // if (currentPlayerAttributes.weeklyTime > 0){
+        
+    // }
+    $(infoboxObj).slideDown(400);
 
     
 }
@@ -1760,13 +1699,6 @@ function MallActions(action){
 
     }
 
-
-
-        // else{
-        //     infoboxObj.innerHTML += `<br>
-        //                             <div class="optiontext red">You don't have any packages.
-        //                             <br><br>`;
-        // }
 };
 
 
@@ -1835,11 +1767,11 @@ function BarAction(action){
             break;
 
         case 'gig':
-            if (currentPlayerAttributes.moneyPoints >= 59){
+            if (currentPlayerAttributes.moneyPoints >= 59 && currentPlayerAttributes.barGig){
                 currentPlayerAttributes.moneyPoints -= 59;
-                currentPlayerAttributes.happinessPoints += 3;
-
-                const rand2 = Math.floor(Math.random()*(27 + currentPlayerAttributes.intoxicationLevel - Math.floor(1.5*currentPlayerAttributes.beautyFactor)  - currentPlayerAttributes.educationId));
+                currentPlayerAttributes.happinessPoints += 4;
+                currentPlayerAttributes.barGig = false;
+                const rand2 = Math.floor(Math.random()*(15 + currentPlayerAttributes.intoxicationLevel - Math.floor(1.5*currentPlayerAttributes.beautyFactor)  - currentPlayerAttributes.educationId));
 
                 if(rand2 == 5 && currentPlayerAttributes.relationshipID == 0 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4){
                     currentPlayerAttributes.relationshipID = 2;
@@ -1986,7 +1918,7 @@ function RentHomeAction(home){
         OpponentEvents('rented an appartment.');
     }
 
-}
+};
 
 //EDUCATION-------------------------------------------------------------------------------------------------------------
 function SchoolAction(){
@@ -2021,7 +1953,7 @@ function SchoolAction(){
         educationEnroll.className = "optiontext red";
     }
 
-}
+};
 
 //SPORTS--------------------------------------------------------------------------------------------------------------
 function SportsAction(sport){
@@ -2035,7 +1967,7 @@ function SportsAction(sport){
         ReduceTime_Check(3);
     }
 
-    else if(sport == 'sports'){
+    if(sport == 'sports'){
 
         if (currentPlayerAttributes.exerciseLvl <= 5){
             currentPlayerAttributes.exerciseLvl++;
@@ -2044,8 +1976,19 @@ function SportsAction(sport){
         ReduceTime_Check(2);
     }
 
+    if(sport == 'swim'){
+
+        if (currentPlayerAttributes.workStress > 0){
+            currentPlayerAttributes.workStress--;
+            document.getElementById('sports_swimText').nnerHTML = "You feel much more relaxed now and your work stress has been reduced..";
+            // sports_swimText.innerHTML = "You feel much more relaxed now and your work stress has been reduced..";
+            // sports_swimText.className = "optiontext red";
+        }
+        
+        ReduceTime_Check(9);
+    }
     
-}
+};
 
 //HELPER FUNCTIONS----------------------------------------------------------------------------------------------------------------------------------------------
 function FindWithAttr(array, attr, value) {
@@ -2084,7 +2027,7 @@ function ManageMoveButtons(reason){
         
     }
 
-}
+};
 
 function ManageScoreBoard_Images(){
 
@@ -2163,7 +2106,7 @@ function ManageScoreBoard_Images(){
             break;
 
     }
-}
+};
 
 function ColorTimeBar(targetWeeklyTime, barName){
 
@@ -2178,7 +2121,7 @@ function ColorTimeBar(targetWeeklyTime, barName){
     if (targetWeeklyTime <= weeklytimeToCompare * 0.33){
         barName.style.background = "linear-gradient(to right, white, red)";
     }
-}
+};
 
 
 function OrderOnlineItem(itemId, cost){
@@ -2211,4 +2154,4 @@ function AddEnergy(addedEnergy){
     }
     
     currentPlayerAttributes.energyLevel += addedEnergy;
-}
+};

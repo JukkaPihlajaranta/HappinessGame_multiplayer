@@ -44,7 +44,7 @@ let playerPos = {x: 0, y: 40}         //player starting pos
 
 let targetDestinationID = '';           //destination house ID
 let currentDestinationID = '';
-    
+let tooFarAway = false;    
 
 
 //ANIMATION
@@ -145,7 +145,7 @@ var socket = io.connect();
                 // console.log("ready for the game");
             }
             else if (data[obj].playerName != ''){
-                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> - <span style='color:red; font-weight:900;'>hasn't decided yet..</span>`;
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> - <span style='color:orange; font-weight:900;'>hasn't decided yet..</span>`;
             }
             
         }
@@ -193,7 +193,10 @@ var socket = io.connect();
         
         //reset these
         playerGameState = 2;
-        currentPlayerAttributes = startingAttributes;
+        currentPlayerAttributes = {};
+        
+        currentPlayerAttributes = {...startingAttributes};
+        
 
         opponentId = [];
         opponentName = [];
@@ -232,7 +235,7 @@ var socket = io.connect();
                 player.innerHTML =''; //empty the inner html
                 const playerText = document.createElement('div');
                 playerText.className = "opponentHoverName";
-                playerText.innerHTML = playerLocalName;
+                playerText.innerHTML = truncate(playerLocalName, 8);
                 player.appendChild(playerText);
             }
             else if (data.playerIdList[i] != playerId){
@@ -245,7 +248,7 @@ var socket = io.connect();
             }
         }
 
-        player.style.background = playerColor[playerNumberInArray];
+        // player.style.background = playerColor[playerNumberInArray];
         
         opponentName1.innerHTML = `<span style='font-weight:900;color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
         opponentObject_1.style.background = playerColor[opponentNumberInArray[0]];
@@ -254,7 +257,7 @@ var socket = io.connect();
         opponentObject_1.innerHTML =''; //empty the inner html
         const opp_text = document.createElement('div');
         opp_text.className = "opponentHoverName";
-        opp_text.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
+        opp_text.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[0]]};'>${truncate(opponentName[0], 8)}</span>`;
         opponentObject_1.appendChild(opp_text);
 
         if (numberOfPlayersForGame > 2){
@@ -265,7 +268,7 @@ var socket = io.connect();
             opponentObject_2.innerHTML =''; //empty the inner html
             const opp_text2 = document.createElement('div');
             opp_text2.className = "opponentHoverName";
-            opp_text2.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[1]]};'>${opponentName[1]}</span>`;
+            opp_text2.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[1]]};'>${truncate(opponentName[1],8)}</span>`;
             opponentObject_2.appendChild(opp_text2);
             opponentObject_2.style.display = "block";
         }
@@ -512,7 +515,7 @@ var socket = io.connect();
         currentPlayerAttributes.exerciseLvl = 0;
         currentPlayerAttributes.currentYogaEnhancer = 0;
         currentPlayerAttributes.beautyFactor = 0;
-
+        currentPlayerAttributes.barGig = true;
 
         currentPlayerAttributes.newlyMet = false;
         PutLocalEvent(0,0,"newWeek");
@@ -527,14 +530,15 @@ var socket = io.connect();
 
         if (currentPlayerAttributes.happinessTotal >= 100 ){
 
-            const winnderData = {
+            const winnerData = {
+                gameId: gameId,
                 playerId: playerId,
                 playerLocalName, playerLocalName,
                 opponentId, opponentId
             }
 
             // const winnerdata = [playerId, playerLocalName, opponentId];
-            socket.emit('ToServer_GameWinner', winnderData);
+            socket.emit('ToServer_GameWinner', winnerData);
             GameEnds();
             socket.emit('ToServer_ChatWinner');
             
@@ -560,10 +564,12 @@ function GameStarts(){
 }
 
 function GameEnds(){
-    containerGame.innerHTML = '';
+    containerGame.innerHTML = '';               //container hidden
 
-    $("#GameArea").hide();
-    $("#game_ChatState").show();
+    $("#GameArea").hide();                      //game are hide
+    $("#game_ChatState").show();                //lobby things
+    $("#gameCreateButtons").slideDown(300);     //game create buttons
+    
     socket.emit('ToServer_PlayerNotReady');
     socket.emit('ToServer_Chat', "grats...");
     playerGameState = 0;
@@ -628,6 +634,9 @@ function StartGame(){
           
     }
 
+    window.scrollTo(0,0);
+    containerRects = document.querySelector('.container').getBoundingClientRect();
+
     let tempPos = {
         x: document.getElementById("block-9").getBoundingClientRect().x - containerRects.x,
         y: document.getElementById("block-9").getBoundingClientRect().y - containerRects.y
@@ -635,12 +644,12 @@ function StartGame(){
 
 
     targetDestinationID = "Home";
+    console.log("first pos: ", tempPos);
     MovePlayer(tempPos);
     ChooseDirection(targetDestinationID);
     $(movePlayerButton).fadeOut(0);
     
-    window.scrollTo(0,0);
-    containerRects = document.querySelector('.container').getBoundingClientRect();
+
 };
 
 //Creating the current map
@@ -671,6 +680,7 @@ function CreateMap(container, count){
 
             if (!playerMoving){
                 window.scrollTo(0,0);
+                containerRects = document.querySelector('.container').getBoundingClientRect();
 
                 //Gets the element position below
                 const index = allElementsList.findIndex( (x) => {return x == containerElement.id});
@@ -692,7 +702,10 @@ function CreateMap(container, count){
                 if (currentDestinationID != targetDestinationID){
                     ShowRoute_NewTry(positionToMove, allElementsList[index+8]); //send actual container element name ==> +8
                     TrackPoints();
-                    $(movePlayerButton).fadeIn(300);
+                    if (!tooFarAway){
+                        $(movePlayerButton).fadeIn(300);
+                    }
+                    
                 }
 
                 else if(currentDestinationID == targetDestinationID){
@@ -994,7 +1007,7 @@ function ShowRoute_NewTry(destination, destinationID){
 function TrackPoints(){
 
     let count = 0;
-
+    
     while(!endPositionFound){
         count++;
         
@@ -1081,15 +1094,34 @@ function TrackPoints(){
         currentRoute.splice(index, 1);
         
         // console.log("Distance: " + ClosestBlocks(document.getElementById(targetDestination.destinationName).getBoundingClientRect(), tempPlayerPosition));
-        if (ClosestBlocks(document.getElementById(targetDestination.destinationName).getBoundingClientRect(), tempPlayerPosition) == 0){
+        if (ClosestBlocks(document.getElementById(targetDestination.destinationName).getBoundingClientRect(), tempPlayerPosition) == 0 && (positionsForAnimation.length * 0.2) < currentPlayerAttributes.weeklyTime){
             // console.log("Destination!");
             endPositionFound = true;
-            DrawDots(firstOne.id, true);
+            DrawDots(firstOne.id, 'end');
+            tooFarAway = false;
             return;
         }
 
-        DrawDots(firstOne.id, false);
+        
 
+        if ((positionsForAnimation.length * 0.2) >= currentPlayerAttributes.weeklyTime){
+            // console.log(positionsForAnimation.length * 0.2, "  ", currentPlayerAttributes.weeklyTime);
+            DrawDots(firstOne.id, "red");
+            tooFarAway = true;
+
+            if (ClosestBlocks(document.getElementById(targetDestination.destinationName).getBoundingClientRect(), tempPlayerPosition) == 0) {
+                $(movePlayerButton).hide();
+                endPositionFound = true;
+                ReduceTime_Check(3);
+            }
+            
+        }
+
+        else{
+            DrawDots(firstOne.id);
+        }
+
+        
     } //end of while
     // let tempX = (firstOne.x - containerRects.x) -playerPos.x;
     // let tempY = (firstOne.y - containerRects.y) -playerPos.y;
@@ -1103,6 +1135,8 @@ function TrackPoints(){
     //     duration: 500
     // });
     // console.log("PlayerPos X: ", player.getBoundingClientRect().x, " | PlayerPos Y: ", player.getBoundingClientRect().y);
+
+    
 }
 
 
@@ -1120,25 +1154,25 @@ function ClosestBlocks(elementPos, playerRunningPos){
     
 }
 
-function PlayerDistanceFromDestination(destination, playerRunningPos){
+// function PlayerDistanceFromDestination(destination, playerRunningPos){
 
-    // document.getElementById(el).innerHTML = "";
-    // const newPosX = elementPos.x;
-    // const newPosY = elementPos.y;
-    // console.log(el, " => pos X:", newPosX, " Y:", newPosY);
-    // console.log(el, " => RunningPos X:", playerRunningPos.x-8, " Y:", playerRunningPos.y-106.5);
-    // console.log("Second: " + el, " X:", newPosX,  /*+ mapOffSetX*/ playerRunningPos.x, " Y:", newPosY,  /*+ containerRects.top*/ playerRunningPos.y);
+//     // document.getElementById(el).innerHTML = "";
+//     // const newPosX = elementPos.x;
+//     // const newPosY = elementPos.y;
+//     // console.log(el, " => pos X:", newPosX, " Y:", newPosY);
+//     // console.log(el, " => RunningPos X:", playerRunningPos.x-8, " Y:", playerRunningPos.y-106.5);
+//     // console.log("Second: " + el, " X:", newPosX,  /*+ mapOffSetX*/ playerRunningPos.x, " Y:", newPosY,  /*+ containerRects.top*/ playerRunningPos.y);
     
-    //CALCULATING THE DISTANCE FROM START POINT
-    const distanceX = (Math.abs(destination.x - (playerRunningPos.x )))/elementSize;
-    const distanceY = (Math.abs(destination.y - (playerRunningPos.y )))/elementSize;
-    // console.log("Distances filtered: X:", distanceX, " Y:", distanceY);
-    // document.getElementById(el).innerHTML = distanceX+distanceY;
-    // console.log("Player Distance:", distanceX+distanceY);
+//     //CALCULATING THE DISTANCE FROM START POINT
+//     const distanceX = (Math.abs(destination.x - (playerRunningPos.x )))/elementSize;
+//     const distanceY = (Math.abs(destination.y - (playerRunningPos.y )))/elementSize;
+//     // console.log("Distances filtered: X:", distanceX, " Y:", distanceY);
+//     // document.getElementById(el).innerHTML = distanceX+distanceY;
+//     // console.log("Player Distance:", distanceX+distanceY);
 
-    return distanceX+distanceY;
+//     return distanceX+distanceY;
     
-}
+// }
 
 //MOVE BUTTON
 document.getElementById('move-player').addEventListener('click', () =>{
@@ -1151,11 +1185,12 @@ document.getElementById('move-player').addEventListener('click', () =>{
 function MovePlayer(position){
     playerMoving = true;
     $(movePlayerButton).fadeOut(300);
+
     //MOVE TO NEW POSITION
     const newPosX = position.x;
     const newPosY = position.y;
 
-
+    
     routeBase.innerHTML = '';
     
     playerPos.x = newPosX;
@@ -1168,11 +1203,12 @@ function MovePlayer(position){
 
     //in the start if there isn't position
     if (positionsForAnimation == undefined){
+
         player.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY}px, 0)`;
         opponentObject_1.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY}px, 0)`;
         opponentObject_2.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY}px, 0)`;
         playerMoving = false;
-        console.log(newPosX, " ", newPosY);
+        // console.log(newPosX, " ", newPosY);
     }
 
     
@@ -1233,12 +1269,23 @@ function ShowMoveAnimation(){
 
 function DrawDots(el, endDot){
 
-    if (endDot){
+    if (endDot == "end"){
         const temp = document.createElement('img');
         const desiredX = document.getElementById(el).getBoundingClientRect().x - containerRects.left + elementSize/2-2;
         const desiredY = document.getElementById(el).getBoundingClientRect().y - containerRects.height - containerRects.top +14/*-8+ elementSize/3*/;
         temp.src = "./img/icons/x-mark.png"
         temp.className = "end-dot";
+        temp.style.transform = `translate3d(${desiredX}px, ${desiredY}px, 0)`;
+        routeBase.appendChild(temp);
+
+    }
+
+    else if(endDot == 'red'){
+        const temp = document.createElement('div');
+        const desiredX = document.getElementById(el).getBoundingClientRect().x - containerRects.left + elementSize/2-2;
+        const desiredY = document.getElementById(el).getBoundingClientRect().y - containerRects.height - containerRects.top +17/*-5 + elementSize/2.5*/;
+        
+        temp.className = "route-dots red";
         temp.style.transform = `translate3d(${desiredX}px, ${desiredY}px, 0)`;
         routeBase.appendChild(temp);
 
