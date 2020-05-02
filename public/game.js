@@ -20,6 +20,7 @@ const mallButton = 'mallbutton';
 const schoolbutton = 'schoolbutton';
 const forestButton = 'forestbutton';
 const sportsButton = 'sportsbutton';
+const churchButton = 'churchbutton';
 
 //Map variables
 const playerSizeX = player.clientWidth/2;
@@ -41,6 +42,7 @@ let endPositionFound = false;           //for movement cancelation -- could be l
 let tempPlayerPosition = {x: 0, y: 0}   // temp position
 let targetDestination;                  //actual target destination
 let playerPos = {x: 0, y: 40}         //player starting pos 
+
 
 let targetDestinationID = '';           //destination house ID
 let currentDestinationID = '';
@@ -168,22 +170,6 @@ var socket = io.connect();
         $("#gameCreateButtons").fadeOut(300);
     }
 
-    // socket.on('ToClient_UpdatePlayerList', (data) =>{
-        
-    //     //this is the player list, join game buttons and player who are ready
-    //     list_of_players.innerHTML = 'Welcome to lobby';
-
-    //     for(var i = 0; i < data.gamePlayerList.length; i++){
-    //         if (data.gamePlayerList[i] != ''){
-    //             list_of_players.innerHTML += `<div><span style="font-weight:900">${data.gamePlayerList[i]}</span> <span style='color:lime; font-weight:900;'>${data.id.length}/${numberOfPlayersForGame} ready!</span>`;
-
-    //         }
-    //         else{
-    //             list_of_players.innerHTML += `<div><span style="font-weight:900">${data[i].gamePlayerList}</span>`;
-    //         }
-    //     }
-
-    // });
 
 
 
@@ -516,7 +502,7 @@ var socket = io.connect();
         currentPlayerAttributes.currentYogaEnhancer = 0;
         currentPlayerAttributes.beautyFactor = 0;
         currentPlayerAttributes.barGig = true;
-
+        currentPlayerAttributes.mallActions = 2;
         currentPlayerAttributes.newlyMet = false;
         PutLocalEvent(0,0,"newWeek");
         
@@ -621,11 +607,25 @@ function OpponentEndOfWeek(){
 //ACTUAL GAME-----------------------------------------------------------------------------------------------
 
 function StartGame(){
-    allElementsList  =[];
+    allElementsList = [];
+    allRoadElements = [];
     const container = document.querySelector('.container');
     let count = 0;
     container.innerHTML = '';
-    
+
+    positionToMove = undefined;
+    currentRoute = [];
+    endPositionFound = false;
+    tempPlayerPosition = {x: 0, y: 0};
+    targetDestination = undefined;
+    playerPos = {x: 0, y: 40};
+
+    // console.log("playerPos", playerPos);
+    // console.log("targetDestination", targetDestination);
+    // console.log("tempPlayerPosition", tempPlayerPosition);
+    // console.log("endPositionFound", endPositionFound);
+    // console.log("currentRoute", currentRoute);
+    // console.log("positionToMove", positionToMove);
 
     for (var i = 0; i < elementCount; i++) { 
 
@@ -773,15 +773,15 @@ function CreateMap(container, count){
         CreateButtonElement(containerElement, homeButton);
     }
 
-    //SOME STORE---------------------------------------------- 
+    //CHURCH---------------------------------------------- 
     else if (count == 4){
-        containerElement.id = "SomeStore"; //CHANGE---------------------------------
+        containerElement.id = "Church"; //CHANGE---------------------------------
         const image = document.createElement('img');
-        image.src = "./img/Building_Basic_RightEnd.png";
+        image.src = "./img/Building_Church.png";
         image.setAttribute('height', elementSize);
         containerElement.appendChild(image);
 
-        CreateButtonElement(containerElement, betterHomeButton); // changeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+        CreateButtonElement(containerElement, churchButton);
     }
 
     //BETTER APARTMENT
@@ -795,11 +795,11 @@ function CreateMap(container, count){
         CreateButtonElement(containerElement, betterHomeButton);
     }
 
-    //PETSTORE-------------------------------------------------------
+    //SCHOOL-------------------------------------------------------
     else if (count == 20){
         containerElement.id = "School";
         const image = document.createElement('img');
-        image.src = "./img/Building_Functional.png";
+        image.src = "./img/Building_School.png";
         image.setAttribute('height', elementSize);
         containerElement.appendChild(image);
 
@@ -807,7 +807,7 @@ function CreateMap(container, count){
     }
 
 
-    //FOREST, NOT SCHOOL---------------------------------------------------------
+    //FOREST ---------------------------------------------------------
     else if (count == 23){
         containerElement.id = "Forest";
         const image = document.createElement('img');
@@ -837,7 +837,7 @@ function CreateMap(container, count){
 
         CreateButtonElement(containerElement, sportsButton);
     }
-
+    //SPORTS FIELD
     else if (count == 40){
         const image = document.createElement('img');
         image.src = "./img/Building_Sports2.png";
@@ -858,7 +858,7 @@ function CreateMap(container, count){
         CreateButtonElement(containerElement, barButton);
     }
 
-    //POST OFFICE-----------------------------------------------------
+    //MALL -----------------------------------------------------
     else if (count == 46){
         
         containerElement.id = "Mall";
@@ -871,7 +871,7 @@ function CreateMap(container, count){
 
     }
 
-    //Mall OFFICE-----------------------------------------------------
+    //MALL LEFT PART -----------------------------------------------------
     else if (count == 45){
         
         containerElement.id = "Building";
@@ -965,7 +965,7 @@ function CreateMap(container, count){
 function ChangeTempPlayerPos(elementPos){
     tempPlayerPosition.x = elementPos.x - containerRects.x;
     tempPlayerPosition.y = elementPos.y - containerRects.y;
-    // console.log("Updated temp Playerpos: ", tempPlayerPosition.x, " ", tempPlayerPosition.y);
+    
 }
 
 
@@ -987,10 +987,9 @@ function ShowRoute_NewTry(destination, destinationID){
     };
 
     
-    // playersPreviousPos = {x: playerPos.x, y: playerPos.y};
+
     tempPlayerPosition = {x: playerPos.x, y: playerPos.y};
-    // console.log(tempPlayerPosition);
-    // console.log("tempPlayerPosition: ", tempPlayerPosition);
+
 
 
     //removes players current standing block from the list
@@ -1154,25 +1153,6 @@ function ClosestBlocks(elementPos, playerRunningPos){
     
 }
 
-// function PlayerDistanceFromDestination(destination, playerRunningPos){
-
-//     // document.getElementById(el).innerHTML = "";
-//     // const newPosX = elementPos.x;
-//     // const newPosY = elementPos.y;
-//     // console.log(el, " => pos X:", newPosX, " Y:", newPosY);
-//     // console.log(el, " => RunningPos X:", playerRunningPos.x-8, " Y:", playerRunningPos.y-106.5);
-//     // console.log("Second: " + el, " X:", newPosX,  /*+ mapOffSetX*/ playerRunningPos.x, " Y:", newPosY,  /*+ containerRects.top*/ playerRunningPos.y);
-    
-//     //CALCULATING THE DISTANCE FROM START POINT
-//     const distanceX = (Math.abs(destination.x - (playerRunningPos.x )))/elementSize;
-//     const distanceY = (Math.abs(destination.y - (playerRunningPos.y )))/elementSize;
-//     // console.log("Distances filtered: X:", distanceX, " Y:", distanceY);
-//     // document.getElementById(el).innerHTML = distanceX+distanceY;
-//     // console.log("Player Distance:", distanceX+distanceY);
-
-//     return distanceX+distanceY;
-    
-// }
 
 //MOVE BUTTON
 document.getElementById('move-player').addEventListener('click', () =>{
@@ -1204,9 +1184,9 @@ function MovePlayer(position){
     //in the start if there isn't position
     if (positionsForAnimation == undefined){
 
-        player.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY}px, 0)`;
-        opponentObject_1.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY}px, 0)`;
-        opponentObject_2.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY}px, 0)`;
+        player.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/3) - playerSizeY}px, 0)`;
+        opponentObject_1.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/3) - playerSizeY}px, 0)`;
+        opponentObject_2.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/3) - playerSizeY}px, 0)`;
         playerMoving = false;
         // console.log(newPosX, " ", newPosY);
     }

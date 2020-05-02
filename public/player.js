@@ -101,12 +101,13 @@ const startingAttributes = {
     educationId: 0,
     educationProgress: 0,
     educationEnroll: false,
+    schoolAction: 0,
 
     currentYogaEnhancer: 0,
     exerciseLvl: 0,
 
     beautyFactor: 0,
-
+    mallActions: 2,
     barGig: true,
 
     relationshipID: 0,
@@ -685,7 +686,7 @@ function UpdateBarAndTexts(){
     
 
     if (currentPlayerAttributes.postPackagePending != 0 && currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.itemInPostAnnouncement  && currentPlayerAttributes.showPostMessage){
-        ShowTempMessage('Package in post!', 'package');
+        ShowTempMessage('Package in post! Go to mall to reclaim it.', 'package');
         OpponentEvents("has a package in the post.");
         currentPlayerAttributes.postPackageInPost = true;
         currentPlayerAttributes.showPostMessage = false;
@@ -734,52 +735,11 @@ function ShowTempMessage(message, image){
     
 }
 
-function WorkChecker(){
-
-    //When jobs is pending
-    if (currentPlayerAttributes.jobIdPending != null && currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.jobPendingTime  ){
-        
-        const rand = Math.floor(Math.random()*5);
-        //Decider if you got the job or not
-        console.log(rand + " != 4???");
-
-        const tempJobPending = FindWithAttr(jobs, "id", currentPlayerAttributes.jobIdPending); //jobs is given with id number
-        if (jobs[tempJobPending].worklevel <= currentPlayerAttributes.playerWorkLevel && rand != 4 && jobs[tempJobPending].educationReq <= currentPlayerAttributes.educationId){
-
-            currentPlayerAttributes.currentWorkId = tempJobPending;
-            ShowTempMessage(`Congratulations! You got the job!<br><br> Now you can start working as ${jobs[tempJobPending].job}.`, 'sms');
-            OpponentEvents(`got a job as a ${jobs[tempJobPending].job}!`);
-        }
-
-        else if (jobs[tempJobPending].worklevel > currentPlayerAttributes.playerWorkLevel){
-            ShowTempMessage("Unfortunately you didn't get the job. You are lacking work experience.", 'rejection');
-            OpponentEvents("failed to get a job.");
-        }
-
-        else if (jobs[tempJobPending].educationReq > currentPlayerAttributes.educationId){
-            ShowTempMessage("Unfortunately you didn't get the job. You are lacking some education.", 'rejection');
-            OpponentEvents("failed to get a job.");
-        }
-
-        else{
-            ShowTempMessage("Unfortunately you didn't get the job. All of the candidates including you were really good, but you weren't the our choice.", 'rejection');
-            OpponentEvents("failed to get a job.");
-        }
-
-        currentPlayerAttributes.showJobs = true;
-        currentPlayerAttributes.jobIdPending = null;
-        RandomizeJobs();
-        // randomizeNewOnlineContent = true;
-    }
-
-
-}
-
 function ReduceTime_Check(decreaseTimeAmount){
 
     currentPlayerAttributes.weeklyTime -= decreaseTimeAmount;
     
-    if (currentPlayerAttributes.weeklyTime < 0){
+    if (currentPlayerAttributes.weeklyTime <= 0){
         
         
         currentPlayerAttributes.weeklyTime = 0;
@@ -846,29 +806,7 @@ function TotalHappinessCalculation(){
 
 }
 
-function RandomizeJobs(){
 
-    randomizedOnlineJobs = [];
-    let jobsToShow = [];
-
-    //make a copy of jobs array
-    jobs.forEach(el => {  // jobsToShow = {...jobs};
-        jobsToShow.push(el);
-    });
-
-    //First Delete current and unemloyment jobs from the  
-    jobsToShow.splice(currentPlayerAttributes.currentWorkId, 1);
-    if (currentPlayerAttributes.currentWorkId != 0){
-        jobsToShow.splice(0, 1);
-    }
-    
-    //Push to randomizejob list and delete from temp list        
-    for (var i = 0; i < 4; i++){
-        let randJob = Math.floor(Math.random()*jobsToShow.length);
-        randomizedOnlineJobs.push(jobsToShow[randJob]);
-        jobsToShow.splice(randJob, 1); //delete jobs, which are listed from the temp array
-    }
-}
 
 //EXECUTED FROM game.js
 function ChooseDirection(destination){
@@ -982,7 +920,7 @@ function ChooseDirection(destination){
             infoboxObj.innerHTML = `<div class="UI_text center">
                                     <img src="./img/building_texts/In_MallImg.png" width="${infoboxWidth}px">
                                     </div>
-                                    <div class="text-topic">The Mall</div>
+                                    <div class="text-topic"><span style='color:cyan'>The Mall</span></div>
                                     <div class="UI_text description">Everything you need and little bit more.</div>
                                     <div class="oneColumn border"></div>
                                     <br>
@@ -994,7 +932,15 @@ function ChooseDirection(destination){
                                         <div id="xx" class="optiontext green">Makes you more appealing. Cost 50€.</div>
                                     </div>
 
-                                    
+                                    <div class="UI_text middleTopic">Coffee house</div>
+                                    <div class="oneColumn underline"></div>
+                                    <div class="twoColumns40-60">
+                                        <div class="basicCell"><button class="btn" onclick="MallActions('coffeehouse')">Purchase</button></div>
+                                        <div id="mall_coffeehouse" class="optiontext green">Have a milkshake and watch people passing by. Cost 10€.</div>
+                                    </div>
+
+
+
                                     <div class="UI_text middleTopic">Petstore</div>
                                     <div class="oneColumn underline"></div>
                                     `;
@@ -1032,7 +978,7 @@ function ChooseDirection(destination){
             if (currentPlayerAttributes.postPackageInPost){
                 infoboxObj.innerHTML += `
                                         <div class="twoColumns40-60">
-                                            <div class="basicCell"><button class="btn" onclick="MallActions('postPackage')">Reclame</button></div>
+                                            <div class="basicCell"><button class="btn" onclick="MallActions('postPackage')">Reclaim</button></div>
                                             <div id="xx" class="optiontext green">Here's something you ordered.
                                                 <div class="basicCell"><img src="./img/icons/PostPackageSprite.png" height="40px"></div>
                                             </div>
@@ -1050,11 +996,6 @@ function ChooseDirection(destination){
                                         `;
 
             }
-
-
-
-
-
 
             break;
         
@@ -1083,23 +1024,31 @@ function ChooseDirection(destination){
         
             break;
 
+
+
         case "School":
             infoboxObj.className = "infoboxBase";
             infoboxObj.innerHTML = `<div class="UI_text center">
                                     <img src="./img/building_texts/In_SchoolImg.png" width="${infoboxWidth}px">
                                     </div>
-                                    <div class="text-topic">School</div>
-                                    <div class="UI_text description">Here you are able to study and enhance your knowledge and get a degree.</div>
+                                    <div class="text-topic"><span style='color:navajowhite'>School and library</span></div>
+                                    <div class="UI_text description">This is the place where knowledge lives in.</div>
                                     
                                     <div class="oneColumn border"></div>
-                                    <br>`
+                                    <br>
+                                    
+                                    <div class="twoColumns40-60">
+                                    <div class="basicCell"><button class="btn" onclick="SchoolAction('library')">Library</button></div>
+                                    <div id="sports_gymText" class="optiontext green">Ready a book or magazine. Spend restful time in total peace.</div>
+                                    </div>
+                                    `;
 
 
                                 if (currentPlayerAttributes.educationId < 3 && !currentPlayerAttributes.educationEnroll){
                                     infoboxObj.innerHTML +=  
                                     `<div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="SchoolAction()">Purchase enroll</button></div>
-                                    <div id="educationEnroll_text" class="optiontext green">Purchase the enroll for ${education[currentPlayerAttributes.educationId+1].degree} with ${education[currentPlayerAttributes.educationId+1].cost}€.</div>
+                                        <div class="basicCell"><button class="btn" onclick="SchoolAction('school')">Enroll</button></div>
+                                    <div id="educationEnroll_text" class="optiontext green">Enroll to ${education[currentPlayerAttributes.educationId+1].degree} with ${education[currentPlayerAttributes.educationId+1].cost}€.</div>
                                     </div>
                                     `;
                                 }
@@ -1116,9 +1065,6 @@ function ChooseDirection(destination){
                                 else{
                                     infoboxObj.innerHTML += `<div class="optiontext green">Nothing for you any. You are total master! </div>`;
                                 }
-                            
-
-
                                 break;
 
 
@@ -1145,15 +1091,29 @@ function ChooseDirection(destination){
                                 </div>
 
                                 <div class="twoColumns40-60">
-                                <div class="basicCell"><button class="btn" onclick="SportsAction('swim')">Swim</button></div>
-                                    <div id="sports_swimText" class="optiontext green">Take a swim. It reduces your work stress!</div>
+                                <div class="basicCell"><button class="btn" onclick="SportsAction('sauna')">Sauna</button></div>
+                                    <div id="sports_swimText" class="optiontext green">Spend some time in sauna. It reduces your work stress!</div>
                                 </div>
 
                                 `;
 
             break;
 
-
+        case "Church":
+            infoboxObj.className = "infoboxBase";
+            infoboxObj.innerHTML = `<div class="UI_text center">
+                                
+                                </div>
+                                <div class="text-topic"><span style='color:darkseagreen'>Church</span></div>
+                                <div class="UI_text description">Hopefully you will find something you are looking for(?)</div>
+                                <div class="oneColumn border"></div>
+                                <br>
+                                
+                                <div class="twoColumns40-60">
+                                <div class="basicCell"><button class="btn" onclick="ChurchAction()">Take it!</button></div>
+                                    <div id="sports_swimText" class="optiontext green">This is a leap of faith! You might be happier or less happier after this.</div>
+                                </div>
+                                `;
     }
 
 
@@ -1172,7 +1132,7 @@ function EnteringHome(){ //entering some of the homes
         infoboxObj.innerHTML = `<div class="UI_text center">
                                 <img src="./img/building_texts/Home_Image.png" width="${infoboxWidth}px">
                                 </div>
-                                <div class="text-topic">Lo-cost appartment</div>
+                                <div class="text-topic"><span style='color:sienna'>Lo-cost appartment</span></div>
                                 <div class="UI_text description">This is where some people live.</div>
                                 <div class="oneColumn border"></div>
                                 <br>`
@@ -1184,7 +1144,7 @@ function EnteringHome(){ //entering some of the homes
         infoboxObj.innerHTML = `<div class="UI_text center">
                                 <img src="./img/building_texts/In_HomeBetterImg.png" width="${infoboxWidth}px">
                                 </div>
-                                <div class="text-topic">Luxurious appartment</div>
+                                <div class="text-topic"><span style='color:peachpuff'>Luxurious appartment</span></div>
                                 <div class="UI_text description">This is where successful people live.</div>
                                 <div class="oneColumn border"></div>
                                 <br>`
@@ -1571,26 +1531,7 @@ function OpenOnlineJobs(){
     }
 };
 
-function ApplyForJob(workID, jobName){
-    currentPlayerAttributes.showJobs = false;
-    currentPlayerAttributes.jobIdPending = workID;
-    currentPlayerAttributes.jobPendingTime = currentPlayerAttributes.weeklyTime - 20;
-    if (currentPlayerAttributes.jobPendingTime < 0){
-        currentPlayerAttributes.jobPendingTime = 1;
-    }
-    ReduceTime_Check(3);
-    infoboxObj.innerHTML = `<div class="browserBase">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}<div class="browser">http://www.somejobs.com/#5435</div></div>
-                            <div class="twoColumns30-70">
-                                <div class="basicCell"><img src="./img/icons/JobApplicationSprite.png" height="70px"></div>
-                                <div class="UI_text description">Hello Sir,<br><br>
-                                Thank you for submitting your application letter for ${jobName} position. We want to fulfill this position as quickly as possible.<br><br>
-                                You'll heard from us soon.<br><br>
-                                Best regards,<br>
-                                HR Manager
-                                </div>
-                            </div>`
 
-};
 
 
 
@@ -1692,15 +1633,25 @@ function MallActions(action){
             if (currentPlayerAttributes.beautyFactor == 0 && currentPlayerAttributes.moneyPoints >= 50) {
                 currentPlayerAttributes.moneyPoints -= 50;
                 currentPlayerAttributes.beautyFactor += 5;
+                currentPlayerAttributes.happinessPoints++;
                 OpponentEvents('went to beauty salon.');
             }
             ReduceTime_Check(5);
             break;
 
+        case 'coffeehouse':
+            if (currentPlayerAttributes.mallActions != 0 && currentPlayerAttributes.moneyPoints >= 10) {
+                currentPlayerAttributes.moneyPoints -= 10;
+                currentPlayerAttributes.happinessPoints++;
+                OpponentEvents('is having a milk shake.');
+                document.getElementById('mall_coffeehouse').innerHTML = "You feel happier after having a milk shake and resting a little bit.";
+            }
+            ReduceTime_Check(3);
+            break;
+
     }
-
+    
 };
-
 
 //BAR---------------------------------------------------------------------------------------------------
 function BarAction(action){
@@ -1921,37 +1872,53 @@ function RentHomeAction(home){
 };
 
 //EDUCATION-------------------------------------------------------------------------------------------------------------
-function SchoolAction(){
+function SchoolAction(action){
 
-    if (currentPlayerAttributes.moneyPoints >= education[currentPlayerAttributes.educationId+1].cost && !currentPlayerAttributes.educationEnroll){
-        currentPlayerAttributes.moneyPoints -= education[currentPlayerAttributes.educationId+1].cost
-        currentPlayerAttributes.educationEnroll = true;
-        ChooseDirection('School'); //for reload
-        ShowTempMessage('You puchased enroll for ' + education[currentPlayerAttributes.educationId+1].degree, 'sms');
-        ReduceTime_Check(0);
-    }
+    if (action == 'school'){
 
-    else if(currentPlayerAttributes.educationEnroll && currentPlayerAttributes.weeklyTime > studyingTimeToConsume){
-        currentPlayerAttributes.educationProgress++;
-        ReduceTime_Check(studyingTimeToConsume);
+        if (currentPlayerAttributes.moneyPoints >= education[currentPlayerAttributes.educationId+1].cost && !currentPlayerAttributes.educationEnroll){
+            currentPlayerAttributes.moneyPoints -= education[currentPlayerAttributes.educationId+1].cost
+            currentPlayerAttributes.educationEnroll = true;
+            ChooseDirection('School'); //for reload
+            ShowTempMessage('You puchased enroll for ' + education[currentPlayerAttributes.educationId+1].degree, 'sms');
+            ReduceTime_Check(0);
+        }
+    
+        else if(currentPlayerAttributes.educationEnroll && currentPlayerAttributes.weeklyTime > studyingTimeToConsume){
+            currentPlayerAttributes.educationProgress++;
+            ReduceTime_Check(studyingTimeToConsume);
+            
+    
+            if(currentPlayerAttributes.educationProgress == 5){
+                currentPlayerAttributes.educationId++;
+                currentPlayerAttributes.educationEnroll = false;
+                currentPlayerAttributes.educationProgress = 0;
+                //message to panel congrats etc.
+                ReduceTime_Check(0);
+                ShowTempMessage('You made it! ' + education[currentPlayerAttributes.educationId].degree, 'sms');
+                ChooseDirection('School'); //for reload
+            }
+        }
+    
+        else{
+            const educationEnroll = document.getElementById('educationEnroll_text');
+            educationEnroll.innerHTML = "You don't have enough money or time to go further.";
+            educationEnroll.className = "optiontext red";
+        }
         
 
-        if(currentPlayerAttributes.educationProgress == 5){
-            currentPlayerAttributes.educationId++;
-            currentPlayerAttributes.educationEnroll = false;
-            currentPlayerAttributes.educationProgress = 0;
-            //message to panel congrats etc.
-            ReduceTime_Check(0);
-            ShowTempMessage('You made it! ' + education[currentPlayerAttributes.educationId].degree, 'sms');
-            ChooseDirection('School'); //for reload
-        }
     }
 
-    else{
-        const educationEnroll = document.getElementById('educationEnroll_text');
-        educationEnroll.innerHTML = "You don't have enough money or time to go further.";
-        educationEnroll.className = "optiontext red";
+    else if (action == 'library'){
+        if (currentPlayerAttributes.schoolAction == 0){
+            currentPlayerAttributes.schoolAction++;
+            currentPlayerAttributes.happinessPoints++;
+            
+        }
+
+        ReduceTime_Check(5);
     }
+
 
 };
 
@@ -1976,11 +1943,11 @@ function SportsAction(sport){
         ReduceTime_Check(2);
     }
 
-    if(sport == 'swim'){
+    if(sport == 'sauna'){
 
         if (currentPlayerAttributes.workStress > 0){
             currentPlayerAttributes.workStress--;
-            document.getElementById('sports_swimText').nnerHTML = "You feel much more relaxed now and your work stress has been reduced..";
+            document.getElementById('sports_swimText').innerHTML = "You feel much more relaxed now and your work stress has been reduced...!";
             // sports_swimText.innerHTML = "You feel much more relaxed now and your work stress has been reduced..";
             // sports_swimText.className = "optiontext red";
         }
@@ -1989,6 +1956,18 @@ function SportsAction(sport){
     }
     
 };
+
+//CHURCH------------------------------------------------------------------------------------------------------------
+function ChurchAction(){
+
+    const randomAmount = Math.floor(Math.random()*12)-6;
+
+    currentPlayerAttributes.happinessPoints += randomAmount;
+    ReduceTime_Check(4);
+}
+
+
+
 
 //HELPER FUNCTIONS----------------------------------------------------------------------------------------------------------------------------------------------
 function FindWithAttr(array, attr, value) {
@@ -2123,7 +2102,6 @@ function ColorTimeBar(targetWeeklyTime, barName){
     }
 };
 
-
 function OrderOnlineItem(itemId, cost){
     
     
@@ -2155,3 +2133,89 @@ function AddEnergy(addedEnergy){
     
     currentPlayerAttributes.energyLevel += addedEnergy;
 };
+
+function RandomizeJobs(){
+
+    randomizedOnlineJobs = [];
+    let jobsToShow = [];
+
+    //make a copy of jobs array
+    jobs.forEach(el => {  // jobsToShow = {...jobs};
+        jobsToShow.push(el);
+    });
+
+    //First Delete current and unemloyment jobs from the  
+    jobsToShow.splice(currentPlayerAttributes.currentWorkId, 1);
+    if (currentPlayerAttributes.currentWorkId != 0){
+        jobsToShow.splice(0, 1);
+    }
+    
+    //Push to randomizejob list and delete from temp list        
+    for (var i = 0; i < 4; i++){
+        let randJob = Math.floor(Math.random()*jobsToShow.length);
+        randomizedOnlineJobs.push(jobsToShow[randJob]);
+        jobsToShow.splice(randJob, 1); //delete jobs, which are listed from the temp array
+    }
+};
+
+function ApplyForJob(workID, jobName){
+    currentPlayerAttributes.showJobs = false;
+    currentPlayerAttributes.jobIdPending = workID;
+    currentPlayerAttributes.jobPendingTime = currentPlayerAttributes.weeklyTime - 20;
+    if (currentPlayerAttributes.jobPendingTime < 0){
+        currentPlayerAttributes.jobPendingTime = 1;
+    }
+    ReduceTime_Check(3);
+    infoboxObj.innerHTML = `<div class="browserBase">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}<div class="browser">http://www.somejobs.com/#5435</div></div>
+                            <div class="twoColumns30-70">
+                                <div class="basicCell"><img src="./img/icons/JobApplicationSprite.png" height="70px"></div>
+                                <div class="UI_text description">Hello Sir,<br><br>
+                                Thank you for submitting your application letter for ${jobName} position. We want to fulfill this position as quickly as possible.<br><br>
+                                You'll heard from us soon.<br><br>
+                                Best regards,<br>
+                                HR Manager
+                                </div>
+                            </div>`
+
+};
+
+function WorkChecker(){
+
+    //When jobs is pending
+    if (currentPlayerAttributes.jobIdPending != null && currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.jobPendingTime  ){
+        
+        const rand = Math.floor(Math.random()*5);
+        //Decider if you got the job or not
+        console.log(rand + " != 4???");
+
+        const tempJobPending = FindWithAttr(jobs, "id", currentPlayerAttributes.jobIdPending); //jobs is given with id number
+        if (jobs[tempJobPending].worklevel <= currentPlayerAttributes.playerWorkLevel && rand != 4 && jobs[tempJobPending].educationReq <= currentPlayerAttributes.educationId){
+
+            currentPlayerAttributes.currentWorkId = tempJobPending;
+            ShowTempMessage(`Congratulations! You got the job!<br><br> Now you can start working as ${jobs[tempJobPending].job}.`, 'sms');
+            OpponentEvents(`got a job as a ${jobs[tempJobPending].job}!`);
+        }
+
+        else if (jobs[tempJobPending].worklevel > currentPlayerAttributes.playerWorkLevel){
+            ShowTempMessage("Unfortunately you didn't get the job. You are lacking work experience.", 'rejection');
+            OpponentEvents("failed to get a job.");
+        }
+
+        else if (jobs[tempJobPending].educationReq > currentPlayerAttributes.educationId){
+            ShowTempMessage("Unfortunately you didn't get the job. You are lacking some education.", 'rejection');
+            OpponentEvents("failed to get a job.");
+        }
+
+        else{
+            ShowTempMessage("Unfortunately you didn't get the job. All of the candidates including you were really good, but you weren't the our choice.", 'rejection');
+            OpponentEvents("failed to get a job.");
+        }
+
+        currentPlayerAttributes.showJobs = true;
+        currentPlayerAttributes.jobIdPending = null;
+        RandomizeJobs();
+        // randomizeNewOnlineContent = true;
+    }
+
+
+}

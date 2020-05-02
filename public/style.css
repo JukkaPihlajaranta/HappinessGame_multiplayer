@@ -274,10 +274,11 @@ body{
     
 }
 .moveButton{
-    height: 40px;
+    height: 35px;
     border: 1px solid black;
-    margin-right: 5px;
+    margin-right: 4px;
     border-radius: 20%;
+    
 } 
 
 .moveButton:hover{
