@@ -77,14 +77,18 @@ const opponent_events = document.getElementById('opponent_events');
 
 
 
-//Player attributes
-let currentPlayerAttributes = {
+const startingAttributes = {
+
     happinessTotal: 0,
     happinessPoints: 15,
     moneyPoints: 200,
     energyLevel: 50,
     intoxicationLevel: 0,
     
+    //time
+    weeklyTime: 168,
+    weekNumber: 1,
+
     //Pet
     petID: 0,
     petFoodAmount: 0,
@@ -112,6 +116,7 @@ let currentPlayerAttributes = {
     jobPendingTime: 0,
     workExperience: 0,
     workStress: 0,
+    showJobs: true,
 
     itemInPostAnnouncement: 0,
     jobIdPending: null,
@@ -119,10 +124,68 @@ let currentPlayerAttributes = {
     currentItems: [],              //purchased items
     postPackageInPost: false,
     showPostMessage: false,
+    postPackagePending: 0,
 
     //different happinesses
     forestHappiness: 2,
     internetHappiness: 1,
+
+
+}
+
+
+//Player attributes
+let currentPlayerAttributes = {
+    // happinessTotal: 0,
+    // happinessPoints: 15,
+    // moneyPoints: 200,
+    // energyLevel: 50,
+    // intoxicationLevel: 0,
+    
+    // //time
+    // weeklyTime: 168,
+    // weekNumber: 1,
+
+    // //Pet
+    // petID: 0,
+    // petFoodAmount: 0,
+    // petWeeklyDue: false,
+
+    // homeID: 0,
+    // rentToDue: true,
+    // randomForRenting: 2,
+
+    // educationId: 0,
+    // educationProgress: 0,
+    // educationEnroll: false,
+
+    // currentYogaEnhancer: 0,
+    // exerciseLvl: 0,
+
+    // beautyFactor: 0,
+
+    // relationshipID: 0,
+    // relationshipStrenght: 0,
+    // newlyMet: false,
+
+    // currentWorkId: 0,
+    // playerWorkLevel: 0,
+    // jobPendingTime: 0,
+    // workExperience: 0,
+    // workStress: 0,
+    // showJobs: true,
+
+    // itemInPostAnnouncement: 0,
+    // jobIdPending: null,
+
+    // currentItems: [],              //purchased items
+    // postPackageInPost: false,
+    // showPostMessage: false,
+    // postPackagePending: 0,
+
+    // //different happinesses
+    // forestHappiness: 2,
+    // internetHappiness: 1,
 
 }
 
@@ -131,19 +194,11 @@ const weeklytimeToCompare = 168;
 const studyingTimeToConsume = 30;
 const yogaEnhance = 20;
 
-let weeklyTime = 168;
-let weekNumber = 1;
 let randomizeNewOnlineContent = true;
 
 
 //Items
 let randomizedOnlineItems = [];         //randomized items in Online shop
-let postPackagePending = 0;
-
-
-//Jobs
-let showJobs = true; //show jobs if applied or not
-
 let randomizedOnlineJobs = [];
 
 
@@ -152,19 +207,18 @@ const relationships = [
     {
         relationshipStatus: "Single",
         happinessPoints: 0},
-
     {
         relationshipStatus: "Complicated",
         happinessPoints: -10},
     {
         relationshipStatus: "Just met",
-        happinessPoints: 13},
+        happinessPoints: 9},
     {
         relationshipStatus: "Dating",
-        happinessPoints: 21},
+        happinessPoints: 18},
     {
         relationshipStatus: "Relationship",
-        happinessPoints: 32},
+        happinessPoints: 24},
 ];
 
 const pets = [
@@ -179,11 +233,12 @@ const pets = [
         petFoodCost: 109,
         petPenalty: 250,
         weeklyPetTime: 12,
-        happinessPoints: 18}
+        happinessPoints: 13}
     
 ];
 
-const education = [{
+const education = [
+    {
     degree: "Basic",
     cost: 0,
     happinessPoints: 0},
@@ -196,16 +251,17 @@ const education = [{
 {
     degree: "Bachelor",
     cost: 430,
-    happinessPoints: 14},
+    happinessPoints: 12},
 
 {
     degree: "Master",
     cost: 590,
-    happinessPoints: 22},
+    happinessPoints: 18},
 
 ];
 
-const rentHomes = [{
+const rentHomes = [
+    {
         rent: 182,
         homeName: "Lo-cost appartment",
         deposit: 120,
@@ -479,35 +535,35 @@ const onlineItems = [
         img: "./img/items/Item_OilCanSprite.png",
         cost: 35,
         description: "Some lubrication to the bearings and joints.",
-        itemHappiness: 3},
+        itemHappiness: 1},
     {
         itemId: 4,
         item: "Slingshot",
         img: "./img/items/Item_SlingShotSprite.png",
         cost: 20,
         description: "Do not aim to a neightbour's window!",
-        itemHappiness: 3},
+        itemHappiness: 1},
     {
         itemId: 5,
         item: "Leaf blower",
         img: "./img/items/Item_LeafBlowerSprite.png",
         cost: 120,
         description: "Take a control over leaves on your yard.",
-        itemHappiness: 4},
+        itemHappiness: 3},
     {
         itemId: 6,
         item: "Table fan",
         img: "./img/items/Item_TableFanSprite.png",
         cost: 39,
         description: "When it's hot, you'll need this.",
-        itemHappiness: 3},
+        itemHappiness: 2},
     {
         itemId: 7,
         item: "Excercise bike",
         img: "./img/items/Item_ExcerciseBikeSprite.png",
         cost: 190,
         description: "Get yourself to a good shape!",
-        itemHappiness: 8},
+        itemHappiness: 4},
     {
         itemId: 8,
         item: "Credit card",
@@ -549,14 +605,14 @@ const onlineItems = [
         img: "./img/items/Item_ChestSprite.png",
         cost: 177,
         description: "Anchient chest. Very nice for the furnishing your home.",
-        itemHappiness: 5},
+        itemHappiness: 3},
     {
         itemId: 14,
         item: "Pieces of emerald",
         img: "./img/items/Item_EmeraldSprite.png",
         cost: 499,
         description: "Some nice jewelry.",
-        itemHappiness: 3},
+        itemHappiness: 5},
     {
         itemId: 15,
         item: "Cable",
@@ -577,14 +633,14 @@ const onlineItems = [
         img: "./img/items/Item_VCRSprite.png",
         cost: 35,
         description: "A little bit older technology. Fully functional, if you don't use it",
-        itemHappiness: 1},
+        itemHappiness: 2},
     {
         itemId: 18,
         item: "VHS",
         img: "./img/items/Item_VHSSprite.png",
         cost: 55,
         description: "You'll never know, what you find on this tape. Excelusive material!",
-        itemHappiness: 3},
+        itemHappiness: 2},
     {
         itemId: 19,
         item: "Pizza boxes",
@@ -695,7 +751,7 @@ function UpdateBarAndTexts(){
     moneyText.innerHTML = currentPlayerAttributes.moneyPoints + '€ <span style="color:black; text-weight:500">' + jobs[currentPlayerAttributes.currentWorkId].salary + "€/day</span>";;
     
 
-    if (postPackagePending != 0 && weeklyTime <= currentPlayerAttributes.itemInPostAnnouncement  && currentPlayerAttributes.showPostMessage){
+    if (currentPlayerAttributes.postPackagePending != 0 && currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.itemInPostAnnouncement  && currentPlayerAttributes.showPostMessage){
         ShowTempMessage('Package in post!', 'package');
         OpponentEvents("has a package in the post.");
         currentPlayerAttributes.postPackageInPost = true;
@@ -748,7 +804,7 @@ function ShowTempMessage(message, image){
 function WorkChecker(){
 
     //When jobs is pending
-    if (currentPlayerAttributes.jobIdPending != null && weeklyTime <= currentPlayerAttributes.jobPendingTime  ){
+    if (currentPlayerAttributes.jobIdPending != null && currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.jobPendingTime  ){
         
         const rand = Math.floor(Math.random()*5);
         //Decider if you got the job or not
@@ -777,7 +833,7 @@ function WorkChecker(){
             OpponentEvents("failed to get a job.");
         }
 
-        showJobs = true;
+        currentPlayerAttributes.showJobs = true;
         currentPlayerAttributes.jobIdPending = null;
         RandomizeJobs();
         // randomizeNewOnlineContent = true;
@@ -788,12 +844,12 @@ function WorkChecker(){
 
 function ReduceTime_Check(decreaseTimeAmount){
 
-    weeklyTime -= decreaseTimeAmount;
+    currentPlayerAttributes.weeklyTime -= decreaseTimeAmount;
     
-    if (weeklyTime < 0){
+    if (currentPlayerAttributes.weeklyTime < 0){
         
         
-        weeklyTime = 0;
+        currentPlayerAttributes.weeklyTime = 0;
         
         ManageMoveButtons('weekChange');
         $(infoboxObj).slideUp(500);
@@ -806,19 +862,19 @@ function ReduceTime_Check(decreaseTimeAmount){
         //if worked too much, feel sick and take some time away
     }
 
-    ColorTimeBar(weeklyTime, timeProgressBar);
+    ColorTimeBar(currentPlayerAttributes.weeklyTime, timeProgressBar);
     
     anime({
         targets: timeProgressBar,
-        width: (weeklyTime/weeklytimeToCompare)*barWidth,
+        width: (currentPlayerAttributes.weeklyTime/weeklytimeToCompare)*barWidth,
         easing: 'linear',
         duration: 500
 
     });
 
 
-    monthlyTimeText.innerHTML = "Time: " + Math.ceil((weeklyTime/weeklytimeToCompare)*100) + "%";
-    weekText.innerText = "Week # " + weekNumber;
+    monthlyTimeText.innerHTML = "Time: " + Math.ceil((currentPlayerAttributes.weeklyTime/weeklytimeToCompare)*100) + "%";
+    weekText.innerText = "Week # " + currentPlayerAttributes.weekNumber;
 
     
     WorkChecker();
@@ -991,7 +1047,7 @@ function ChooseDirection(destination){
         case "Mall":
             infoboxObj.className = "infoboxBase";
             infoboxObj.innerHTML = `<div class="UI_text center">
-                                    <img src="./img/building_texts/In_PostImg.png" width="${infoboxWidth}px">
+                                    <img src="./img/building_texts/In_MallImg.png" width="${infoboxWidth}px">
                                     </div>
                                     <div class="text-topic">The Mall</div>
                                     <div class="UI_text description">Everything you need and little bit more.</div>
@@ -1055,7 +1111,7 @@ function ChooseDirection(destination){
                 infoboxObj.innerHTML += `
                                         <div class="twoColumns40-60">
                                         <div></div>
-                                            <div class="optiontext orange">You don't have anything to reclame.</div>
+                                            <div class="optiontext orange">You don't have anything to reclaim.</div>
                                             
                                         </div>
                                         `;
@@ -1095,7 +1151,10 @@ function ChooseDirection(destination){
 
         case "School":
             infoboxObj.className = "infoboxBase";
-            infoboxObj.innerHTML = `<div class="text-topic">School</div>
+            infoboxObj.innerHTML = `<div class="UI_text center">
+                                    <img src="./img/building_texts/In_SchoolImg.png" width="${infoboxWidth}px">
+                                    </div>
+                                    <div class="text-topic">School</div>
                                     <div class="UI_text description">Here you are able to study and enhance your knowledge on things you're interested in.</div>
                                     
                                     <div class="oneColumn border"></div>
@@ -1159,7 +1218,7 @@ function ChooseDirection(destination){
     }
 
 
-    if (weeklyTime > 0){
+    if (currentPlayerAttributes.weeklyTime > 0){
         $(infoboxObj).slideDown(400);
     }
     
@@ -1428,7 +1487,7 @@ function ActionsAtHome(action){
             break;
 
         case 'petcare':
-            if (weeklyTime >= pets[currentPlayerAttributes.petID].weeklyPetTime){
+            if (currentPlayerAttributes.weeklyTime >= pets[currentPlayerAttributes.petID].weeklyPetTime){
                 
                 currentPlayerAttributes.happinessPoints += 2;
                 currentPlayerAttributes.petWeeklyDue = false;
@@ -1509,7 +1568,7 @@ function OpenOnlineJobs(){
                             <br>`;
     infoboxObj.scrollTop = 0;
 
-    if (showJobs){
+    if (currentPlayerAttributes.showJobs){
         for (var i = 0; i < randomizedOnlineJobs.length; i++){
             // let rand = Math.floor(Math.random()*jobsToShow.length);
             infoboxObj.innerHTML += ShowJobs(randomizedOnlineJobs[i]);
@@ -1574,9 +1633,9 @@ function OpenOnlineJobs(){
 };
 
 function ApplyForJob(workID, jobName){
-    showJobs = false;
+    currentPlayerAttributes.showJobs = false;
     currentPlayerAttributes.jobIdPending = workID;
-    currentPlayerAttributes.jobPendingTime = weeklyTime - 20;
+    currentPlayerAttributes.jobPendingTime = currentPlayerAttributes.weeklyTime - 20;
     if (currentPlayerAttributes.jobPendingTime < 0){
         currentPlayerAttributes.jobPendingTime = 1;
     }
@@ -1604,7 +1663,7 @@ function OpenOnlineShop(){
                             <br>`;
     infoboxObj.scrollTop = 0;
 
-    if (postPackagePending == 0){
+    if (currentPlayerAttributes.postPackagePending == 0){
         for (var i = 0; i < randomizedOnlineItems.length; i++){
 
             
@@ -1663,7 +1722,7 @@ function OpenOnlineShop(){
 };
 
 function ForestAction(){
-    if (currentPlayerAttributes.forestHappiness > 0 && weeklyTime >= 6){
+    if (currentPlayerAttributes.forestHappiness > 0 && currentPlayerAttributes.weeklyTime >= 6){
         const forestText = document.getElementById('forestText');
         forestText.innerHTML = "You feel so much happier."
         
@@ -1679,9 +1738,9 @@ function MallActions(action){
         case 'postPackage':
             if (currentPlayerAttributes.postPackageInPost){
 
-                currentPlayerAttributes.currentItems.push(FindWithAttr(onlineItems, "itemId", postPackagePending));
+                currentPlayerAttributes.currentItems.push(FindWithAttr(onlineItems, "itemId", currentPlayerAttributes.postPackagePending));
                 
-                postPackagePending = 0;
+                currentPlayerAttributes.postPackagePending = 0;
                 currentPlayerAttributes.postPackageInPost = false;
                 UpdateBarAndTexts();
                 ChooseDirection('Mall');
@@ -1940,7 +1999,7 @@ function SchoolAction(){
         ReduceTime_Check(0);
     }
 
-    else if(currentPlayerAttributes.educationEnroll && weeklyTime > studyingTimeToConsume){
+    else if(currentPlayerAttributes.educationEnroll && currentPlayerAttributes.weeklyTime > studyingTimeToConsume){
         currentPlayerAttributes.educationProgress++;
         ReduceTime_Check(studyingTimeToConsume);
         
@@ -2106,17 +2165,17 @@ function ManageScoreBoard_Images(){
     }
 }
 
-function ColorTimeBar(weeklyTime, barName){
+function ColorTimeBar(targetWeeklyTime, barName){
 
-    if (weeklyTime >= weeklytimeToCompare * 0.66) {
+    if (targetWeeklyTime >= weeklytimeToCompare * 0.66) {
         barName.style.background = "linear-gradient(to right, white, lime)";
     }
 
-    if (weeklyTime < weeklytimeToCompare * 0.66 && weeklyTime > 168 * 0.33){
+    if (targetWeeklyTime < weeklytimeToCompare * 0.66 && targetWeeklyTime > 168 * 0.33){
         barName.style.background = "linear-gradient(to right, white, orange)";
     }
 
-    if (weeklyTime <= weeklytimeToCompare * 0.33){
+    if (targetWeeklyTime <= weeklytimeToCompare * 0.33){
         barName.style.background = "linear-gradient(to right, white, red)";
     }
 }
@@ -2127,7 +2186,7 @@ function OrderOnlineItem(itemId, cost){
     
     if (cost <= currentPlayerAttributes.moneyPoints){
         currentPlayerAttributes.moneyPoints -= cost;
-        postPackagePending = itemId;
+        currentPlayerAttributes.postPackagePending = itemId;
         infoboxObj.innerHTML = `<div class="browserBase">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}<div class="browser">http://www.somestuff.com/order#21123</div></div>
                                 <br><div class="UI_text description">Hi there stranger! <br><br>
                                 Thanks for buying this. I'll post the item right a way! The follow-up code is #5473829543 432 5432 21123. Be sure to write that down. The package should be there shortly.<br><br>
@@ -2136,7 +2195,7 @@ function OrderOnlineItem(itemId, cost){
                                 the seller
                                 </div>`;
 
-        currentPlayerAttributes.itemInPostAnnouncement = weeklyTime - 15;
+        currentPlayerAttributes.itemInPostAnnouncement = currentPlayerAttributes.weeklyTime - 15;
         if (currentPlayerAttributes.itemInPostAnnouncement < 0){
             currentPlayerAttributes.itemInPostAnnouncement = 1;
         }

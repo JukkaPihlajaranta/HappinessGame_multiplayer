@@ -23,16 +23,16 @@ io.sockets.on('connection', (socket) =>{
 
     socket.id = guid();
     playerList[socket.id] = socket;
-    // currentPlayerList[socket.id];
+    
     currentPlayerList[socket.id] = {
-        isReady: false,
+        playerState: 0,
         playerName: '',
         playersGameId: 'none',
         isGameCreator: false,
         thisGameCreatorsList: [],
         maxPlayers: 0
     };
-    socket.isReady = false;
+    // socket.isReady = false;
     socket.playerName = '';
     socket.playersGameId = 'none';
     const currentUserNumber = Object.keys(playerList);
@@ -42,44 +42,69 @@ io.sockets.on('connection', (socket) =>{
     //DISCONNECT
     socket.on('disconnect', () =>{
         const playerTempName = currentPlayerList[socket.id].playerName;
+        console.log(playerTempName);
+        if (playerTempName != ''){
+
+            PlayerDisconnects(playerTempName);
+        }
+
+        // else{
+
+        //     delete currentPlayerList[socket.id];
+        // }
+
+        delete playerList[socket.id]; //deletes this for last
         
-        delete playerList[socket.id];
-        delete currentPlayerList[socket.id];
         // connections.splice(connections.indexOf(socket), 1);
         const currentUserNumber = Object.keys(playerList);
         console.log('A user disconnected: %s socket(s) connected', currentUserNumber.length);
         
         //Jos pelaajan nimi ei ole tyhjä ==> disconnectaa pelaaja servulta
-        if (playerTempName != ''){
 
-            PlayerDisconnects(playerTempName);
-        }
         
     });
     
 
 
-    function PlayerDisconnects(playerTempName){ // player leaves
-        // var packageToClient = [];
+    function PlayerDisconnects(playerTempName){ // player leaves and deletes the game
 
-        // for(var i in playerList){
-        //     packageToClient.push({
-        //         playerName: playerList[i].playerName,
-        //         isReady: playerList[i].isReady,
-        //         id: playerList[i].id
-        //     });
-        // }
-        // console.log("player leaving");
 
-        const leaveText = "<span style=color:red>" + playerTempName + " left..</span>" ;
+        if (currentPlayerList[socket.id].playersGameId != 'none'){
+            const currentGameId = currentPlayerList[socket.id].playersGameId;
+            const leaveGameText = "<span style=color:red>" + playerTempName + " left the game for some reason...</span>" ;
 
-        for (var i in playerList){
-            playerList[i].emit('ToClient_UpdateWholePlayerList', currentPlayerList[socket.id]);
-            playerList[i].emit('ToClient_updateChat', leaveText);
+            gameList[currentGameId].playerIdList.forEach(player => {
+                
+                currentPlayerList[player] = {
+                    playerState: 0,
+                    playerName: currentPlayerList[player].playerName,
+                    playersGameId: 'none',
+                    isGameCreator: false,
+                    thisGameCreatorsList: [],
+                    maxPlayers: 0
+                };
+
+                playerList[player].emit('gameEndsOpponent');
+                playerList[player].emit('ToClient_updateChat', leaveGameText);
+            });
+            
+            
+            delete gameList[currentGameId];
+
+            console.log("currentPlayerList ",  currentPlayerList);
         }
 
-        
-    }
+        const leaveChatText = "<span style=color:red>" + playerTempName + " left the chat..</span>" ;
+
+        delete currentPlayerList[socket.id];
+
+        for (var i in playerList){
+            playerList[i].emit('ToClient_UpdateWholePlayerList', currentPlayerList);
+            playerList[i].emit('ToClient_updateChat', leaveChatText);
+        }
+
+        // console.log("Current Gamelist: ",  gameList);
+    };
     
     //SET PLAYERNAME WHEN JOINING CHAT
     socket.on('ToServer_UpdatePlayerName', (data)=> {
@@ -96,6 +121,10 @@ io.sockets.on('connection', (socket) =>{
         }
     });
 
+    socket.on('ToServer_PlayerNotReady', () => {
+        
+
+    })
 
     //SEND NORMAL MESSAGE TO CHAT
     socket.on('ToServer_Chat', (data)=> {
@@ -155,7 +184,7 @@ io.sockets.on('connection', (socket) =>{
         //change this current playerlist member
         currentPlayerList[socket.id] = {
             playerName: currentPlayerList[socket.id].playerName,
-            isReady: true,
+            playerState: 1,
             playersGameId: newGameId,
             isGameCreator: true,
             thisGameCreatorsList: gameList[newGameId].playerIdList,
@@ -181,7 +210,7 @@ io.sockets.on('connection', (socket) =>{
         
         currentPlayerList[socket.id] = {
             playerName: currentPlayerList[socket.id].playerName,
-            isReady: true,
+            playerState: 1,
             playersGameId: gameId,
             isGameCreator: false,
             thisGameCreatorsList: gameList[gameId].playerIdList,
@@ -191,43 +220,43 @@ io.sockets.on('connection', (socket) =>{
 
 
 
-        for (var i in playerList){
-            playerList[i].emit('ToClient_UpdateWholePlayerList', currentPlayerList);
-        }
-
         if(gameList[gameId].gameMaxPlayers == gameList[gameId].playerIdList.length){
             
             gameList[gameId].playerIdList.forEach( player => {
 
+                currentPlayerList[player].playerState = 2;
                 playerList[player].emit('ToClient_StartGame', (gameList[gameId]));
             })
-             
-            
+           
         }
 
-        
+        for (var i in playerList){
+            playerList[i].emit('ToClient_UpdateWholePlayerList', currentPlayerList);
+        }
+
+        // console.log("Current Gamelist: ",  gameList);
     });
 
 
 
     //UPDATE PLAYER STATUS ON CHAT
-    socket.on('ToServer_UpdatePlayersStatus', () =>{
+    // socket.on('ToServer_UpdatePlayersStatus', () =>{
 
-        var packageToClient = [];
+    //     var packageToClient = [];
 
-        for(var i in playerList){
-            // playerList[i];
-            packageToClient.push({
-                playerName: playerList[i].playerName,
-                isReady: playerList[i].isReady,
-                id: playerList[i].id,
-            });
-        }
+    //     for(var i in playerList){
+    //         // playerList[i];
+    //         packageToClient.push({
+    //             playerName: playerList[i].playerName,
+    //             isReady: playerList[i].isReady,
+    //             id: playerList[i].id,
+    //         });
+    //     }
 
-        for (var i in playerList){
-            playerList[i].emit('ToClient_UpdatePlayerList', packageToClient);
-        }
-    });
+    //     for (var i in playerList){
+    //         playerList[i].emit('ToClient_UpdatePlayerList', packageToClient);
+    //     }
+    // });
 
 
     //OPPONENT TRACKING EVENTS------------------------------------------------------------------------------------------------------------------------
@@ -246,7 +275,6 @@ io.sockets.on('connection', (socket) =>{
             relationshipId: data.relationshipId
         }
 
-        
 
         data.opponentId.forEach(id => {
             playerList[id].emit('ToClient_OpponentStats', (tempData));
@@ -319,26 +347,18 @@ io.sockets.on('connection', (socket) =>{
     });
    
     socket.on('ToServer_GameWinner', (data) => {
-        
-        // const winnerId = data[0];
-        // const winnerName = data[1];
-        // const opponentId = data[2];
-
-        // console.log(data);
 
         const dataToOpponent = {
             winnerId: data.playerId,
             winnerName: data.playerLocalName,
         };
 
-        // playerId: playerId,
-        // playerLocalName, playerLocalName,
-        // opponentId, opponentId
 
         data.opponentId.forEach(id => {
+            currentPlayerList[id].playerState = 0;
             playerList[id].emit('gameEndsOpponent', (dataToOpponent));
         });
-        // playerList[opponentId].emit('gameEndsOpponent', (dataToOpponent));
+        
 
     });
 

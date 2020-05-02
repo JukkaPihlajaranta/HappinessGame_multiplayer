@@ -59,6 +59,7 @@ const inputChat = document.getElementById('inputChat');
 const list_of_players = document.getElementById('list_of_players');
 const opponentName1 = document.getElementById('opponentName1');
 const opponentName2 = document.getElementById('opponentName2');
+let playerGameState = 0;
 
 let playerLocalName = '';
 let playerId;
@@ -87,7 +88,6 @@ var socket = io.connect();
             document.getElementById('first_Topic').innerHTML = 'Welcome ' + name + "!";
             
             socket.emit('ToServer_UpdatePlayerName', name);
-            // socket.emit('ToServer_UpdatePlayersStatus');
             socket.emit('ToServer_UpdateWholePlayerList');
         }
 
@@ -99,14 +99,6 @@ var socket = io.connect();
         inputChat.value = '';
     });
     
-    // $('#createGame').click(function() {
-
-
-        
-
-    //     // socket.emit('ToServer_UpdatePlayersStatus'); //update texts
-    // });
-
 
 
     //RECEIVE A CHAT
@@ -117,10 +109,7 @@ var socket = io.connect();
 
     socket.on('ToClient_readyToPlay', (id) => {
         playerId = id;
-        // console.log('playerId ' + id);
-        // document.getElementById('enterBtn').innerHTML = 'Created!'
-        
-        
+       
     });      
 
     //RECEIVE UPDATED PLAYERLIST
@@ -131,32 +120,32 @@ var socket = io.connect();
         for (const obj in data){
 
             //Is game creator and doesn't show the join button
-            if (data[obj].isGameCreator && data[obj].thisGameCreatorsList[0] == playerId){
+            if (data[obj].isGameCreator && data[obj].thisGameCreatorsList[0] == playerId && data[obj].playerState == 1){
                 // console.log(data[obj].thisGameCreatorsList[0], " ", playerId);
-                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> <span style='color:lime; font-weight:900;'>${data[obj].thisGameCreatorsList.length}/${data[obj].maxPlayers} 
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> - <span style='color:lime; font-weight:900;'>${data[obj].thisGameCreatorsList.length}/${data[obj].maxPlayers} 
                 ready!</span>`;
                 // console.log("is the game creator, not showing the button");
             }
 
-            //Show join button next to game creator
-            else if (data[obj].isGameCreator){
-                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> <span style='color:lime; font-weight:900;'>${data[obj].thisGameCreatorsList.length}/${data[obj].maxPlayers} 
+            //Show join button next to game creator if client gamestate 0 and gamecreator is not playing
+            else if (data[obj].isGameCreator && playerGameState == 0 && data[obj].playerState != 2){
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> - <span style='color:lime; font-weight:900;'>${data[obj].thisGameCreatorsList.length}/${data[obj].maxPlayers} 
                  ready!   <button class="btn" onclick="JoinGame('${data[obj].playersGameId}')">Join!</button></span>`;
                 //  ${data[obj].playerName}'s game
-                 //  console.log("show the button");
+                //   console.log("show the button");
             }
 
-            // else if (data[obj].isGameCreator && data[obj.isReady]){
+            else if (data[obj].playerState == 2){
 
-
-            // }
-
-            else if (data[obj].playersGameId != 'none'){
-                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> <span style='color:lime; font-weight:900;'>ready for a game!</span>`;
-                // console.log("joined the game");
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> - <span style='color:blue; font-weight:900;'>is playing!</span>`;
             }
-            else{
-                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span>`;
+
+            else if (data[obj].playersGameId != 'none' && data[obj].playerState == 1){
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> - <span style='color:lime; font-weight:900;'>assigned to a game!</span>`;
+                // console.log("ready for the game");
+            }
+            else if (data[obj].playerName != ''){
+                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> - <span style='color:red; font-weight:900;'>hasn't decided yet..</span>`;
             }
             
         }
@@ -165,11 +154,13 @@ var socket = io.connect();
     });
 
     function JoinGame(gameId){
+        playerGameState = 1;
+        // console.log("joined game");
         socket.emit('ToServer_JoinGame', gameId);
     }
 
     function CreatingGame(amount){
-        
+        playerGameState = 1;
         numberOfPlayersForGame = amount;
         socket.emit('ToServer_CreateGame', numberOfPlayersForGame); //CREATE A GAME
         // socket.emit('Update_ServerPlayerNumber', amount); //change status
@@ -177,29 +168,56 @@ var socket = io.connect();
         $("#gameCreateButtons").fadeOut(300);
     }
 
-    socket.on('ToClient_UpdatePlayerList', (data) =>{
+    // socket.on('ToClient_UpdatePlayerList', (data) =>{
         
-        //this is the player list, join game buttons and player who are ready
-        list_of_players.innerHTML = 'Welcome to lobby';
+    //     //this is the player list, join game buttons and player who are ready
+    //     list_of_players.innerHTML = 'Welcome to lobby';
 
-        for(var i = 0; i < data.gamePlayerList.length; i++){
-            if (data.gamePlayerList[i] != ''){
-                list_of_players.innerHTML += `<div><span style="font-weight:900">${data.gamePlayerList[i]}</span> <span style='color:lime; font-weight:900;'>${data.id.length}/${numberOfPlayersForGame} ready!</span>`;
+    //     for(var i = 0; i < data.gamePlayerList.length; i++){
+    //         if (data.gamePlayerList[i] != ''){
+    //             list_of_players.innerHTML += `<div><span style="font-weight:900">${data.gamePlayerList[i]}</span> <span style='color:lime; font-weight:900;'>${data.id.length}/${numberOfPlayersForGame} ready!</span>`;
 
-            }
-            else{
-                list_of_players.innerHTML += `<div><span style="font-weight:900">${data[i].gamePlayerList}</span>`;
-            }
-        }
+    //         }
+    //         else{
+    //             list_of_players.innerHTML += `<div><span style="font-weight:900">${data[i].gamePlayerList}</span>`;
+    //         }
+    //     }
 
-    });
+    // });
 
 
 
     
     // STARTING THE GAME-----------------------------------------------------------------------
     socket.on("ToClient_StartGame", (data) =>{
+        
+        //reset these
+        playerGameState = 2;
+        currentPlayerAttributes = startingAttributes;
+
+        opponentId = [];
+        opponentName = [];
+        gameId = '';
         opponentObject_2.style.display = "none";
+
+        //Erase Opponent 2 information
+        opponentName2.innerHTML = "N/A";
+        opponent_time_text2.innerHTML = "N/A";
+        opponent_time_bar2.style = "width:0%",
+        opponent_happiness_text2.innerHTML = "N/A";
+        opponent_happiness_bar2.style = "width:0%",
+        opponent_moneyText2.innerHTML = "N/A";
+        opponent_moneyText2.className = "scoreboard-icon";
+
+        //don't show pictures
+        opponent_icon_house2.style.display = "none";
+        opponent_icon_houselux2.style.display = "none";
+        opponent_icon_education2.style.display = "none";
+        opponent_icon_pet2.style.display = "none";
+        opponent_icon_relationship2.style.display = "none";
+
+
+        //set colors and other info
         playerColor = data.color;
         gameId = data.gameId;
         numberOfPlayersForGame = data.gameMaxPlayers;
@@ -210,6 +228,8 @@ var socket = io.connect();
             
             if (data.playerIdList[i] == playerId){ //checks which object is this player
                 playerNumberInArray = i;
+
+                player.innerHTML =''; //empty the inner html
                 const playerText = document.createElement('div');
                 playerText.className = "opponentHoverName";
                 playerText.innerHTML = playerLocalName;
@@ -230,6 +250,8 @@ var socket = io.connect();
         opponentName1.innerHTML = `<span style='font-weight:900;color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
         opponentObject_1.style.background = playerColor[opponentNumberInArray[0]];
         
+
+        opponentObject_1.innerHTML =''; //empty the inner html
         const opp_text = document.createElement('div');
         opp_text.className = "opponentHoverName";
         opp_text.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
@@ -239,6 +261,8 @@ var socket = io.connect();
             opponentName2.innerHTML = `<span style='font-weight:900;color:${playerColor[opponentNumberInArray[1]]};'>${opponentName[1]}</span>`;
             opponentObject_2.style.background = playerColor[opponentNumberInArray[1]];
 
+
+            opponentObject_2.innerHTML =''; //empty the inner html
             const opp_text2 = document.createElement('div');
             opp_text2.className = "opponentHoverName";
             opp_text2.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[1]]};'>${opponentName[1]}</span>`;
@@ -246,14 +270,7 @@ var socket = io.connect();
             opponentObject_2.style.display = "block";
         }
 
-        else {
-            opponent_icon_house2.style.display = "none";
-            opponent_icon_houselux2.style.display = "none";
-            opponent_icon_education2.style.display = "none";
-            opponent_icon_pet2.style.display = "none";
-            opponent_icon_relationship2.style.display = "none";
-        }
-       
+      
         
         GameStarts();
     });
@@ -399,10 +416,10 @@ var socket = io.connect();
 
     socket.on('ToClient_NewWeek', () =>{
     
-        weeklyTime = weeklytimeToCompare;
+        currentPlayerAttributes.weeklyTime = weeklytimeToCompare;
 
         //Month change
-        if (weekNumber % 4 == 0){
+        if (currentPlayerAttributes.weekNumber % 4 == 0){
             // console.log("month has changed.");
  
             if (currentPlayerAttributes.rentToDue){ 
@@ -416,8 +433,8 @@ var socket = io.connect();
         }
 
 
-        // if (weekNumber % 4 != 0)
-        if (weekNumber % 4 != 0){
+        
+        if (currentPlayerAttributes.weekNumber % 4 != 0){
             ShowTempMessage("New week and new things!", "sms");
 
         }
@@ -431,22 +448,22 @@ var socket = io.connect();
                 switch (currentPlayerAttributes.relationshipID){
                     case 1: //complicated
                         currentPlayerAttributes.relationshipID = 0;
-                        
+                        currentPlayerAttributes.happinessPoints -= 4;
                         break;
                     
                     case 2: //just met
                         currentPlayerAttributes.relationshipID = 0;
-                        
+                        currentPlayerAttributes.happinessPoints -= 4;
                         break;
 
                     case 3: //dating
                         currentPlayerAttributes.relationshipID = 1;
-                        
+                        currentPlayerAttributes.happinessPoints -= 4;
                         break;
                     
                     case 4: //relationship
                         currentPlayerAttributes.relationshipID = 1;
-                        
+                        currentPlayerAttributes.happinessPoints -= 4;
                         break;
 
                 }
@@ -468,7 +485,7 @@ var socket = io.connect();
             }
     
             else if(currentPlayerAttributes.workStress > 5){
-                weeklyTime -= 60;
+                currentPlayerAttributes.weeklyTime -= 60;
                 currentPlayerAttributes.moneyPoints -= 60;
                 currentPlayerAttributes.happinessPoints -= 5;
                 ShowTempMessage("You worked too much. You felt a little bit sick for awhile and visited a doctor. The fee was 60€", 'sms');
@@ -483,9 +500,10 @@ var socket = io.connect();
                 // console.log("pet decare");
                 ShowTempMessage("You haven't taken care of your pet. You had to take it to a vet. The fee was " + pets[currentPlayerAttributes.petID].petPenalty +"€", 'sms');
                 currentPlayerAttributes.moneyPoints -= pets[currentPlayerAttributes.petID].petPenalty;
+                currentPlayerAttributes.happinessPoints -= 5;
             }
 
-            currentPlayerAttributes.petFoodAmount == 0 ? currentPlayerAttributes.petFoodAmount == 0 : currentPlayerAttributes.petFoodAmount--;
+            currentPlayerAttributes.petFoodAmount == 0 ? currentPlayerAttributes.petFoodAmount == 0 : currentPlayerAttributes.petFoodAmount--; //decrease pet food
             currentPlayerAttributes.petWeeklyDue = true;
         }
 
@@ -499,7 +517,7 @@ var socket = io.connect();
         currentPlayerAttributes.newlyMet = false;
         PutLocalEvent(0,0,"newWeek");
         
-        weekNumber++;
+        currentPlayerAttributes.weekNumber++;
         
         ManageMoveButtons('off');
         // $(infoboxObj).slideUp(500);
@@ -538,6 +556,7 @@ function GameStarts(){
     // $("#GameArea").show();
     StartGame();
     SetInfoBoxPosition();
+    
 }
 
 function GameEnds(){
@@ -545,7 +564,9 @@ function GameEnds(){
 
     $("#GameArea").hide();
     $("#game_ChatState").show();
+    socket.emit('ToServer_PlayerNotReady');
     socket.emit('ToServer_Chat', "grats...");
+    playerGameState = 0;
 }
 
 function OpponentUpdates(){
@@ -554,7 +575,7 @@ function OpponentUpdates(){
     const tempPackage = {
         opponentId: opponentId,
         happinessPoints: currentPlayerAttributes.happinessTotal,
-        time: weeklyTime,
+        time: currentPlayerAttributes.weeklyTime,
         moneyPoints: currentPlayerAttributes.moneyPoints,
         homeId: currentPlayerAttributes.homeID,
         educationId: currentPlayerAttributes.educationId,
@@ -1035,9 +1056,9 @@ function TrackPoints(){
             }
         }
     
-        // console.log("chosen one: " + firstOne.id);
+        // console.log("firstOne.x: " + firstOne.x);
 
-        if (firstOne.x == undefined || firstOne.y == undefined){
+        if (firstOne.x == undefined){
             console.log("error in movement!");
             return;
         }
@@ -1147,9 +1168,9 @@ function MovePlayer(position){
 
     //in the start if there isn't position
     if (positionsForAnimation == undefined){
-        player.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY }px, 0)`;
+        player.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY}px, 0)`;
         opponentObject_1.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY}px, 0)`;
-        opponentObject_2.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY }px, 0)`;
+        opponentObject_2.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/2) - playerSizeY}px, 0)`;
         playerMoving = false;
         console.log(newPosX, " ", newPosY);
     }

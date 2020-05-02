@@ -37,6 +37,7 @@ body{
     overflow-x: hidden;
     max-height: calc(40px*7);
     z-index: 1;
+    
 }
 
 .infoboxBase.lux{
