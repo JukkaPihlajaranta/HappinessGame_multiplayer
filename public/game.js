@@ -28,6 +28,7 @@ const playerSizeY = player.clientHeight/2;
 const mapOffSetX = 3;
 
 
+
 //Element lists
 const elementCount = 56; //must be devided by 8
 const elementSize = 40; //element size*size
@@ -265,7 +266,7 @@ var socket = io.connect();
     });
 
     //UPDATES DURING THE GAME-------------------------------------------------------------------
-    socket.on('ToClient_OpponentStats', (data) =>{
+    socket.on('ToClient_OpponentStats', (data) =>{ 
 
         if (data.targetId == opponentId[0]){
             opponent_time_text.innerHTML = "Time: " + Math.ceil((data.time/weeklytimeToCompare)*100) + "%";
@@ -541,7 +542,7 @@ function GameStarts(){
     $("#game_ChatState").hide();
     // $("#game_ChatState").fadeOut(500);
     $("#GameArea").fadeIn(1000);
-    
+
     // console.log("Current players: ", currentPlayers)
     // $("#GameArea").show();
     StartGame();
@@ -609,6 +610,27 @@ function OpponentEndOfWeek(){
 function StartGame(){
     allElementsList = [];
     allRoadElements = [];
+    positionsForAnimation = undefined;
+    animationCount = 0;
+    
+    
+    // homeButton.removeEventListener('click');
+    // homeButton.className = "moveButton active";
+    // betterHomeButton.removeEventListener();
+    // betterHomeButton.className = "moveButton";
+    // barButton.removeEventListener('click');
+    // barButton.className = "moveButton";
+    // mallButton.removeEventListener('click');
+    // mallButton.className = "moveButton";
+    // schoolbutton.removeEventListener('click');
+    // schoolbutton.className = "moveButton";
+    // forestButton.removeEventListener('click');
+    // forestButton.className = "moveButton";
+    // sportsButton.removeEventListener('click');
+    // sportsButton.className = "moveButton";
+    // churchButton.removeEventListener('click');
+    // churchButton.className = "moveButton";
+
     const container = document.querySelector('.container');
     let count = 0;
     container.innerHTML = '';
@@ -1183,6 +1205,9 @@ function MovePlayer(position){
 
     //in the start if there isn't position
     if (positionsForAnimation == undefined){
+        player.style.transform = `translate3d(0px, 0px, 0)`;
+        opponentObject_1.style.transform = `translate3d(0px, 0px, 0)`;
+        opponentObject_2.style.transform = `translate3d(0px, 0px, 0)`;
 
         player.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/3) - playerSizeY}px, 0)`;
         opponentObject_1.style.transform = `translate3d(${newPosX + elementSize/2  }px, ${newPosY + (elementSize + elementSize/3) - playerSizeY}px, 0)`;

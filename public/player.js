@@ -936,10 +936,15 @@ function ChooseDirection(destination){
                                     <div class="oneColumn underline"></div>
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="MallActions('coffeehouse')">Purchase</button></div>
-                                        <div id="mall_coffeehouse" class="optiontext green">Have a milkshake and watch people passing by. Cost 10€.</div>
+                                        <div id="mall_coffeehouse" class="optiontext green">Have a milkshake and watch people passing by. Cost 20€. That's damn expensive milk shake.</div>
                                     </div>
 
-
+                                    <div class="UI_text middleTopic">Movie theater house</div>
+                                    <div class="oneColumn underline"></div>
+                                    <div class="twoColumns40-60">
+                                        <div class="basicCell"><button class="btn" onclick="MallActions('movie')">Purchase</button></div>
+                                        <div id="mall_moviestext" class="optiontext green">Go and watch a random movie. The cost is 20€. If you like the movie, you might supprise quite a bit.</div>
+                                    </div>
 
                                     <div class="UI_text middleTopic">Petstore</div>
                                     <div class="oneColumn underline"></div>
@@ -950,7 +955,7 @@ function ChooseDirection(destination){
              infoboxObj.innerHTML += `
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="PetStoreAction('acquire')">Purchase</button></div>
-                                        <div id="xx" class="optiontext green">Nice little fellow. Remember you have to take good care of it. Acquire price is ${pets[1].petAcquireCost}€</div>
+                                        <div id="xx" class="optiontext green">This is adorable little fellow! Remember you have to take good care of it. Acquire price is ${pets[1].petAcquireCost}€</div>
                                     </div>`
             }
 
@@ -1640,8 +1645,9 @@ function MallActions(action){
             break;
 
         case 'coffeehouse':
-            if (currentPlayerAttributes.mallActions != 0 && currentPlayerAttributes.moneyPoints >= 10) {
-                currentPlayerAttributes.moneyPoints -= 10;
+            if (currentPlayerAttributes.mallActions != 0 && currentPlayerAttributes.moneyPoints >= 20) {
+                currentPlayerAttributes.moneyPoints -= 20;
+                currentPlayerAttributes.mallActions--;
                 currentPlayerAttributes.happinessPoints++;
                 OpponentEvents('is having a milk shake.');
                 document.getElementById('mall_coffeehouse').innerHTML = "You feel happier after having a milk shake and resting a little bit.";
@@ -1649,6 +1655,29 @@ function MallActions(action){
             ReduceTime_Check(3);
             break;
 
+        case 'movie':
+            if (currentPlayerAttributes.mallActions != 0 && currentPlayerAttributes.moneyPoints >= 20) {
+                currentPlayerAttributes.moneyPoints -= 20;
+                currentPlayerAttributes.mallActions--;
+                
+                OpponentEvents('is watching a movie.');
+                const mall_moviestext = document.getElementById('mall_moviestext');
+
+                const randomPoints = Math.floor(Math.random()*2)
+                if (randomPoints == 1){
+                    currentPlayerAttributes.happinessPoints += 2;
+                    mall_moviestext.className = "optiontext green";
+                    mall_moviestext.innerHTML = "The movie was great! Ah.. what a great experience.";
+                }
+                else{
+                    currentPlayerAttributes.happinessPoints--;
+                    mall_moviestext.className = "optiontext red";
+                    mall_moviestext.innerHTML = "The movie sucked! You felt screwed...";
+                }
+                
+            }
+            ReduceTime_Check(3);
+        break;
     }
     
 };
@@ -1952,7 +1981,7 @@ function SportsAction(sport){
             // sports_swimText.className = "optiontext red";
         }
         
-        ReduceTime_Check(9);
+        ReduceTime_Check(10);
     }
     
 };
