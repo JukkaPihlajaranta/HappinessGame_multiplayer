@@ -446,7 +446,7 @@ const jobs = [
     {
         id: 23,
         worklevel: 4,
-        job: "Lawyer",
+        job: "Factory director",
         energyConsumption: 64,
         educationReq: 3,
         salary: 192,
@@ -903,7 +903,7 @@ function ChooseDirection(destination){
 
                                     `;
             
-            if (currentPlayerAttributes.randomForRenting == 1){
+            if (currentPlayerAttributes.randomForRenting == 1 && currentPlayerAttributes.barGig){
                 infoboxObj.innerHTML += `<div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="BarAction('gig')">Go to gig!</button></div>
                                         <div id="gig_bartext" class="optiontext green">There is a gig downstairs. This is the most popular band in town. The tickets cost 59€/pcs.</div>
@@ -955,7 +955,7 @@ function ChooseDirection(destination){
              infoboxObj.innerHTML += `
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="PetStoreAction('acquire')">Purchase</button></div>
-                                        <div id="xx" class="optiontext green">This is adorable little fellow! Remember you have to take good care of it. Acquire price is ${pets[1].petAcquireCost}€</div>
+                                        <div id="xx" class="optiontext green">This is adorable little fellow! Remember you have to take good care of it. Acquire price is ${pets[1].petAcquireCost}€. You'll get also 2 weeks of food.</div>
                                     </div>`
             }
 
@@ -1061,7 +1061,7 @@ function ChooseDirection(destination){
                                 else if (currentPlayerAttributes.educationEnroll){
                                     infoboxObj.innerHTML +=  
                                     `<div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="SchoolAction()">Study</button></div>
+                                        <div class="basicCell"><button class="btn" onclick="SchoolAction('school')">Study</button></div>
                                     <div id="educationEnroll_text" class="optiontext green">Study study hard!</div>
                                     </div>
                                     `;
@@ -1340,8 +1340,24 @@ function ActionsAtHome(action){
                 currentPlayerAttributes.internetHappiness--;
                 currentPlayerAttributes.happinessPoints++; 
             }
-            document.getElementById('internet_home').innerHTML = "Hehee.. funny cat videos...";
-            OpponentEvents('is laughing at cat videos...');
+
+            const randomMessage = Math.floor(Math.random()*3)
+
+            if(randomMessage == 0){
+                document.getElementById('internet_home').innerHTML = "Hehee.. funny cat videos...";
+                OpponentEvents('is laughing at cat videos...');
+            }
+
+            if (randomMessage == 1){
+                document.getElementById('internet_home').innerHTML = "Hehee.. russian drivers";
+                OpponentEvents('is laughing at russian drivers..');
+            }
+
+            if (randomMessage == 2){
+                document.getElementById('internet_home').innerHTML = "Hehee.. weird internet videos..";
+                OpponentEvents('is laughing at weird internet videos...');
+            }
+            
             ReduceTime_Check(5); //executes also update function
             break;
 
@@ -1739,33 +1755,46 @@ function BarAction(action){
                 danceText.className = 'optiontext magenta';
                 currentPlayerAttributes.relationshipID = 2;
                 currentPlayerAttributes.newlyMet = true;
+                OpponentEvents('met someone.');
             }
-
-            OpponentEvents('is showing some dance moves!');
+            else{
+                OpponentEvents('is showing some dance moves!');
+            }
+            
 
             ReduceTime_Check(4); //executes also update function
             break;
 
         case 'gig':
+            
+
             if (currentPlayerAttributes.moneyPoints >= 59 && currentPlayerAttributes.barGig){
                 currentPlayerAttributes.moneyPoints -= 59;
                 currentPlayerAttributes.happinessPoints += 4;
                 currentPlayerAttributes.barGig = false;
-                const rand2 = Math.floor(Math.random()*(15 + currentPlayerAttributes.intoxicationLevel - Math.floor(1.5*currentPlayerAttributes.beautyFactor)  - currentPlayerAttributes.educationId));
-
-                if(rand2 == 5 && currentPlayerAttributes.relationshipID == 0 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4){
+                
+                const rand2 = Math.floor(Math.random()*(10 + currentPlayerAttributes.intoxicationLevel - Math.floor(currentPlayerAttributes.beautyFactor)  - currentPlayerAttributes.educationId));
+                
+                if(rand2 == 0 && currentPlayerAttributes.relationshipID == 0 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4){
                     currentPlayerAttributes.relationshipID = 2;
+                    OpponentEvents('met someone.');
+                    ShowTempMessage("What great gig and you met someone!", 'sms');
+                }
+
+                else{
+                    ShowTempMessage("What great gig, but you didn't meet anyone special!", 'sms');
                 }
                 
                 ReduceTime_Check(5);
             }
             else{
-                const gig_bartext = document.getElementById('gig_bartext');
+                
                 gig_bartext.innerHTML = "You don't have this kind of money. Go away!";
                 gig_bartext.className= "optiontext red";
             }
-        
-        
+        ChooseDirection('Bar');
+
+        break;
     }
 
 
@@ -1830,7 +1859,7 @@ function PetStoreAction(acquireOrFood){
             if (currentPlayerAttributes.moneyPoints >= pets[1].petAcquireCost && currentPlayerAttributes.petID == 0){
                 currentPlayerAttributes.moneyPoints -= pets[1].petAcquireCost;
                 currentPlayerAttributes.petID = 1;
-        
+                currentPlayerAttributes.petFoodAmount = 2;
                 
                 OpponentEvents('bought a pet.');
                 currentPlayerAttributes.petWeeklyDue = true;
@@ -1938,7 +1967,7 @@ function SchoolAction(action){
 
     }
 
-    else if (action == 'library'){
+    if (action == 'library'){
         if (currentPlayerAttributes.schoolAction == 0){
             currentPlayerAttributes.schoolAction++;
             currentPlayerAttributes.happinessPoints++;

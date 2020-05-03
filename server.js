@@ -174,7 +174,7 @@ io.sockets.on('connection', (socket) =>{
             weekReady: [false, false, false],                //player week ready check
         }
 
-        //change this current playerlist member
+        //Change state to plyaer list
         currentPlayerList[socket.id] = {
             playerName: currentPlayerList[socket.id].playerName,
             playerState: 1,
@@ -187,6 +187,13 @@ io.sockets.on('connection', (socket) =>{
         
         // console.log("currentGame: ",  gameList[newGameId]);
         // console.log("current Creator: ",  currentPlayerList[socket.id]);
+
+        //if single player game
+        if (playerNumbers == 1){
+            currentPlayerList[socket.id].playerState = 2;
+            playerList[socket.id].emit('ToClient_StartGame', (gameList[newGameId]));
+
+        }
 
         for (var i in playerList){
             playerList[i].emit('ToClient_UpdateWholePlayerList', currentPlayerList);
@@ -302,10 +309,9 @@ io.sockets.on('connection', (socket) =>{
             }
         }
 
-        
+        //if maxplayers have ended their weeks        
         if (tempReadyCount == gameList[data.gameId].gameMaxPlayers){
             
-
             gameList[data.gameId].playerIdList.forEach(player => {
                 playerList[player].emit('ToClient_NewWeek');
             });
@@ -334,10 +340,16 @@ io.sockets.on('connection', (socket) =>{
         });
 
 
-        data.opponentId.forEach(id => {
+        // if more than 1 player
+        if (gameList[data.gameId].gameMaxPlayers > 1){
+
+            data.opponentId.forEach(id => {
             
-            playerList[id].emit('gameEndsOpponent', (dataToOpponent));
-        });
+                playerList[id].emit('gameEndsOpponent', (dataToOpponent));
+            });
+
+        }
+
         
         for (var i in playerList){
             playerList[i].emit('ToClient_UpdateWholePlayerList', currentPlayerList);

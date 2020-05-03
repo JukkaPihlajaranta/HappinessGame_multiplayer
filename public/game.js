@@ -188,9 +188,18 @@ var socket = io.connect();
         opponentId = [];
         opponentName = [];
         gameId = '';
+        opponentObject_1.style.display = "none";
         opponentObject_2.style.display = "none";
 
         //Erase Opponent 2 information
+        opponentName.innerHTML = "N/A";
+        opponent_time_text.innerHTML = "N/A";
+        opponent_time_bar.style = "width:0%",
+        opponent_happiness_text.innerHTML = "N/A";
+        opponent_happiness_bar.style = "width:0%",
+        opponent_moneyText.innerHTML = "N/A";
+        opponent_moneyText.className = "scoreboard-icon";
+
         opponentName2.innerHTML = "N/A";
         opponent_time_text2.innerHTML = "N/A";
         opponent_time_bar2.style = "width:0%",
@@ -200,6 +209,12 @@ var socket = io.connect();
         opponent_moneyText2.className = "scoreboard-icon";
 
         //don't show pictures
+        opponent_icon_house.style.display = "none";
+        opponent_icon_houselux.style.display = "none";
+        opponent_icon_education.style.display = "none";
+        opponent_icon_pet.style.display = "none";
+        opponent_icon_relationship.style.display = "none";
+
         opponent_icon_house2.style.display = "none";
         opponent_icon_houselux2.style.display = "none";
         opponent_icon_education2.style.display = "none";
@@ -235,31 +250,33 @@ var socket = io.connect();
             }
         }
 
-        // player.style.background = playerColor[playerNumberInArray];
         
-        opponentName1.innerHTML = `<span style='font-weight:900;color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
-        opponentObject_1.style.background = playerColor[opponentNumberInArray[0]];
-        
+        if (numberOfPlayersForGame > 1){
 
-        opponentObject_1.innerHTML =''; //empty the inner html
-        const opp_text = document.createElement('div');
-        opp_text.className = "opponentHoverName";
-        opp_text.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[0]]};'>${truncate(opponentName[0], 8)}</span>`;
-        opponentObject_1.appendChild(opp_text);
-
-        if (numberOfPlayersForGame > 2){
-            opponentName2.innerHTML = `<span style='font-weight:900;color:${playerColor[opponentNumberInArray[1]]};'>${opponentName[1]}</span>`;
-            opponentObject_2.style.background = playerColor[opponentNumberInArray[1]];
-
-
-            opponentObject_2.innerHTML =''; //empty the inner html
-            const opp_text2 = document.createElement('div');
-            opp_text2.className = "opponentHoverName";
-            opp_text2.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[1]]};'>${truncate(opponentName[1],8)}</span>`;
-            opponentObject_2.appendChild(opp_text2);
-            opponentObject_2.style.display = "block";
+            opponentName1.innerHTML = `<span style='font-weight:900;color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
+            opponentObject_1.style.background = playerColor[opponentNumberInArray[0]];
+            
+    
+            opponentObject_1.innerHTML =''; //empty the inner html
+            const opp_text = document.createElement('div');
+            opp_text.className = "opponentHoverName";
+            opp_text.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[0]]};'>${truncate(opponentName[0], 8)}</span>`;
+            opponentObject_1.appendChild(opp_text);
+            opponentObject_1.style.display = "block";
+    
+            if (numberOfPlayersForGame > 2){
+                opponentName2.innerHTML = `<span style='font-weight:900;color:${playerColor[opponentNumberInArray[1]]};'>${opponentName[1]}</span>`;
+                opponentObject_2.style.background = playerColor[opponentNumberInArray[1]];
+    
+    
+                opponentObject_2.innerHTML =''; //empty the inner html
+                const opp_text2 = document.createElement('div');
+                opp_text2.className = "opponentHoverName";
+                opp_text2.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[1]]};'>${truncate(opponentName[1],8)}</span>`;
+                opponentObject_2.appendChild(opp_text2);
+                opponentObject_2.style.display = "block";
+            }
         }
-
       
         
         GameStarts();
@@ -505,6 +522,7 @@ var socket = io.connect();
         currentPlayerAttributes.barGig = true;
         currentPlayerAttributes.mallActions = 2;
         currentPlayerAttributes.newlyMet = false;
+        currentPlayerAttributes.schoolAction = 0;
         PutLocalEvent(0,0,"newWeek");
         
         currentPlayerAttributes.weekNumber++;
@@ -576,8 +594,9 @@ function OpponentUpdates(){
         relationshipId: currentPlayerAttributes.relationshipID
     }
     
-    
-    socket.emit('ToServer_OpponentStats', (tempPackage));
+    if (numberOfPlayersForGame > 1){
+        socket.emit('ToServer_OpponentStats', (tempPackage));
+    }
 }
 
 function OpponentEvents(eventText){
@@ -587,11 +606,16 @@ function OpponentEvents(eventText){
         eventText: eventText,
     }
 
-    socket.emit('ToServer_OpponentEvents', (tempPackage));
+    if (numberOfPlayersForGame > 1){
+        socket.emit('ToServer_OpponentEvents', (tempPackage));
+    }
+    
 }
 
 function OpponentMovement(opponentMove){
+    if (numberOfPlayersForGame > 1){
     socket.emit('ToServer_OpponentMovement', (opponentMove));
+    }
 }
 
 function OpponentEndOfWeek(){
