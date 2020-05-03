@@ -105,9 +105,10 @@ const startingAttributes = {
 
     currentYogaEnhancer: 0,
     exerciseLvl: 0,
+    gymTimes: 10,
 
     beautyFactor: 0,
-    mallActions: 2,
+    mallActions: 1,
     barGig: true,
 
     relationshipID: 0,
@@ -130,7 +131,7 @@ const startingAttributes = {
     postPackagePending: 0,
 
     //different happinesses
-    forestHappiness: 2,
+    forestHappiness: 1,
     internetHappiness: 1,
 
 
@@ -166,10 +167,10 @@ const relationships = [
         happinessPoints: 9},
     {
         relationshipStatus: "Dating",
-        happinessPoints: 18},
+        happinessPoints: 20},
     {
         relationshipStatus: "Relationship",
-        happinessPoints: 24},
+        happinessPoints: 30},
 ];
 
 const pets = [
@@ -184,7 +185,7 @@ const pets = [
         petFoodCost: 109,
         petPenalty: 250,
         weeklyPetTime: 12,
-        happinessPoints: 13}
+        happinessPoints: 12}
     
 ];
 
@@ -1409,7 +1410,7 @@ function ActionsAtHome(action){
         case 'petcare':
             if (currentPlayerAttributes.weeklyTime >= pets[currentPlayerAttributes.petID].weeklyPetTime){
                 
-                currentPlayerAttributes.happinessPoints += 2;
+                currentPlayerAttributes.happinessPoints += 1;
                 currentPlayerAttributes.petWeeklyDue = false;
                 ReduceTime_Check(pets[currentPlayerAttributes.petID].weeklyPetTime);
                 EnteringHome();
@@ -1623,13 +1624,13 @@ function OpenOnlineShop(){
 };
 
 function ForestAction(){
-    if (currentPlayerAttributes.forestHappiness > 0 && currentPlayerAttributes.weeklyTime >= 6){
+    if (currentPlayerAttributes.forestHappiness > 0 && currentPlayerAttributes.weeklyTime >= 10){
         const forestText = document.getElementById('forestText');
         forestText.innerHTML = "You feel so much happier."
         OpponentEvents("wanders in forest." );
         currentPlayerAttributes.forestHappiness--;
         currentPlayerAttributes.happinessPoints++;
-        ReduceTime_Check(6);
+        ReduceTime_Check(10);
     }
 };
 
@@ -1975,13 +1976,13 @@ function SchoolAction(action){
     }
 
     if (action == 'library'){
-        if (currentPlayerAttributes.schoolAction == 0){
+        if (currentPlayerAttributes.schoolAction == 0 && currentPlayerAttributes.weeklyTime >= 10){
             currentPlayerAttributes.schoolAction++;
             currentPlayerAttributes.happinessPoints++;
-            OpponentEvents('likes library.' );
+            OpponentEvents('enjoys library.' );
         }
 
-        ReduceTime_Check(5);
+        ReduceTime_Check(10);
     }
 
 
@@ -2002,8 +2003,9 @@ function SportsAction(sport){
 
     if(sport == 'sports'){
 
-        if (currentPlayerAttributes.exerciseLvl <= 5){
+        if (currentPlayerAttributes.exerciseLvl <= 5 && currentPlayerAttributes.gymTimes > 0){
             currentPlayerAttributes.exerciseLvl++;
+            currentPlayerAttributes.gymTimes--;
             OpponentEvents('hits the gym.' );
         }
         ReduceTime_Check(2);

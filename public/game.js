@@ -518,15 +518,17 @@ var socket = io.connect();
             currentPlayerAttributes.petWeeklyDue = true;
         }
 
-        currentPlayerAttributes.forestHappiness = 2;
+        currentPlayerAttributes.forestHappiness = 1;
         currentPlayerAttributes.internetHappiness = 1;
         currentPlayerAttributes.exerciseLvl = 0;
         currentPlayerAttributes.currentYogaEnhancer = 0;
         currentPlayerAttributes.beautyFactor = 0;
         currentPlayerAttributes.barGig = true;
-        currentPlayerAttributes.mallActions = 2;
+        currentPlayerAttributes.mallActions = 1;
         currentPlayerAttributes.newlyMet = false;
         currentPlayerAttributes.schoolAction = 0;
+        currentPlayerAttributes.gymTimes = 10;
+
         PutLocalEvent(0,0,"newWeek");
         
         currentPlayerAttributes.weekNumber++;
