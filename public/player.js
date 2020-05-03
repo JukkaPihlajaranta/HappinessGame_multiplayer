@@ -1626,7 +1626,7 @@ function ForestAction(){
     if (currentPlayerAttributes.forestHappiness > 0 && currentPlayerAttributes.weeklyTime >= 6){
         const forestText = document.getElementById('forestText');
         forestText.innerHTML = "You feel so much happier."
-        
+        OpponentEvents("wanders in forest." );
         currentPlayerAttributes.forestHappiness--;
         currentPlayerAttributes.happinessPoints++;
         ReduceTime_Check(6);
@@ -1655,7 +1655,7 @@ function MallActions(action){
                 currentPlayerAttributes.moneyPoints -= 50;
                 currentPlayerAttributes.beautyFactor += 5;
                 currentPlayerAttributes.happinessPoints++;
-                OpponentEvents('went to beauty salon.');
+                OpponentEvents('trying to look good.');
             }
             ReduceTime_Check(5);
             break;
@@ -1829,17 +1829,20 @@ function RelationshipAction(id){
         switch (currentPlayerAttributes.relationshipID){
             case 1: //complicated
                 currentPlayerAttributes.relationshipID = 3;
+                OpponentEvents("it's dating now." );
                 break;
             
             case 2: //just met
                 currentPlayerAttributes.relationshipID = 3;
+                OpponentEvents("it's dating now." );
                 break;
 
             case 3: //dating
                 currentPlayerAttributes.relationshipID = 4;
+                OpponentEvents("it's in a very serious relationship." );
                 break;
             
-            case 4: //complicated
+            case 4: //relationship
                 currentPlayerAttributes.relationshipID = 4;
                 break;
 
@@ -1863,6 +1866,11 @@ function PetStoreAction(acquireOrFood){
                 
                 OpponentEvents('bought a pet.');
                 currentPlayerAttributes.petWeeklyDue = true;
+
+                if (currentPlayerAttributes.weeklyTime < 50){
+                    currentPlayerAttributes.petWeeklyDue = false;
+                }
+
                 ReduceTime_Check(1);
                 ChooseDirection('Mall');
             }
@@ -1897,9 +1905,6 @@ function PetStoreAction(acquireOrFood){
 
 
     }
-
-
-
 
     // document.getElementById(`pet-text-${item}`).innerHTML = "Great! You bought this nice little fellow. Remember to keep good care of it."
     // pet-text-
@@ -1939,6 +1944,7 @@ function SchoolAction(action){
             currentPlayerAttributes.educationEnroll = true;
             ChooseDirection('School'); //for reload
             ShowTempMessage('You puchased enroll for ' + education[currentPlayerAttributes.educationId+1].degree, 'sms');
+            OpponentEvents('enrolled for ' + education[currentPlayerAttributes.educationId+1].degree + "." );
             ReduceTime_Check(0);
         }
     
@@ -1954,6 +1960,7 @@ function SchoolAction(action){
                 //message to panel congrats etc.
                 ReduceTime_Check(0);
                 ShowTempMessage('You made it! ' + education[currentPlayerAttributes.educationId].degree, 'sms');
+                OpponentEvents('Gratuated for ' + education[currentPlayerAttributes.educationId].degree + "!" );
                 ChooseDirection('School'); //for reload
             }
         }
@@ -1971,7 +1978,7 @@ function SchoolAction(action){
         if (currentPlayerAttributes.schoolAction == 0){
             currentPlayerAttributes.schoolAction++;
             currentPlayerAttributes.happinessPoints++;
-            
+            OpponentEvents('likes library.' );
         }
 
         ReduceTime_Check(5);
@@ -1987,6 +1994,7 @@ function SportsAction(sport){
         if (currentPlayerAttributes.currentYogaEnhancer == 0){
             
             currentPlayerAttributes.currentYogaEnhancer+=yogaEnhance;
+            OpponentEvents('goes for yoga.' );
             
         }
         ReduceTime_Check(3);
@@ -1996,7 +2004,7 @@ function SportsAction(sport){
 
         if (currentPlayerAttributes.exerciseLvl <= 5){
             currentPlayerAttributes.exerciseLvl++;
-            
+            OpponentEvents('hits the gym.' );
         }
         ReduceTime_Check(2);
     }
@@ -2006,6 +2014,7 @@ function SportsAction(sport){
         if (currentPlayerAttributes.workStress > 0){
             currentPlayerAttributes.workStress--;
             document.getElementById('sports_swimText').innerHTML = "You feel much more relaxed now and your work stress has been reduced...!";
+            OpponentEvents('enjoys sauna.' );
             // sports_swimText.innerHTML = "You feel much more relaxed now and your work stress has been reduced..";
             // sports_swimText.className = "optiontext red";
         }
@@ -2021,6 +2030,7 @@ function ChurchAction(){
     const randomAmount = Math.floor(Math.random()*12)-6;
 
     currentPlayerAttributes.happinessPoints += randomAmount;
+    OpponentEvents('takes a leap of fate.' );
     ReduceTime_Check(4);
 }
 

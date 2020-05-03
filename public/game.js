@@ -456,21 +456,25 @@ var socket = io.connect();
                     case 1: //complicated
                         currentPlayerAttributes.relationshipID = 0;
                         currentPlayerAttributes.happinessPoints -= 4;
+                        OpponentEvents("is in complicated relationship." );
                         break;
                     
                     case 2: //just met
                         currentPlayerAttributes.relationshipID = 0;
                         currentPlayerAttributes.happinessPoints -= 4;
+                        OpponentEvents("broke up." );
                         break;
 
                     case 3: //dating
                         currentPlayerAttributes.relationshipID = 1;
                         currentPlayerAttributes.happinessPoints -= 4;
+                        OpponentEvents("is in complicated relationship." );
                         break;
                     
                     case 4: //relationship
                         currentPlayerAttributes.relationshipID = 1;
                         currentPlayerAttributes.happinessPoints -= 4;
+                        OpponentEvents("is in complicated relationship." );
                         break;
 
                 }
