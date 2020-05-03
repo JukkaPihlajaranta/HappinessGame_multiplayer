@@ -324,7 +324,7 @@ const jobs = [
         job: "Line manager",
         energyConsumption: 60,
         educationReq: 1,
-        salary: 72,
+        salary: 75,
         description: "Hard work, somewhat good pay.",
         happinessPoinst: 8},
     {
@@ -333,7 +333,7 @@ const jobs = [
         job: "Receptionist",
         energyConsumption: 40,
         educationReq: 1,
-        salary: 48,
+        salary: 50,
         description: "You will work at the hotel reception.",
         happinessPoinst: 12},
 
@@ -343,7 +343,7 @@ const jobs = [
         job: "Tailor",
         energyConsumption: 43,
         educationReq: 1,
-        salary: 52,
+        salary: 54,
         description: "Your hands are your best tool.",
         happinessPoinst: 11},
 
@@ -353,7 +353,7 @@ const jobs = [
         job: "Personal trainer",
         energyConsumption: 40,
         educationReq: 1,
-        salary: 48,
+        salary: 50,
         description: "Your hands are your best tool.",
         happinessPoinst: 11},
 
@@ -363,7 +363,7 @@ const jobs = [
         job: "Seller",
         energyConsumption: 49,
         educationReq: 1,
-        salary: 59,
+        salary: 61,
         description: "Sell! Sell! Sell! Sell! Sell! Seeeell! ",
         happinessPoinst: 7},
     
