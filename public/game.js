@@ -64,6 +64,7 @@ const opponentName1 = document.getElementById('opponentName1');
 const opponentName2 = document.getElementById('opponentName2');
 let playerGameState = 0;
 
+let opponentJobs = [];
 let playerLocalName = '';
 let playerId;
 let opponentId = [];
@@ -184,7 +185,7 @@ var socket = io.connect();
         
         currentPlayerAttributes = {...startingAttributes};
         
-
+        opponentJobs = []; //list of opponent jobs
         opponentId = [];
         opponentName = [];
         gameId = '';
@@ -211,13 +212,13 @@ var socket = io.connect();
         //don't show pictures
         opponent_icon_house.style.display = "none";
         opponent_icon_houselux.style.display = "none";
-        opponent_icon_education.style.display = "none";
+        // opponent_icon_education.style.display = "none";
         opponent_icon_pet.style.display = "none";
         opponent_icon_relationship.style.display = "none";
 
         opponent_icon_house2.style.display = "none";
         opponent_icon_houselux2.style.display = "none";
-        opponent_icon_education2.style.display = "none";
+        // opponent_icon_education2.style.display = "none";
         opponent_icon_pet2.style.display = "none";
         opponent_icon_relationship2.style.display = "none";
 
@@ -281,6 +282,11 @@ var socket = io.connect();
         
         GameStarts();
     });
+    
+    // ENDS THE GAME-----------------------------------------------------------------------
+    socket.on('gameEndsOpponent',() => {
+        GameEnds();
+    });
 
     //UPDATES DURING THE GAME-------------------------------------------------------------------
     socket.on('ToClient_OpponentStats', (data) =>{ 
@@ -294,8 +300,11 @@ var socket = io.connect();
             }
 
             opponent_happiness_text.innerHTML = "Happiness: " + data.happinessPoints + "%";
-            opponent_moneyText.innerHTML = data.moneyPoints + "€";
-            data.moneyPoints> 0 ? opponent_moneyText.className = "UI_text scoreboard green" : opponent_moneyText.className = "UI_text scoreboard red";
+            data.moneyPoints > currentPlayerAttributes.moneyPoints ? opponent_moneyText.innerHTML = "> than you" : opponent_moneyText.innerHTML = "< than you";
+            // opponent_moneyText.innerHTML = data.moneyPoints + "€";
+            data.moneyPoints > currentPlayerAttributes.moneyPoints ? opponent_moneyText.className = "UI_text scoreboard red" : opponent_moneyText.className = "UI_text scoreboard green";
+
+            
 
             anime({
                 targets: opponent_happiness_bar,
@@ -313,13 +322,15 @@ var socket = io.connect();
         
             });
 
-            
+            //For that online jobs doensn't show opponent's jobs
+            console.log(data.jobsId);
+            opponentJobs[0] = data.jobsId;
 
             data.homeId == 0 ?  opponent_icon_house.style.display = "block" : opponent_icon_house.style.display = "none";
             data.homeId == 1 ?  opponent_icon_houselux.style.display = "block" : opponent_icon_houselux.style.display = "none";
-            data.educationId > 1 ?  opponent_icon_education.style.display = "block" : opponent_icon_education.style.display = "none";
+            // data.educationId > 1 ?  opponent_icon_education.style.display = "block" : opponent_icon_education.style.display = "none";
             data.petId > 0 ?  opponent_icon_pet.style.display = "block" : opponent_icon_pet.style.display = "none";
-            data.relationshipId > 0 ?  opponent_icon_relationship.style.display = "block" : opponent_icon_relationship.style.display = "none";
+            data.relationshipId > 1 ?  opponent_icon_relationship.style.display = "block" : opponent_icon_relationship.style.display = "none";
             
             ColorTimeBar(data.time, opponent_time_bar);
         }
@@ -335,9 +346,11 @@ var socket = io.connect();
 
             opponent_happiness_text2.innerHTML = "Happiness: " + data.happinessPoints + "%";
             
-            data.moneyPoints> 0 ? opponent_moneyText2.className = "UI_text scoreboard green" : opponent_moneyText2.className = "UI_text scoreboard red";
-            opponent_moneyText2.innerHTML = data.moneyPoints + "€";
-    
+            // data.moneyPoints> 0 ? opponent_moneyText2.className = "UI_text scoreboard green" : opponent_moneyText2.className = "UI_text scoreboard red";
+            // opponent_moneyText2.innerHTML = data.moneyPoints + "€";
+            
+            data.moneyPoints > currentPlayerAttributes.moneyPoints ? opponent_moneyText2.innerHTML = "> than you" : opponent_moneyText2.innerHTML = "< than you";
+            data.moneyPoints > currentPlayerAttributes.moneyPoints ? opponent_moneyText2.className = "UI_text scoreboard red" : opponent_moneyText2.className = "UI_text scoreboard green";
 
             anime({
                 targets: opponent_happiness_bar2,
@@ -355,11 +368,14 @@ var socket = io.connect();
         
             });
 
+            //For that online jobs doensn't show opponent's jobs
+            opponentJobs[1] = data.jobsId;
+
             data.homeId == 0 ?  opponent_icon_house2.style.display = "block" : opponent_icon_house2.style.display = "none";
             data.homeId == 1 ?  opponent_icon_houselux2.style.display = "block" : opponent_icon_houselux2.style.display = "none";
-            data.educationId > 1 ?  opponent_icon_education2.style.display = "block" : opponent_icon_education2.style.display = "none";
+            // data.educationId > 1 ?  opponent_icon_education2.style.display = "block" : opponent_icon_education2.style.display = "none";
             data.petId > 0 ?  opponent_icon_pet2.style.display = "block" : opponent_icon_pet2.style.display = "none";
-            data.relationshipId > 0 ?  opponent_icon_relationship2.style.display = "block" : opponent_icon_relationship2.style.display = "none";
+            data.relationshipId > 1 ?  opponent_icon_relationship2.style.display = "block" : opponent_icon_relationship2.style.display = "none";
             
             ColorTimeBar(data.time, opponent_time_bar2);
         }
@@ -423,100 +439,43 @@ var socket = io.connect();
 
     socket.on('ToClient_NewWeek', () =>{
     
+        weeklyChangeEvents = [];
         currentPlayerAttributes.weeklyTime = weeklytimeToCompare;
 
         //Month change
-        if (currentPlayerAttributes.weekNumber % 4 == 0){
+        if ( currentPlayerAttributes.weekNumber % 4 == 0){
             // console.log("month has changed.");
  
-            if (currentPlayerAttributes.rentToDue){ 
-                ShowTempMessage("New month and new things! <span style='color:salmon;'>If you didn't pay your rent, cost has been doubled and credited from your bank account.</span>", 
-                "sms");
-                currentPlayerAttributes.moneyPoints -= rentHomes[currentPlayerAttributes.homeID].rent * 2; 
-            }
-            else{ ShowTempMessage("New month and moon!", "sms"); }
+            // if (currentPlayerAttributes.rentToDue){ 
+            //     ShowTempMessage("New month and new things! <span style='color:salmon;'>If you didn't pay your rent, cost has been doubled and credited from your bank account.</span>", 
+            //     "sms");
+                
+            // }
+            // else{ 
+                
+            // }
+            weeklyChangeEvents.push(`New moon!`);
             
+            //Monthly changes
+            currentPlayerAttributes.gymTimes = 10; // out 10 gym times
             currentPlayerAttributes.rentToDue = true;
+            weeklyChangeEvents.push('rentToDue');
         }
 
 
         
         if (currentPlayerAttributes.weekNumber % 4 != 0){
-            ShowTempMessage("New week and new things!", "sms");
-
-        }
-
-        //declining relationship
-        if (currentPlayerAttributes.relationshipID != 0 && !currentPlayerAttributes.newlyMet){
-            // console.log('relatinoship checkup');
-            currentPlayerAttributes.relationshipStrenght -= 3;
-
-            if (currentPlayerAttributes.relationshipStrenght <= 0){
-                switch (currentPlayerAttributes.relationshipID){
-                    case 1: //complicated
-                        currentPlayerAttributes.relationshipID = 0;
-                        currentPlayerAttributes.happinessPoints -= 4;
-                        OpponentEvents("is in complicated relationship." );
-                        break;
-                    
-                    case 2: //just met
-                        currentPlayerAttributes.relationshipID = 0;
-                        currentPlayerAttributes.happinessPoints -= 4;
-                        OpponentEvents("broke up." );
-                        break;
-
-                    case 3: //dating
-                        currentPlayerAttributes.relationshipID = 1;
-                        currentPlayerAttributes.happinessPoints -= 4;
-                        OpponentEvents("is in complicated relationship." );
-                        break;
-                    
-                    case 4: //relationship
-                        currentPlayerAttributes.relationshipID = 1;
-                        currentPlayerAttributes.happinessPoints -= 4;
-                        OpponentEvents("is in complicated relationship." );
-                        break;
-
-                }
-                
-                currentPlayerAttributes.relationshipStrenght = 0;
-            }
-
             
+            weeklyChangeEvents.push(`New week and new things!`);
+            Rent_WeekChange();
             
         }
 
-        //losing the job
-        if (currentPlayerAttributes.currentWorkId != 0){
-    
-            if (currentPlayerAttributes.workStress < 1){ //don't go work at all
-                currentPlayerAttributes.currentWorkId = 0;
-                currentPlayerAttributes.happinessPoints -= 10;
-                ShowTempMessage("You neglected your work. You are got fired.", 'sms');
-            }
-    
-            else if(currentPlayerAttributes.workStress > 5){
-                currentPlayerAttributes.weeklyTime -= 60;
-                currentPlayerAttributes.moneyPoints -= 60;
-                currentPlayerAttributes.happinessPoints -= 5;
-                ShowTempMessage("You worked too much. You felt a little bit sick for awhile and visited a doctor. The fee was 60€", 'sms');
-            }
-    
-            currentPlayerAttributes.workStress = 0;
-        }
+        Relationship_WeekChange();
+        Work_WeekChange();
+        Lottery_WeekChange();
 
-        if (currentPlayerAttributes.petID == 1){
 
-            if (currentPlayerAttributes.petWeeklyDue){
-                // console.log("pet decare");
-                ShowTempMessage("You haven't taken care of your pet. You had to take it to a vet. The fee was " + pets[currentPlayerAttributes.petID].petPenalty +"€", 'sms');
-                currentPlayerAttributes.moneyPoints -= pets[currentPlayerAttributes.petID].petPenalty;
-                currentPlayerAttributes.happinessPoints -= 5;
-            }
-
-            currentPlayerAttributes.petFoodAmount == 0 ? currentPlayerAttributes.petFoodAmount == 0 : currentPlayerAttributes.petFoodAmount--; //decrease pet food
-            currentPlayerAttributes.petWeeklyDue = true;
-        }
 
         currentPlayerAttributes.forestHappiness = 1;
         currentPlayerAttributes.internetHappiness = 1;
@@ -527,15 +486,20 @@ var socket = io.connect();
         currentPlayerAttributes.mallActions = 1;
         currentPlayerAttributes.newlyMet = false;
         currentPlayerAttributes.schoolAction = 0;
-        currentPlayerAttributes.gymTimes = 10;
+        currentPlayerAttributes.lotteryTickets = 0;
+        currentPlayerAttributes.volunteerTime = 2;
+        currentPlayerAttributes.weeklyUnemployedPay = true;
 
-        PutLocalEvent(0,0,"newWeek");
+        PutLocalEvent(0,0,"newWeek"); //putting new event to event checker
         
         currentPlayerAttributes.weekNumber++;
         
         ManageMoveButtons('off');
-        // $(infoboxObj).slideUp(500);
+        
+        Messages_WeekChange(weeklyChangeEvents); //show messages for new week
         ReduceTime_Check(0);
+
+
 
         currentPlayerAttributes.randomForRenting = Math.floor(Math.random()*3); //randomizes renting options
 
@@ -554,12 +518,13 @@ var socket = io.connect();
             socket.emit('ToServer_ChatWinner');
             
         }
+        
+        
+        
 
     });
 
-    socket.on('gameEndsOpponent',() => {
-        GameEnds();
-    });
+    
 
 //THE GAME STARTS------------------------------------------------------------------
 function GameStarts(){
@@ -597,7 +562,10 @@ function OpponentUpdates(){
         homeId: currentPlayerAttributes.homeID,
         educationId: currentPlayerAttributes.educationId,
         petId: currentPlayerAttributes.petID,
-        relationshipId: currentPlayerAttributes.relationshipID
+        relationshipId: currentPlayerAttributes.relationshipID,
+        
+        //do not show to opponent
+        jobsId: jobs[currentPlayerAttributes.currentWorkId].id
     }
     
     if (numberOfPlayersForGame > 1){

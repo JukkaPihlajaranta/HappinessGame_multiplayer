@@ -78,9 +78,8 @@ const opponent_events = document.getElementById('opponent_events');
 
 
 const startingAttributes = {
-
     happinessTotal: 0,
-    happinessPoints: 15,
+    happinessPoints: 10,
     moneyPoints: 200,
     energyLevel: 50,
     intoxicationLevel: 0,
@@ -94,60 +93,93 @@ const startingAttributes = {
     petFoodAmount: 0,
     petWeeklyDue: false,
 
+    //VoluntaireTime
+    volunteerTime: 2,
+
+    //Home
     homeID: 0,
     rentToDue: true,
     randomForRenting: 2,
 
+    //education
     educationId: 0,
     educationProgress: 0,
     educationEnroll: false,
     schoolAction: 0,
 
+    //training
     currentYogaEnhancer: 0,
     exerciseLvl: 0,
     gymTimes: 10,
 
+    //Misc
     beautyFactor: 0,
-    mallActions: 1,
     barGig: true,
+    lotteryTickets: 0,
 
-    relationshipID: 0,
+    //relationship
+    relationshipID: 1,
     relationshipStrenght: 0,
-    newlyMet: false,
 
-    currentWorkId: 0,
-    playerWorkLevel: 0,
+    //work
+    currentWorkId: 0,            //work player is doing
+    playerWorkLevel: 0,          //0-4
     jobPendingTime: 0,
-    workExperience: 0,
-    workStress: 0,
-    showJobs: true,
-
-    itemInPostAnnouncement: 0,
     jobIdPending: null,
+    workExperience: 0,           //gathering experience, when 10 ==> level
+    workStress: 0,              //if more than 6 ==> ill, if 0 player will get fired
+    showJobs: true,
+    weeklyUnemployedPay: true,
 
-    currentItems: [],              //purchased items
-    postPackageInPost: false,
+    //items and collecting
+    currentItems: [],            //purchased items
+    itemPostArrivingTime: 0,    //when item will arrive to post
+    itemIdToReclaim: null,          //item ID to reclaim in post office
+    itemPackageInPost: false,
     showPostMessage: false,
-    postPackagePending: 0,
+    currentItemPrices: [],      //selling item
+    itemSellingIdPrice: [],
+    itemSellingTime: 0,
+    
+    illegalPostArrivingTime: 0,
+    illegalIdToReclaim: null,
+    
+    //Illegal
+    drugs: 0,
+    fakeEducation: false,
 
     //different happinesses
     forestHappiness: 1,
     internetHappiness: 1,
-
+    mallActions: 1,
 
 }
 
 
 //Player attributes
 let currentPlayerAttributes = {};
+// let opponentJobIds = [];
 
 const workExperienceRequired = 10;
 const weeklytimeToCompare = 168;
 const studyingTimeToConsume = 30;
+const volunteerConsumptionTime = 12;
+const unemploymentBenefit = 43;
 const yogaEnhance = 20;
+let lotteryWinCount = 0
+
+const massagePrice = 50;
+const beautyPrice = 40;
+const moviePrice = 35;
+const lotteryPrice = 5;
+
+//fines
+const overWorkFee = 60;
+const policeFine = 120;
+const drugsPrice = 40;
 
 let randomizeNewOnlineContent = true;
-
+let weeklyChangeEvents = [];
 
 //Items
 let randomizedOnlineItems = [];         //randomized items in Online shop
@@ -157,20 +189,17 @@ let randomizedOnlineJobs = [];
 //OBJECTS LISTS
 const relationships = [
     {
+        relationshipStatus: "Broke up",
+        happinessPoints: -10},
+    {
         relationshipStatus: "Single",
         happinessPoints: 0},
     {
-        relationshipStatus: "Complicated",
-        happinessPoints: -10},
-    {
-        relationshipStatus: "Just met",
-        happinessPoints: 9},
-    {
         relationshipStatus: "Dating",
-        happinessPoints: 20},
+        happinessPoints: 10},
     {
         relationshipStatus: "Relationship",
-        happinessPoints: 30},
+        happinessPoints: 20},
 ];
 
 const pets = [
@@ -193,21 +222,25 @@ const education = [
     {
     degree: "Basic",
     cost: 0,
+    fakePrice: 0,
     happinessPoints: 0},
 
 {
     degree: "College",
     cost: 250,
+    fakePrice: 100,
     happinessPoints: 6},
 
 {
     degree: "Bachelor",
     cost: 430,
+    fakePrice: 180,
     happinessPoints: 12},
 
 {
     degree: "Master",
     cost: 590,
+    fakePrice: 210,
     happinessPoints: 18},
 
 ];
@@ -245,7 +278,7 @@ const jobs = [
         energyConsumption: 35,
         educationReq: 0,
         salary: 38,
-        description: "You will prepare fast food meals.",
+        description: "You will prepare fast food meals. This doesn't require work level or degree.",
         happinessPoinst: 5},
     {
         id: 2,
@@ -254,7 +287,7 @@ const jobs = [
         energyConsumption: 32,
         educationReq: 0,
         salary: 34,
-        description: "You will clean what you're told.",
+        description: "You will clean what you're told. This doesn't require work level or degree.",
         happinessPoinst: 5},
 
     {
@@ -264,7 +297,7 @@ const jobs = [
         energyConsumption: 48,
         educationReq: 0,
         salary: 48,
-        description: "Hard work, somewhat good pay.",
+        description: "Hard work, somewhat good pay. This doesn't require work level or degree.",
         happinessPoinst: 5},
 
     {
@@ -274,7 +307,7 @@ const jobs = [
         energyConsumption: 40,
         educationReq: 0,
         salary: 43,
-        description: "Pla pla pla",
+        description: "You'll collect all the garbage. This doesn't require work level or degree.",
         happinessPoinst: 5},
 
     {
@@ -284,7 +317,7 @@ const jobs = [
         energyConsumption: 32,
         educationReq: 0,
         salary: 35,
-        description: "Pla pla pla",
+        description: "This doesn't require work level or degree.",
         happinessPoinst: 5},
 
     {
@@ -294,7 +327,7 @@ const jobs = [
         energyConsumption: 44,
         educationReq: 0,
         salary: 46,
-        description: "Pla pla pla",
+        description: "This doesn't require work level or degree.",
         happinessPoinst: 5},
 
     {
@@ -304,7 +337,7 @@ const jobs = [
         energyConsumption: 10,
         educationReq: 0,
         salary: 17,
-        description: "Pla pla pla",
+        description: "This doesn't require work level or degree.",
         happinessPoinst: 10},
 
     {
@@ -314,7 +347,7 @@ const jobs = [
         energyConsumption: 12,
         educationReq: 0,
         salary: 19,
-        description: "Pla pla pla",
+        description: "This doesn't require work level or degree.",
         happinessPoinst: 11},
 
 
@@ -326,7 +359,7 @@ const jobs = [
         energyConsumption: 60,
         educationReq: 1,
         salary: 75,
-        description: "Hard work, somewhat good pay.",
+        description: "Hard work, somewhat good pay. This requires work level 1 and college degree.",
         happinessPoinst: 8},
     {
         id: 5,
@@ -335,7 +368,7 @@ const jobs = [
         energyConsumption: 40,
         educationReq: 1,
         salary: 50,
-        description: "You will work at the hotel reception.",
+        description: "You will work at the hotel reception. This requires work level 1 and college degree.",
         happinessPoinst: 12},
 
     {
@@ -345,7 +378,7 @@ const jobs = [
         energyConsumption: 43,
         educationReq: 1,
         salary: 54,
-        description: "Your hands are your best tool.",
+        description: "Your hands are your best tool. This doesn't require work level, but college degree.",
         happinessPoinst: 11},
 
     {
@@ -355,7 +388,7 @@ const jobs = [
         energyConsumption: 40,
         educationReq: 1,
         salary: 50,
-        description: "Your hands are your best tool.",
+        description: "This requires work level 1 and college degree.",
         happinessPoinst: 11},
 
     {
@@ -365,7 +398,7 @@ const jobs = [
         energyConsumption: 49,
         educationReq: 1,
         salary: 61,
-        description: "Sell! Sell! Sell! Sell! Sell! Seeeell! ",
+        description: "Sell! Sell! Sell! Sell! Sell! Seeeell! This requires work level 1 and college degree.",
         happinessPoinst: 7},
     
 
@@ -377,7 +410,7 @@ const jobs = [
         energyConsumption: 62,
         educationReq: 2,
         salary: 93,
-        description: "You job is to sell as much as possible.",
+        description: "Your job is to sell as much as possible.This requires work level 2 and college degree.",
         happinessPoinst: 9},
 
     {
@@ -387,7 +420,7 @@ const jobs = [
         energyConsumption: 71,
         educationReq: 2,
         salary: 107,
-        description: "You're the one who gives home to people.",
+        description: "You're the one who gives home to people. This requires work level 2 and college degree.",
         happinessPoinst: 7},
 
     {
@@ -397,7 +430,7 @@ const jobs = [
         energyConsumption: 52,
         educationReq: 2,
         salary: 78,
-        description: "You create digital content you desire the most.",
+        description: "You create digital content you desire the most. This requires work level 1 and college degree.",
         happinessPoinst: 15},
 
     //WORK LEVEL 3 -----------------------------------------------------------------------------------------------
@@ -409,7 +442,7 @@ const jobs = [
         energyConsumption: 67,
         educationReq: 2,
         salary: 134,
-        description: "?",
+        description: "This requires work level 3 and bachelor degree.",
         happinessPoinst: 10},
 
     {
@@ -419,7 +452,7 @@ const jobs = [
         energyConsumption: 57,
         educationReq: 2,
         salary: 114,
-        description: "?",
+        description: "This requires work level 3 and bachelor degree.",
         happinessPoinst: 10},
 
     {
@@ -429,7 +462,7 @@ const jobs = [
         energyConsumption: 60,
         educationReq: 2,
         salary: 120,
-        description: "?",
+        description: "This requires work level 3 and bachelor degree.",
         happinessPoinst: 10},
 
     //WORK LEVEL 4 -----------------------------------------------------------------------------------------------
@@ -441,7 +474,7 @@ const jobs = [
         energyConsumption: 69,
         educationReq: 3,
         salary: 207,
-        description: "?",
+        description: "This requires work level 4 and masters degree.",
         happinessPoinst: 8},
 
     {
@@ -451,7 +484,7 @@ const jobs = [
         energyConsumption: 64,
         educationReq: 3,
         salary: 192,
-        description: "?",
+        description: "This requires work level 4 and masters degree.",
         happinessPoinst: 8},
 
     {
@@ -461,7 +494,7 @@ const jobs = [
         energyConsumption: 67,
         educationReq: 3,
         salary: 201,
-        description: "?",
+        description: "This requires work level 4 and masters degree.",
         happinessPoinst: 12},
 
 ];
@@ -654,7 +687,7 @@ function UpdateBarAndTexts(){
 
     });
 
-    jobObj.innerHTML = jobs[currentPlayerAttributes.currentWorkId].job;
+    currentPlayerAttributes.playerWorkLevel == 0 ? jobObj.innerHTML = jobs[currentPlayerAttributes.currentWorkId].job : jobObj.innerHTML = "(" + currentPlayerAttributes.playerWorkLevel + ") " + jobs[currentPlayerAttributes.currentWorkId].job;
     anime({
         targets: jobBar,
         width: (currentPlayerAttributes.workExperience *10)*(barWidth/100),
@@ -673,7 +706,7 @@ function UpdateBarAndTexts(){
 
     });
 
-    educationText.innerHTML = education[currentPlayerAttributes.educationId].degree;
+    currentPlayerAttributes.fakeEducation ? educationText.innerHTML = "<span style='color:red'>" + education[currentPlayerAttributes.educationId+1].degree + " (fake) </span>" : educationText.innerHTML = education[currentPlayerAttributes.educationId].degree;
     anime({
         targets: educationBar,
         width: (currentPlayerAttributes.educationProgress *20)*(barWidth/100),
@@ -686,14 +719,27 @@ function UpdateBarAndTexts(){
     moneyText.innerHTML = currentPlayerAttributes.moneyPoints + '€ <span style="color:black; text-weight:500">' + jobs[currentPlayerAttributes.currentWorkId].salary + "€/day</span>";;
     
 
-    if (currentPlayerAttributes.postPackagePending != 0 && currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.itemInPostAnnouncement  && currentPlayerAttributes.showPostMessage){
-        ShowTempMessage('Package in post! Go to mall to reclaim it.', 'package');
-        OpponentEvents("has a package in the post.");
-        currentPlayerAttributes.postPackageInPost = true;
+    if (currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.illegalPostArrivingTime  && currentPlayerAttributes.showPostMessage ||
+        currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.itemPostArrivingTime  && currentPlayerAttributes.showPostMessage){
+        ShowTempMessage('A package in post! Go to mall to reclaim it.', 'package');
+        
+
+
+        currentPlayerAttributes.itemPackageInPost = true;
         currentPlayerAttributes.showPostMessage = false;
     }
 
+    if (currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.itemSellingTime && currentPlayerAttributes.itemSellingIdPrice.length > 1){
 
+        ShowTempMessage(`You just sold your item with ${currentPlayerAttributes.itemSellingIdPrice[1]}€!.`, 'package');
+        currentPlayerAttributes.moneyPoints += currentPlayerAttributes.itemSellingIdPrice[1];
+               
+        var tempIndex = currentPlayerAttributes.currentItems.findIndex(number => number == currentPlayerAttributes.itemSellingIdPrice[0]); //search for item index in current item list
+        currentPlayerAttributes.currentItems.splice(tempIndex, 1); //remove item from current item list
+        
+        currentPlayerAttributes.itemSellingIdPrice = []; //empty list
+        UpdateBarAndTexts();
+    }
 
     ManageScoreBoard_Images();
     OpponentUpdates();
@@ -780,17 +826,17 @@ function TotalHappinessCalculation(){
     
     let extraHappinesPoints = 0;
 
-    if (currentPlayerAttributes.currentItems.length > 0){
-        currentPlayerAttributes.currentItems.forEach(item => {
-            for (var i = 0; i < onlineItems.length; i++){
-                if (item == onlineItems[i].itemId){
-                    extraHappinesPoints += onlineItems[i].itemHappiness;
-                }
-            }
-        });
-    }
+    // if (currentPlayerAttributes.currentItems.length > 0){
+    //     currentPlayerAttributes.currentItems.forEach(item => {
+    //         for (var i = 0; i < onlineItems.length; i++){
+    //             if (item == onlineItems[i].itemId){
+    //                 extraHappinesPoints += onlineItems[i].itemHappiness;
+    //             }
+    //         }
+    //     });
+    // }
     
-    // console.log("Money happinesspoints: " +  Math.floor(currentPlayerAttributes.moneyPoints/1000));
+    
 
     extraHappinesPoints += Math.floor(currentPlayerAttributes.moneyPoints/1000);
     extraHappinesPoints += pets[currentPlayerAttributes.petID].happinessPoints;
@@ -804,6 +850,10 @@ function TotalHappinessCalculation(){
     if (currentPlayerAttributes.happinessTotal > 100){
         currentPlayerAttributes.happinessTotal = 100;
     }
+
+    // if (currentPlayerAttributes.happinessTotal < 0){
+        // currentPlayerAttributes.happinessTotal = 0;
+    // }
 
 }
 
@@ -842,7 +892,7 @@ function ChooseDirection(destination){
                 }
             }
 
-            break;
+        break;
             
         case "BetterHome":
             if (currentPlayerAttributes.homeID == 1){
@@ -872,7 +922,7 @@ function ChooseDirection(destination){
                 }
             }
 
-            break;
+        break;
 
         case "Bar":
             infoboxObj.className = "infoboxBase";
@@ -914,7 +964,7 @@ function ChooseDirection(destination){
                 
 
 
-                                    break;
+        break;
 
         case "Mall":
             infoboxObj.className = "infoboxBase";
@@ -930,22 +980,30 @@ function ChooseDirection(destination){
                                     <div class="oneColumn underline"></div>
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="MallActions('beauty')">Purchase</button></div>
-                                        <div id="xx" class="optiontext green">Makes you more appealing. Cost 50€.</div>
+                                        <div id="xx" class="optiontext green">Makes you more appealing. Cost ${beautyPrice}€.</div>
                                     </div>
 
-                                    <div class="UI_text middleTopic">Coffee house</div>
+                                    <div class="UI_text middleTopic">Massage house</div>
                                     <div class="oneColumn underline"></div>
                                     <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="MallActions('coffeehouse')">Purchase</button></div>
-                                        <div id="mall_coffeehouse" class="optiontext green">Have a milkshake and watch people passing by. Cost 20€. That's damn expensive milk shake.</div>
+                                        <div class="basicCell"><button class="btn" onclick="MallActions('massage')">Purchase</button></div>
+                                        <div id="mall_coffeehouse" class="optiontext green">Get a massage for ${massagePrice}€. You'll be happier and feeling more energetic.</div>
                                     </div>
 
                                     <div class="UI_text middleTopic">Movie theater house</div>
                                     <div class="oneColumn underline"></div>
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="MallActions('movie')">Purchase</button></div>
-                                        <div id="mall_moviestext" class="optiontext green">Go and watch a random movie. The cost is 20€. If you like the movie, you might supprise quite a bit.</div>
+                                        <div id="mall_moviestext" class="optiontext green">Go and watch a random movie. The cost is ${moviePrice}€. If you like the movie, you might supprise quite a bit.</div>
                                     </div>
+
+                                    <div class="UI_text middleTopic">Kiosk</div>
+                                    <div class="oneColumn underline"></div>
+                                    <div class="twoColumns40-60">
+                                        <div class="basicCell"><button class="btn" onclick="MallActions('lottery')">Purchase</button></div>
+                                        <div id="mall_kiosktext" class="optiontext green">Buy a lottery ticket or even couple of them. The odds are good.. of course. The cost is ${lotteryPrice}€/ticket.</div>
+                                    </div>
+
 
                                     <div class="UI_text middleTopic">Petstore</div>
                                     <div class="oneColumn underline"></div>
@@ -981,7 +1039,7 @@ function ChooseDirection(destination){
 
                                     `;
             
-            if (currentPlayerAttributes.postPackageInPost){
+            if (currentPlayerAttributes.itemPackageInPost){
                 infoboxObj.innerHTML += `
                                         <div class="twoColumns40-60">
                                             <div class="basicCell"><button class="btn" onclick="MallActions('postPackage')">Reclaim</button></div>
@@ -992,7 +1050,7 @@ function ChooseDirection(destination){
                                         `;
             }
 
-            if (!currentPlayerAttributes.postPackageInPost){
+            if (!currentPlayerAttributes.itemPackageInPost){
                 infoboxObj.innerHTML += `
                                         <div class="twoColumns40-60">
                                         <div></div>
@@ -1003,7 +1061,17 @@ function ChooseDirection(destination){
 
             }
 
-            break;
+            infoboxObj.innerHTML += `<div class="UI_text middleTopic">Unemployment office</div>
+                                    <div class="oneColumn underline"></div>
+
+                                    <div class="twoColumns40-60">
+                                        <div class="basicCell"><button class="btn" onclick="MallActions('unemployment')">Reclaim</button></div>
+                                        <div id="mall_coffeehouse" class="optiontext green">If you are unemployed, government grants you unemployment benefit. It's  ${unemploymentBenefit}€/week.</div>
+                                    </div>
+                                    `;
+
+
+        break;
         
         case "Forest":
             infoboxObj.className = "infoboxBase";
@@ -1028,7 +1096,7 @@ function ChooseDirection(destination){
                                     The pines and gentle birches. </div>
                                     `;
         
-            break;
+        break;
 
 
 
@@ -1045,7 +1113,7 @@ function ChooseDirection(destination){
                                     
                                     <div class="twoColumns40-60">
                                     <div class="basicCell"><button class="btn" onclick="SchoolAction('library')">Library</button></div>
-                                    <div id="sports_gymText" class="optiontext green">Ready a book or magazine. Spend restful time in total peace.</div>
+                                    <div id="schoolText" class="optiontext green">Ready a book or magazine. Spend restful time in total peace.</div>
                                     </div>
                                     `;
 
@@ -1071,7 +1139,7 @@ function ChooseDirection(destination){
                                 else{
                                     infoboxObj.innerHTML += `<div class="optiontext green">Nothing for you any. You are total master! </div>`;
                                 }
-                                break;
+        break;
 
 
         case "Sports":
@@ -1093,7 +1161,7 @@ function ChooseDirection(destination){
 
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="SportsAction('yoga')">Yoga</button></div>
-                                    <div id="sports_gymText" class="optiontext green">Yoga is the best for you mentally.</div>
+                                    <div id="sports_yogaText" class="optiontext green">Yoga is the best for you mentally.</div>
                                 </div>
 
                                 <div class="twoColumns40-60">
@@ -1103,7 +1171,7 @@ function ChooseDirection(destination){
 
                                 `;
 
-            break;
+        break;
 
         case "Church":
             infoboxObj.className = "infoboxBase";
@@ -1116,16 +1184,21 @@ function ChooseDirection(destination){
                                 <br>
                                 
                                 <div class="twoColumns40-60">
-                                <div class="basicCell"><button class="btn" onclick="ChurchAction()">Take it!</button></div>
-                                    <div id="sports_swimText" class="optiontext green">This is a leap of faith! You might be happier or less happier after this.</div>
+                                <div class="basicCell"><button class="btn" onclick="ChurchAction('leap')">Take it!</button></div>
+                                    <div id="xx" class="optiontext green">This is a leap of faith! You might be happier or less happier after this.</div>
+                                </div>
+
+                                <br>
+
+                                <div class="twoColumns40-60">
+                                <div class="basicCell"><button class="btn" onclick="ChurchAction('volunteer')">Volunteer!</button></div>
+                                    <div id="church_volunteerText" class="optiontext green">Do some charity work. This takes time and energy, but gives you back a lot of happiness. You have to be unemployed to participate.</div>
                                 </div>
                                 `;
+        break;
     }
 
 
-    // if (currentPlayerAttributes.weeklyTime > 0){
-        
-    // }
     $(infoboxObj).slideDown(400);
 
     
@@ -1146,7 +1219,9 @@ function EnteringHome(){ //entering some of the homes
 
     }
     
-    else if (currentPlayerAttributes.homeID == 1){
+    
+
+    if (currentPlayerAttributes.homeID == 1){
         infoboxObj.innerHTML = `<div class="UI_text center">
                                 <img src="./img/building_texts/In_HomeBetterImg.png" width="${infoboxWidth}px">
                                 </div>
@@ -1165,8 +1240,34 @@ function EnteringHome(){ //entering some of the homes
         onlineItems.forEach(item => {
             tempCopyItemList.push(item);
         })
-    
         
+    
+
+        //randomize new prices
+    if (currentPlayerAttributes.currentItems.length > 0){
+
+        currentPlayerAttributes.currentItemPrices = []; //empty price list
+
+        for (var i = 0; i < currentPlayerAttributes.currentItems.length; i++){
+
+            const randomPrice2 = Math.floor(Math.random()*50);
+            let randomPrice = 0;            
+
+            if (onlineItems[currentPlayerAttributes.currentItems[i]].cost <= 250){
+                randomPrice = onlineItems[currentPlayerAttributes.currentItems[i]].cost + Math.floor(randomPrice2*0.4) ;
+            }
+
+            // else if (onlineItems[currentPlayerAttributes.currentItems[i]].cost > 50 && onlineItems[currentPlayerAttributes.currentItems[i]].cost <= 300){
+            //     randomPrice = Math.ceil(onlineItems[currentPlayerAttributes.currentItems[i]].cost +  Math.floor(randomPrice2*0.8));
+            // }
+
+            else{
+                randomPrice = Math.ceil(onlineItems[currentPlayerAttributes.currentItems[i]].cost +  Math.floor(randomPrice2 * 1.1));
+            }
+            
+            currentPlayerAttributes.currentItemPrices.push(randomPrice);
+        }
+    }
         // if (currentItems.length > 0){
             //IF CURRENT ITEMS AREN'T VISIBLE IN THE SHOP!
             // for (var i = 0; i < tempCopyItemList.length; i++){
@@ -1198,28 +1299,19 @@ function EnteringHome(){ //entering some of the homes
 
 
 
-    CheckHome_AdditionalActions();
+    Show_AdditionalHomeActions();
+    Show_ItemsAtHome();
+    
 
-    if (currentPlayerAttributes.currentItems.length > 0){
-        infoboxObj.innerHTML += 
-        `<div class="UI_text middleTopic">Your items</div>
-        
-            <div class="twoColumns40-60">
-                <div class="basicCell">${AddHomeStuffButton("Show items", 'showitems')}</div>
-                <div id="worktext_home" class="optiontext green">Show household items.</div>
-            </div>
-        <br>
-        `;
-    }
 
-    // <div class="twoColumns40-60">
-    // <div class="basicCell">${AddHomeStuffButton("Test test", 'tinder')}</div>
-    // <div class="optiontext magenta">Try to hook up with someone.</div>
-    // </div>
 
+    //Basic home activities
     infoboxObj.innerHTML += `<div class="UI_text middleTopic">Home activities</div>
 
-
+        <div class="twoColumns40-60">
+        <div class="basicCell">${AddHomeStuffButton("Test test", 'tinder')}</div>
+        <div class="optiontext magenta">Try to hook up with someone.</div>
+        </div>
 
 
                             <div class="twoColumns40-60">
@@ -1243,13 +1335,16 @@ function EnteringHome(){ //entering some of the homes
                                 <div class="basicCell">${AddHomeStuffButton("Check jobs", 'checkonlinejobs')}</div>
                                 <div class="optiontext green">Get a job. There's plenty of jobs online.</div>
                             </div>
+
+
                             `;
 
 
+    Show_DarkWeb_PoliceActions();
 
 
 
-    function CheckHome_AdditionalActions(){
+    function Show_AdditionalHomeActions(){
 
         
         if (currentPlayerAttributes.currentWorkId != 0 || currentPlayerAttributes.rentToDue || currentPlayerAttributes.petID != 0 && currentPlayerAttributes.petWeeklyDue || currentPlayerAttributes.relationshipID != 0){
@@ -1287,21 +1382,49 @@ function EnteringHome(){ //entering some of the homes
                 `;
             }
 
-            if (currentPlayerAttributes.relationshipID != 0){
-                infoboxObj.innerHTML += 
-                `
+            if (currentPlayerAttributes.relationshipID > 1){
+                infoboxObj.innerHTML += `   <div class="twoColumns40-60">
+                                            <div class="basicCell"><button class="btn" onclick="RelationshipAction()">Romantic time</button></div>
+                                            <div class="optiontext green" id="relationship_walkTxt">Spend time with your partner. Have nice long walk, make a nice meal, watch a romantic movie.</div>
+                                            </div>
                 
-                <div class="twoColumns40-60">
-                    <div class="basicCell">${AddHomeStuffButton("Relationship", 'relationship')}</div>
-                    <div id="rent_text" class="optiontext green">Spend some quality time with your partner.</div>
-                </div>
-                `;
+                                        `;
             }
 
             infoboxObj.innerHTML += `<br>`;
         }
     }
 
+    function Show_ItemsAtHome(){
+
+        if (currentPlayerAttributes.currentItems.length > 0){
+            infoboxObj.innerHTML += 
+            `<div class="UI_text middleTopic">Your items</div>
+            
+                <div class="twoColumns40-60">
+                    <div class="basicCell">${AddHomeStuffButton("Show items", 'showitems')}</div>
+                    <div id="worktext_home" class="optiontext green">Show household items.</div>
+                </div>
+            <br>
+            `;
+        }
+
+    }
+
+    function Show_DarkWeb_PoliceActions(){
+        if (numberOfPlayersForGame > 0){                                                                        //change to 1!!!!!!!!!!!
+            infoboxObj.innerHTML +=  `<br>
+                                    <div class="UI_text middleTopic">Other activities</div>
+                                    <div class="twoColumns40-60">
+                                        <div class="basicCell">${AddHomeStuffButton("Dark web", 'darknet')}</div>
+                                        <div class="optiontext green">To the dark side of the web.</div>
+                                    </div>
+                                    <br>
+                                    `;
+        }
+
+    }
+    
 
     function AddHomeStuffButton(text, action){
         return `<button class="btn" onclick="ActionsAtHome('${action}')">${text}</button>`;
@@ -1318,12 +1441,16 @@ function ActionsAtHome(action){
             document.getElementById('sleeptext_home').innerHTML ="You feel energized now."; //changes current text
             
             if (currentPlayerAttributes.intoxicationLevel > 0){currentPlayerAttributes.intoxicationLevel--;}
-            if (currentPlayerAttributes.happinessPoints < 20){ currentPlayerAttributes.happinessPoints += 3; }
+            // if (currentPlayerAttributes.happinessPoints < 20){ currentPlayerAttributes.happinessPoints += 3; }
             
             if (currentPlayerAttributes.energyLevel < (75 + currentPlayerAttributes.currentYogaEnhancer)){ 
                 AddEnergy(5+currentPlayerAttributes.exerciseLvl); 
             }
             
+            if (currentPlayerAttributes.jobIdPending){
+                ChooseDirection('Home');
+            }
+
             ReduceTime_Check(3); //executes also update function
             break;
 
@@ -1359,6 +1486,10 @@ function ActionsAtHome(action){
                 OpponentEvents('is laughing at weird internet videos...');
             }
             
+            if (currentPlayerAttributes.jobIdPending){
+                ChooseDirection('Home');
+            }
+
             ReduceTime_Check(5); //executes also update function
             break;
 
@@ -1441,15 +1572,29 @@ function ActionsAtHome(action){
         case 'showitems':
             infoboxObj.innerHTML = `<div class="xx">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}</div>
                                     <div class="text-topic">Your items</div>
+                                    <div class="UI_text description">You can sell the items you own. The prices do vary between different times.</div>
                                     <div class="oneColumn border"></div>
                                     
                                     `;
-            currentPlayerAttributes.currentItems.forEach(item =>{
-                infoboxObj.innerHTML += `<div class="twoColumns30-70">
-                                            <div class="optiontext yellow">${onlineItems[item].item}</div>
-                                            <div class="basicCell"><img src="${onlineItems[item].img}" height="80px"></div>
-                                        </div>`;
-            });
+            
+            for (var i = 0; i < currentPlayerAttributes.currentItems.length; i++){
+                infoboxObj.innerHTML += `<div class="columns30-30-30">
+
+                <div class="optiontext yellow">${onlineItems[startingAttributes.currentItems[i]].item}<br>Original cost: ${onlineItems[startingAttributes.currentItems[i]].cost}€</div>
+                <div class="basicCell"><img src="${onlineItems[startingAttributes.currentItems[i]].img}" height="80px"></div>
+                <div class="basicCell"><button class="btn green" onclick="SellItem(${onlineItems[startingAttributes.currentItems[i]].itemId},${currentPlayerAttributes.currentItemPrices[i]})">Sell for ${currentPlayerAttributes.currentItemPrices[i]}€</button></div>
+                
+            </div>
+            `;
+
+            }
+            //                         currentPlayerAttributes.currentItems.forEach(item =>{
+            // infoboxObj.innerHTML += `<div class="twoColumns30-70">
+            //                             <div class="optiontext yellow">${onlineItems[item].item}</div>
+            //                             <div class="basicCell"><img src="${onlineItems[item].img}" height="80px"></div>
+            //                         </div>
+            //                         `;
+            // });
             
             break;
 
@@ -1459,10 +1604,7 @@ function ActionsAtHome(action){
                                     <div class="UI_text description">Healthy relationship is the most important things in your life</div>
                                     <div class="oneColumn border"></div>
                                     
-                                    <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="RelationshipAction('relationship_walk')">Go to walk</button></div>
-                                        <div class="optiontext green" id="relationship_walkTxt">Go to a romantic walk.</div>
-                                    </div>
+
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="RelationshipAction('relationship_restaurant')">Restaurant</button></div>
                                         <div class="optiontext green">Eat in a restaurant. Cost 120€.</div>
@@ -1471,7 +1613,12 @@ function ActionsAtHome(action){
                                     
 
             break;
-     
+
+        case 'darknet':   
+                OpenDarkNet();
+            // ReduceTime_Check(1); //executes also update function
+            break;
+            
 
     }
 
@@ -1513,8 +1660,10 @@ function OpenOnlineJobs(){
 
     function ShowJobs(allwork){
 
+        const fakeEducationLvl = currentPlayerAttributes.fakeEducation ? 1 : 0;  // if fake education
+
         //different color, if worklevel is too high
-        if (currentPlayerAttributes.playerWorkLevel < allwork.worklevel || currentPlayerAttributes.educationId < allwork.educationReq) {
+        if (currentPlayerAttributes.playerWorkLevel < allwork.worklevel || (currentPlayerAttributes.educationId + fakeEducationLvl) < allwork.educationReq) {
             return  `
             <div class="twoColumns40-60 topicBorder">
                 <div class="optiontext orange">${allwork.job}</div><div class="optiontext dark">${AddJobApplyButton(allwork)}</div>
@@ -1554,7 +1703,21 @@ function OpenOnlineJobs(){
 };
 
 
+function SellItem(id, price){
 
+    currentPlayerAttributes.itemSellingIdPrice[0] = FindWithAttr(onlineItems, "itemId", id);
+    currentPlayerAttributes.itemSellingIdPrice[1] = price;
+
+    currentPlayerAttributes.itemSellingTime = currentPlayerAttributes.weeklyTime - 15;
+
+    if (currentPlayerAttributes.itemSellingTime < 0){
+        currentPlayerAttributes.itemSellingTime = 1;
+    }
+
+    ReduceTime_Check(7);
+    // console.log(currentPlayerAttributes.itemSellingIdPrice);
+    EnteringHome();
+}
 
 
 //ONLINE SHOPPING------------------------------------------------------------------------------------------------
@@ -1565,7 +1728,7 @@ function OpenOnlineShop(){
                             <br>`;
     infoboxObj.scrollTop = 0;
 
-    if (currentPlayerAttributes.postPackagePending == 0){
+    if (currentPlayerAttributes.itemIdToReclaim == null){
         for (var i = 0; i < randomizedOnlineItems.length; i++){
 
             
@@ -1623,27 +1786,141 @@ function OpenOnlineShop(){
     
 };
 
+//OPEN DARKNET----------------------------------------------------------------------------------------------
+function OpenDarkNet(){
+
+    infoboxObj.className = "infoboxBase darknet";
+    infoboxObj.innerHTML = `<div class="browserBase">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}<div class="browser">http://www.darknet.com/</div></div>
+                            <br>
+                            <div class="UI_text description"><span style="font-weight:900">Disclamer:</span> All of these illegal activities may be reported to police by someone and then you are on your own.</div>  `;
+    infoboxObj.scrollTop = 0;
+
+    if (currentPlayerAttributes.illegalIdToReclaim == null){
+
+    infoboxObj.innerHTML += `<div class="twoColumns40-60">
+                                <div class="basicCell"><button class="btn" onclick="BuyFake('education')">Order!</button></div>
+                                <div class="optiontext orange" id="sleeptext_home">Selling degree for ${education[currentPlayerAttributes.educationId+1].degree} certificate. It will be mailed to you and only costs 
+                                ${education[currentPlayerAttributes.educationId+1].fakePrice}€. </div>
+                            </div>
+                            
+                            <br>
+
+                            <div class="twoColumns40-60">
+                                <div class="basicCell"><button class="btn" onclick="BuyFake('drugs')">Order!</button></div>
+                                <div class="optiontext orange" id="sleeptext_home">Selling some 'enhancers' to double your studying speed. Do not get caught. Price ${drugsPrice}€</div>
+                            </div>
+
+                            <br>
+
+                            `;
+
+
+    }
+
+    else{
+        infoboxObj.innerHTML = `<div class="browserBase">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}<div class="browser">http://www.darknet.com/order#432s42</div></div>
+                                <br><div class="UI_text description">What do you want? <br><br>
+                                The delivery is on its way.<br><br>
+
+                                Don't try to contact me a meanwhile.<br>
+
+                                <br>
+                                -the man
+                                </div>`;
+    }
+
+
+
+    // if (currentPlayerAttributes.itemIdToReclaim == 0){
+    //     for (var i = 0; i < randomizedOnlineItems.length; i++){
+
+            
+    //         //ONLINE ITEMS
+    //         if (randomizedOnlineItems[i].cost <= currentPlayerAttributes.moneyPoints){
+    //             infoboxObj.innerHTML +=  `
+    //             <div class="twoColumns40-60 topicBorder">
+    //             <div class="UI_text middleTopic">${randomizedOnlineItems[i].item}</div>
+    //             <div class="optiontext dark"><button class="btn green" onclick="OrderOnlineItem(${randomizedOnlineItems[i].itemId}, ${randomizedOnlineItems[i].cost})">Purchase</button></div>
+    //             </div>
+    //             <div class="oneColumn border"></div>
+
+    //             <div class="twoColumns40-60">
+    //                 <div><img src="${randomizedOnlineItems[i].img}" height="80px"></div>
+    //                 <div>
+    //                     <span class="optiontext blueish">${randomizedOnlineItems[i].description}</span><br>
+    //                     <span class="optiontext green">${randomizedOnlineItems[i].cost}€</span>
+    //                 </div>
+                    
+                    
+    //             <br>`;
+    //         }
+
+    //         else{
+    //             infoboxObj.innerHTML +=  `
+    //             <div class="twoColumns40-60 topicBorder">
+    //             <div class="UI_text middleTopic">${randomizedOnlineItems[i].item}</div>
+    //             <div class="optiontext dark"></div>
+    //             </div>
+    //             <div class="oneColumn border"></div>
+                
+    //             <div class="twoColumns40-60">
+    //                 <div><img src="${randomizedOnlineItems[i].img}" height="80px"></div>
+    //                 <div>
+    //                     <span class="optiontext blueish">${randomizedOnlineItems[i].description}</span><br>
+    //                     <span class="optiontext red">${randomizedOnlineItems[i].cost}€</span>
+    //                 </div>
+    //             <br>`
+    //         }
+    //     }
+
+    // }
+    // else{
+    //     infoboxObj.innerHTML = `<div class="browserBase">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}<div class="browser">http://www.somestuff.com/order#21123</div></div>
+    //                             <br><div class="UI_text description">Hi there stranger! <br><br>
+    //                             Thanks for buying this. I'll post the item right a way! The follow-up code is #5473829543 432 5432 21123. Be sure to write that down. The package should be there shortly.<br><br>
+
+    //                             Regards, <br>
+    //                             the seller
+    //                             </div>`;
+    // }
+
+    ReduceTime_Check(1);
+
+    
+};
+
+//FOREST---------------------------------------------------------------------------------------------------
 function ForestAction(){
     if (currentPlayerAttributes.forestHappiness > 0 && currentPlayerAttributes.weeklyTime >= 10){
         const forestText = document.getElementById('forestText');
         forestText.innerHTML = "You feel so much happier."
-        OpponentEvents("wanders in forest." );
+        OpponentEvents("wanders in woods." );
         currentPlayerAttributes.forestHappiness--;
         currentPlayerAttributes.happinessPoints++;
         ReduceTime_Check(10);
     }
 };
 
+//MALL---------------------------------------------------------------------------------------------------
 function MallActions(action){
 
     switch (action){
         case 'postPackage':
-            if (currentPlayerAttributes.postPackageInPost){
+            if (currentPlayerAttributes.itemPackageInPost){
 
-                currentPlayerAttributes.currentItems.push(FindWithAttr(onlineItems, "itemId", currentPlayerAttributes.postPackagePending));
+                if (currentPlayerAttributes.itemIdToReclaim != null){
+                    currentPlayerAttributes.currentItems.push(FindWithAttr(onlineItems, "itemId", currentPlayerAttributes.itemIdToReclaim)); //adding to player inventory
+                }
                 
-                currentPlayerAttributes.postPackagePending = 0;
-                currentPlayerAttributes.postPackageInPost = false;
+                if (currentPlayerAttributes.illegalIdToReclaim != null){
+
+                    if (currentPlayerAttributes.illegalIdToReclaim == 'education'){ currentPlayerAttributes.fakeEducation = true; }
+                    else if (currentPlayerAttributes.illegalIdToReclaim == 'drugs'){ currentPlayerAttributes.drugs += 5; }
+                }
+
+                currentPlayerAttributes.illegalIdToReclaim = null;
+                currentPlayerAttributes.itemIdToReclaim = null;
+                currentPlayerAttributes.itemPackageInPost = false;
                 UpdateBarAndTexts();
                 ChooseDirection('Mall');
             }
@@ -1652,8 +1929,8 @@ function MallActions(action){
             break;
 
         case 'beauty':
-            if (currentPlayerAttributes.beautyFactor == 0 && currentPlayerAttributes.moneyPoints >= 50) {
-                currentPlayerAttributes.moneyPoints -= 50;
+            if (currentPlayerAttributes.beautyFactor == 0 && currentPlayerAttributes.moneyPoints >= beautyPrice) {
+                currentPlayerAttributes.moneyPoints -= beautyPrice;
                 currentPlayerAttributes.beautyFactor += 5;
                 currentPlayerAttributes.happinessPoints++;
                 OpponentEvents('trying to look good.');
@@ -1661,23 +1938,28 @@ function MallActions(action){
             ReduceTime_Check(5);
             break;
 
-        case 'coffeehouse':
-            if (currentPlayerAttributes.mallActions != 0 && currentPlayerAttributes.moneyPoints >= 20) {
-                currentPlayerAttributes.moneyPoints -= 20;
+        case 'massage':
+            if (currentPlayerAttributes.mallActions != 0 && currentPlayerAttributes.moneyPoints >= massagePrice) {
+                currentPlayerAttributes.moneyPoints -= massagePrice;
+                currentPlayerAttributes.energyLevel += massagePrice
                 currentPlayerAttributes.mallActions--;
                 currentPlayerAttributes.happinessPoints++;
-                OpponentEvents('is having a milk shake.');
-                document.getElementById('mall_coffeehouse').innerHTML = "You feel happier after having a milk shake and resting a little bit.";
+
+                OpponentEvents('is having a massage...');
+                document.getElementById('mall_coffeehouse').innerHTML = "You feel happier after massage and more energetic!";
+                ReduceTime_Check(5);
             }
-            ReduceTime_Check(3);
+            
             break;
 
         case 'movie':
-            if (currentPlayerAttributes.mallActions != 0 && currentPlayerAttributes.moneyPoints >= 20) {
-                currentPlayerAttributes.moneyPoints -= 20;
+            if (currentPlayerAttributes.mallActions != 0 && currentPlayerAttributes.moneyPoints >= moviePrice) {
+
+                currentPlayerAttributes.moneyPoints -= moviePrice;
                 currentPlayerAttributes.mallActions--;
                 
-                OpponentEvents('is watching a movie.');
+                OpponentEvents('went to movies...');
+
                 const mall_moviestext = document.getElementById('mall_moviestext');
 
                 const randomPoints = Math.floor(Math.random()*2)
@@ -1691,10 +1973,38 @@ function MallActions(action){
                     mall_moviestext.className = "optiontext red";
                     mall_moviestext.innerHTML = "The movie sucked! You felt screwed...";
                 }
-                
+                ReduceTime_Check(5);
             }
-            ReduceTime_Check(3);
+            
         break;
+
+
+        case 'lottery':
+            if (currentPlayerAttributes.moneyPoints >= lotteryPrice) {
+
+                currentPlayerAttributes.moneyPoints -= lotteryPrice;
+                lotteryPrice++;
+                
+                OpponentEvents('is buying some lottery tickets...');
+
+                
+                ReduceTime_Check(0);
+            }
+            
+        break;
+
+        case 'unemployment':
+            if (currentPlayerAttributes.weeklyUnemployedPay) {
+
+                currentPlayerAttributes.weeklyUnemployedPay = false;
+                currentPlayerAttributes.moneyPoints += unemploymentBenefit;
+                
+                ShowTempMessage(`You just received ${unemploymentBenefit}€ as government unemployment benefit.`, 'package');
+                ReduceTime_Check(0);
+            }
+            
+        break;
+        
     }
     
 };
@@ -1737,7 +2047,8 @@ function BarAction(action){
                 sosializeText.innerHTML = 'You found some company!'
                 sosializeText.className = 'optiontext magenta'
                 currentPlayerAttributes.relationshipID = 2;
-                currentPlayerAttributes.newlyMet = true;
+                currentPlayerAttributes.relationshipStrenght = 3;
+                
                 OpponentEvents('met someone.');
             }
             else{
@@ -1755,7 +2066,9 @@ function BarAction(action){
                 danceText.innerHTML = 'You were able charm someone with your dancing!';
                 danceText.className = 'optiontext magenta';
                 currentPlayerAttributes.relationshipID = 2;
-                currentPlayerAttributes.newlyMet = true;
+                currentPlayerAttributes.relationshipStrenght = 3;
+
+                
                 OpponentEvents('met someone.');
             }
             else{
@@ -1778,6 +2091,7 @@ function BarAction(action){
                 
                 if(rand2 == 0 && currentPlayerAttributes.relationshipID == 0 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4){
                     currentPlayerAttributes.relationshipID = 2;
+                    currentPlayerAttributes.relationshipStrenght = 3;
                     OpponentEvents('met someone.');
                     ShowTempMessage("What great gig and you met someone!", 'sms');
                 }
@@ -1803,52 +2117,39 @@ function BarAction(action){
 };
 
 //RELATIONSHIP-----------------------------------------------------------------------------------------
-function RelationshipAction(id){
+function RelationshipAction(){
     
-    switch (id){
-        case 'relationship_walk':
-            const relationship_walkTxt = document.getElementById('relationship_walkTxt');
-            relationship_walkTxt.innerHTML = "You had a nice and loooong walk out side.";
-            currentPlayerAttributes.relationshipStrenght++;
-            // ShowTempMessage('You had a nice and loooong walk out side.', 'relationship');
-            ReduceTime_Check(10);
-            break;
     
-        case 'relationship_restaurant':
-            if (currentPlayerAttributes.moneyPoints >= 120){
-                currentPlayerAttributes.relationshipStrenght +=2;
-                currentPlayerAttributes.moneyPoints -= 120;
-                // ShowTempMessage('Very romantic lunch. The cost was 80€ and good stable relationship.', 'relationship');
-                ReduceTime_Check(7);
-            }
+        
+    const relationship_walkTxt = document.getElementById('relationship_walkTxt');
+    relationship_walkTxt.innerHTML = "You spend a nice time with your partner, walking outside and cooking a nice meal and doing all kinds of nice things...";
+    currentPlayerAttributes.relationshipStrenght++;
+    currentPlayerAttributes.moneyPoints -= 5;
+    // currentPlayerAttributes.happinessPoints++;
+    
+    ReduceTime_Check(10);
             
-            break;
-
-    }
-
-    if (currentPlayerAttributes.relationshipStrenght > 9){
-        switch (currentPlayerAttributes.relationshipID){
-            case 1: //complicated
-                currentPlayerAttributes.relationshipID = 3;
-                OpponentEvents("it's dating now." );
-                break;
+    
+        // case 'relationship_restaurant':
+        //     if (currentPlayerAttributes.moneyPoints >= 120){
+        //         currentPlayerAttributes.relationshipStrenght +=2;
+        //         currentPlayerAttributes.moneyPoints -= 120;
+        //         // ShowTempMessage('Very romantic lunch. The cost was 80€ and good stable relationship.', 'relationship');
+        //         ReduceTime_Check(7);
+        //     }
             
-            case 2: //just met
-                currentPlayerAttributes.relationshipID = 3;
-                OpponentEvents("it's dating now." );
-                break;
+        //     break;
 
-            case 3: //dating
-                currentPlayerAttributes.relationshipID = 4;
-                OpponentEvents("it's in a very serious relationship." );
-                break;
-            
-            case 4: //relationship
-                currentPlayerAttributes.relationshipID = 4;
-                break;
-
+        if (currentPlayerAttributes.relationshipStrenght > 7){
+            currentPlayerAttributes.happinessPoints++;
         }
-        currentPlayerAttributes.relationshipStrenght = 0;
+
+
+    
+    if (currentPlayerAttributes.relationshipStrenght > 9 && currentPlayerAttributes.relationshipID == 2){
+
+        currentPlayerAttributes.relationshipID++;
+        currentPlayerAttributes.relationshipStrenght = 3;
     }
 
 };
@@ -1940,28 +2241,37 @@ function SchoolAction(action){
 
     if (action == 'school'){
 
+        const drugEnhancer = currentPlayerAttributes.drugs > 0 ? 15 : 0;
+
         if (currentPlayerAttributes.moneyPoints >= education[currentPlayerAttributes.educationId+1].cost && !currentPlayerAttributes.educationEnroll){
             currentPlayerAttributes.moneyPoints -= education[currentPlayerAttributes.educationId+1].cost
             currentPlayerAttributes.educationEnroll = true;
             ChooseDirection('School'); //for reload
-            ShowTempMessage('You puchased enroll for ' + education[currentPlayerAttributes.educationId+1].degree, 'sms');
-            OpponentEvents('enrolled for ' + education[currentPlayerAttributes.educationId+1].degree + "." );
+            ShowTempMessage('You enrolled for ' + education[currentPlayerAttributes.educationId+1].degree, 'sms');
+            OpponentEvents('enrolled for a degree.');
+            // + education[currentPlayerAttributes.educationId+1].degree + "."
+            
             ReduceTime_Check(0);
         }
     
-        else if(currentPlayerAttributes.educationEnroll && currentPlayerAttributes.weeklyTime > studyingTimeToConsume){
+        else if(currentPlayerAttributes.educationEnroll && currentPlayerAttributes.weeklyTime > (studyingTimeToConsume - drugEnhancer)){
             currentPlayerAttributes.educationProgress++;
-            ReduceTime_Check(studyingTimeToConsume);
+
+            if (drugEnhancer > 0) {currentPlayerAttributes.drugs--; }
+            
+
+            ReduceTime_Check(studyingTimeToConsume - drugEnhancer);
             
     
             if(currentPlayerAttributes.educationProgress == 5){
                 currentPlayerAttributes.educationId++;
+                currentPlayerAttributes.fakeEducation = false;
                 currentPlayerAttributes.educationEnroll = false;
                 currentPlayerAttributes.educationProgress = 0;
                 //message to panel congrats etc.
                 ReduceTime_Check(0);
-                ShowTempMessage('You made it! ' + education[currentPlayerAttributes.educationId].degree, 'sms');
-                OpponentEvents('Gratuated for ' + education[currentPlayerAttributes.educationId].degree + "!" );
+                ShowTempMessage('You made it! Your current degree is ' + education[currentPlayerAttributes.educationId].degree, 'sms');
+                // OpponentEvents('Gratuated for ' + education[currentPlayerAttributes.educationId].degree + "!" );
                 ChooseDirection('School'); //for reload
             }
         }
@@ -1994,46 +2304,109 @@ function SportsAction(sport){
     if (sport == 'yoga'){
         if (currentPlayerAttributes.currentYogaEnhancer == 0){
             
-            currentPlayerAttributes.currentYogaEnhancer+=yogaEnhance;
-            OpponentEvents('goes for yoga.' );
-            
+            currentPlayerAttributes.currentYogaEnhancer += yogaEnhance;
+            OpponentEvents('went for yoga.' );
+            ReduceTime_Check(3);    
         }
-        ReduceTime_Check(3);
+        
     }
 
     if(sport == 'sports'){
 
-        if (currentPlayerAttributes.exerciseLvl <= 5 && currentPlayerAttributes.gymTimes > 0){
+        const sports_gymText = document.getElementById('sports_gymText');
+
+        if (currentPlayerAttributes.exerciseLvl <= 4 && currentPlayerAttributes.gymTimes > 0){
             currentPlayerAttributes.exerciseLvl++;
             currentPlayerAttributes.gymTimes--;
-            OpponentEvents('hits the gym.' );
+            OpponentEvents('hit the gym.' );
+            ReduceTime_Check(4);
+
+            sports_gymText.innerHTML = "That was very good workout...";
+            sports_gymText.className = "optiontext green";
         }
-        ReduceTime_Check(2);
+
+        else if (currentPlayerAttributes.exerciseLvl > 4){
+            sports_gymText.innerHTML = "You have already pumped enough for this week.";
+            sports_gymText.className = "optiontext red";
+        }
+
+        else{
+            
+            sports_gymText.innerHTML = "You have already spend 10 training times from your gym card in this month. Come back for more in the next month.";
+            sports_gymText.className = "optiontext red";
+        }
+        
     }
 
     if(sport == 'sauna'){
 
-        if (currentPlayerAttributes.workStress > 0){
+        const sports_swimText = document.getElementById('sports_swimText');
+
+        if (currentPlayerAttributes.workStress > 3){
             currentPlayerAttributes.workStress--;
-            document.getElementById('sports_swimText').innerHTML = "You feel much more relaxed now and your work stress has been reduced...!";
-            OpponentEvents('enjoys sauna.' );
-            // sports_swimText.innerHTML = "You feel much more relaxed now and your work stress has been reduced..";
-            // sports_swimText.className = "optiontext red";
+            
+            sports_swimText.innerHTML = "You feel much more relaxed now and your work stress has been reduced...!";
+            sports_swimText.className = "optiontext green";
+
+            OpponentEvents('enjoyed sauna.' );
+            
+            ReduceTime_Check(10);
+        }
+        else{
+            sports_swimText.innerHTML = "You don't feel like going to sauna at the moment.";
+            sports_swimText.className = "optiontext red";
         }
         
-        ReduceTime_Check(10);
+        
     }
     
 };
 
 //CHURCH------------------------------------------------------------------------------------------------------------
-function ChurchAction(){
+function ChurchAction(action){
 
-    const randomAmount = Math.floor(Math.random()*12)-6;
+    switch (action){
+        case 'leap':
+            const randomAmount = Math.floor(Math.random()*12)-6;
 
-    currentPlayerAttributes.happinessPoints += randomAmount;
-    OpponentEvents('takes a leap of fate.' );
-    ReduceTime_Check(4);
+            currentPlayerAttributes.happinessPoints += randomAmount;
+            OpponentEvents('took a leap of fate.' );
+            ReduceTime_Check(4);
+            break;
+
+        case 'volunteer':
+
+            const church_volunteerText = document.getElementById('church_volunteerText');
+
+            if (currentPlayerAttributes.weeklyTime >= volunteerConsumptionTime && currentPlayerAttributes.energyLevel >= (volunteerConsumptionTime * 5) 
+                && currentPlayerAttributes.currentWorkId == 0 && currentPlayerAttributes.volunteerTime > 0){
+                
+                currentPlayerAttributes.weeklyTime -= volunteerConsumptionTime;
+                currentPlayerAttributes.energyLevel -= volunteerConsumptionTime*5;
+                currentPlayerAttributes.happinessPoints += 3;
+                currentPlayerAttributes.volunteerTime--;
+                church_volunteerText.className = "optiontext green";
+                church_volunteerText.innerHTML = "You have participated in volunteer work. You feel tired, but much happier!";
+
+                ReduceTime_Check(volunteerConsumptionTime);
+                
+            }
+
+            else if(currentPlayerAttributes.volunteerTime == 0){
+                church_volunteerText.innerHTML = "There's no volunteer work for this week! Come back next week.";
+                church_volunteerText.className = "optiontext red";
+            }
+
+            else{
+                church_volunteerText.innerHTML = "Not enough time or energy to do the work. Remember you have to unemployed.";
+                church_volunteerText.className = "optiontext red";
+            }
+
+
+    }
+
+
+
 }
 
 
@@ -2084,7 +2457,7 @@ function ManageScoreBoard_Images(){
     currentPlayerAttributes.homeID == 0 ? icon_house.style.display ="block" : icon_house.style.display ="none";
     currentPlayerAttributes.homeID == 1 ? icon_houselux.style.display ="block" : icon_houselux.style.display ="none";
     currentPlayerAttributes.jobIdPending ? icon_jobapplication.style.display ="block" : icon_jobapplication.style.display ="none";
-    currentPlayerAttributes.postPackageInPost ? icon_postpackage.style.display ="block" : icon_postpackage.style.display ="none";
+    currentPlayerAttributes.itemPackageInPost ? icon_postpackage.style.display ="block" : icon_postpackage.style.display ="none";
     // currentPlayerAttributes.exerciseLvl == 0 ? icon_exercise.style.display ="none" : icon_exercise.style.display ="block";
     
     currentPlayerAttributes.currentYogaEnhancer == 0 ? icon_yoga.style.display = "none" : icon_yoga.style.display = "block";
@@ -2177,7 +2550,7 @@ function OrderOnlineItem(itemId, cost){
     
     if (cost <= currentPlayerAttributes.moneyPoints){
         currentPlayerAttributes.moneyPoints -= cost;
-        currentPlayerAttributes.postPackagePending = itemId;
+        currentPlayerAttributes.itemIdToReclaim = itemId;
         infoboxObj.innerHTML = `<div class="browserBase">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}<div class="browser">http://www.somestuff.com/order#21123</div></div>
                                 <br><div class="UI_text description">Hi there stranger! <br><br>
                                 Thanks for buying this. I'll post the item right a way! The follow-up code is #5473829543 432 5432 21123. Be sure to write that down. The package should be there shortly.<br><br>
@@ -2186,9 +2559,9 @@ function OrderOnlineItem(itemId, cost){
                                 the seller
                                 </div>`;
 
-        currentPlayerAttributes.itemInPostAnnouncement = currentPlayerAttributes.weeklyTime - 15;
-        if (currentPlayerAttributes.itemInPostAnnouncement < 0){
-            currentPlayerAttributes.itemInPostAnnouncement = 1;
+        currentPlayerAttributes.itemPostArrivingTime = currentPlayerAttributes.weeklyTime - 15;
+        if (currentPlayerAttributes.itemPostArrivingTime < 0){
+            currentPlayerAttributes.itemPostArrivingTime = 1;
         }
         currentPlayerAttributes.showPostMessage = true;
         UpdateBarAndTexts();
@@ -2214,12 +2587,24 @@ function RandomizeJobs(){
         jobsToShow.push(el);
     });
 
+    
+
     //First Delete current and unemloyment jobs from the  
-    jobsToShow.splice(currentPlayerAttributes.currentWorkId, 1);
+    jobsToShow.splice(currentPlayerAttributes.currentWorkId, 1); //first take player current work out whether if unemployed or not
     if (currentPlayerAttributes.currentWorkId != 0){
-        jobsToShow.splice(0, 1);
+        jobsToShow.splice(0, 1);                                //second take zero out if player is not unemployed
     }
     
+    if (numberOfPlayersForGame > 1 && opponentJobs[0] != 0){
+        jobsToShow.splice(FindWithAttr(jobsToShow, "id", opponentJobs[0]) , 1);
+    }
+
+    if (numberOfPlayersForGame > 2 && opponentJobs[1] != 0){
+        jobsToShow.splice(FindWithAttr(jobsToShow, "id", opponentJobs[1]) , 1);
+    }
+
+    
+
     //Push to randomizejob list and delete from temp list        
     for (var i = 0; i < 4; i++){
         let randJob = Math.floor(Math.random()*jobsToShow.length);
@@ -2255,15 +2640,18 @@ function WorkChecker(){
     if (currentPlayerAttributes.jobIdPending != null && currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.jobPendingTime  ){
         
         const rand = Math.floor(Math.random()*5);
-        //Decider if you got the job or not
+        //Random decider if you got the job or not
         console.log(rand + " != 4???");
 
+        const fakeEducationLvl = currentPlayerAttributes.fakeEducation ? 1 : 0;  // if fake education
+
         const tempJobPending = FindWithAttr(jobs, "id", currentPlayerAttributes.jobIdPending); //jobs is given with id number
-        if (jobs[tempJobPending].worklevel <= currentPlayerAttributes.playerWorkLevel && rand != 4 && jobs[tempJobPending].educationReq <= currentPlayerAttributes.educationId){
+        if (jobs[tempJobPending].worklevel <= currentPlayerAttributes.playerWorkLevel && rand != 4 && jobs[tempJobPending].educationReq <= currentPlayerAttributes.educationId + fakeEducationLvl){
 
             currentPlayerAttributes.currentWorkId = tempJobPending;
             ShowTempMessage(`Congratulations! You got the job!<br><br> Now you can start working as ${jobs[tempJobPending].job}.`, 'sms');
-            OpponentEvents(`got a job as a ${jobs[tempJobPending].job}!`);
+            OpponentEvents(`got a new job!`);
+            // ${jobs[tempJobPending].job}
         }
 
         else if (jobs[tempJobPending].worklevel > currentPlayerAttributes.playerWorkLevel){
@@ -2288,4 +2676,253 @@ function WorkChecker(){
     }
 
 
+}
+
+function BuyFake(fakeSubject){
+
+    switch (fakeSubject){
+        case 'education':
+            if (currentPlayerAttributes.moneyPoints >= education[currentPlayerAttributes.educationId+1].fakePrice){
+                currentPlayerAttributes.moneyPoints -= education[currentPlayerAttributes.educationId+1].fakePrice;
+                currentPlayerAttributes.illegalPostArrivingTime = currentPlayerAttributes.weeklyTime - 15;
+                
+                currentPlayerAttributes.illegalIdToReclaim = 'education';
+
+                if (currentPlayerAttributes.illegalPostArrivingTime < 0){ currentPlayerAttributes.illegalPostArrivingTime = 1; }
+
+                currentPlayerAttributes.showPostMessage = true;
+            }
+        break;
+
+        case 'drugs':
+
+            if (currentPlayerAttributes.moneyPoints >= drugsPrice){
+                currentPlayerAttributes.moneyPoints -= drugsPrice;
+
+                currentPlayerAttributes.illegalPostArrivingTime = currentPlayerAttributes.weeklyTime - 15;
+                
+                currentPlayerAttributes.illegalIdToReclaim = 'drugs';
+
+                if (currentPlayerAttributes.illegalPostArrivingTime < 0){ currentPlayerAttributes.illegalPostArrivingTime = 1; }
+
+                currentPlayerAttributes.showPostMessage = true;
+            }
+        break;
+
+    }
+
+    infoboxObj.innerHTML = `<div class="browserBase">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}<div class="browser">http://www.darknet.com/order#432s42</div></div>
+                            <br><div class="UI_text description">Hi! <br><br>
+                            Thanks for the purchase. There are eyes everywhere, we have to be cautious. But yea.. the delivery is own its way.<br><br>
+
+                            Thanks. Bye.<br>
+
+                            <br>
+                            -the man
+                            </div>`;
+
+}
+
+
+
+
+//WEEK CHANGE FUNCTIONS----------------------------------------------------------------------------------------------------------
+function Relationship_WeekChange(){
+
+    if (currentPlayerAttributes.relationshipID == 0){
+        weeklyChangeEvents.push('relationship_recovery');
+        currentPlayerAttributes.relationshipID = 1;
+    }
+
+    //declining relationship
+    if (currentPlayerAttributes.relationshipID > 1 && !currentPlayerAttributes.newlyMet){
+        
+        currentPlayerAttributes.relationshipStrenght -= 2;
+
+        if (currentPlayerAttributes.relationshipStrenght <= 0){
+            switch (currentPlayerAttributes.relationshipID){
+
+                
+                case 2: //dating
+                    currentPlayerAttributes.relationshipID = 0;
+                    currentPlayerAttributes.happinessPoints -= 5;
+                    weeklyChangeEvents.push('relationship_brokeup');
+                    OpponentEvents("broke up." );
+                    break;
+
+                case 3: //Relationship
+                    currentPlayerAttributes.relationshipID = 0;
+                    currentPlayerAttributes.happinessPoints -= 8;
+                    OpponentEvents("broke up." );
+                    weeklyChangeEvents.push('relationship_brokeup');
+                    break;
+                
+            }
+            currentPlayerAttributes.relationshipStrenght = 0; //if broken up
+        }
+    }
+}
+
+function Lottery_WeekChange(){
+
+    if (currentPlayerAttributes.lotteryTickets > 0){
+
+        lotteryWinCount = 0;
+
+        for (var i = 0; i < currentPlayerAttributes.lotteryTickets; i++){
+            const randomTicketResult = Math.floor(Math.random()*25);
+            currentPlayerAttributes.lotteryTickets--;
+            console.log(randomTicketResult);
+            if (randomTicketResult == 5){
+                currentPlayerAttributes.moneyPoints += 500;
+                currentPlayerAttributes.happinessPoints += 2;
+                lotteryWinCount++;
+            }
+
+        }
+        if (lotteryWinCount > 0){ weeklyChangeEvents.push('lottery'); }
+        
+    }
+
+    
+
+}
+
+function Rent_WeekChange(){
+
+    if (currentPlayerAttributes.rentToDue){
+        currentPlayerAttributes.moneyPoints -= Math.ceil(rentHomes[currentPlayerAttributes.homeID].rent * 2); 
+        currentPlayerAttributes.rentToDue = false;
+        currentPlayerAttributes.happinessPoints -= 10;
+        weeklyChangeEvents.push('rent');
+     
+    }
+}
+
+function Work_WeekChange(){
+
+    if (currentPlayerAttributes.currentWorkId != 0){
+    
+        if (currentPlayerAttributes.workStress < 1){ //don't go work at all
+            currentPlayerAttributes.currentWorkId = 0;
+            currentPlayerAttributes.happinessPoints -= 10;
+            
+            weeklyChangeEvents.push('losejob');
+        }
+        
+        else if(currentPlayerAttributes.workStress > 5){
+            currentPlayerAttributes.weeklyTime -= 60;
+            currentPlayerAttributes.moneyPoints -= 60;
+            currentPlayerAttributes.happinessPoints -= 5;
+
+            weeklyChangeEvents.push('work_too_much');
+        }
+
+        currentPlayerAttributes.workStress = 0;
+    }
+}
+
+function Pet_WeekChange(){
+
+    if (currentPlayerAttributes.petID == 1){
+
+        if (currentPlayerAttributes.petWeeklyDue){
+            
+            weeklyChangeEvents.push('pet_decare');
+            // ShowTempMessage("You haven't taken care of your pet. You had to take it to a vet. The fee was " + pets[currentPlayerAttributes.petID].petPenalty +"€", 'sms');
+            currentPlayerAttributes.moneyPoints -= pets[currentPlayerAttributes.petID].petPenalty;
+            currentPlayerAttributes.happinessPoints -= 5;
+        }
+
+        //pet food check
+
+        currentPlayerAttributes.petFoodAmount == 0 ? currentPlayerAttributes.petFoodAmount == 0 : currentPlayerAttributes.petFoodAmount--; //decrease pet food
+        currentPlayerAttributes.petWeeklyDue = true;
+    }
+}
+
+function Messages_WeekChange(messageArray){
+
+    console.log(messageArray);
+
+    tempInfo.innerHTML = `<div class="twoColumns20-80">
+                        <div class="basicCell"><img src="./img/icons/SMS_Sprite.png" height="40px"></div> 
+                        <div class="optiontext green">${messageArray[0]}</div>
+                        </div>`;   
+
+
+    //start from second element ==> 1
+    for (var i = 1; i < messageArray.length; i++){
+
+        tempInfo.innerHTML += '<br>' + messageToShow(messageArray[i]);
+    }
+
+    
+    $(tempInfo).slideDown(500).delay(3000+(messageArray.length*800)).slideUp(500);
+
+    function messageToShow(message){
+
+        switch (message){
+            case 'rent':
+
+                return `<div class="twoColumns20-80">
+                    <div class="basicCell"><img src="./img/icons/Icon_RentDue.png" height="40px"></div> 
+                    <div class="optiontext red">You didn't pay your rent in last week. You were due to pay double rent ${rentHomes[currentPlayerAttributes.homeID].rent*2}€.</div>
+                </div>`; 
+                
+            case 'losejob':
+                return `<div class="twoColumns20-80">
+                    <div class="basicCell"><img src="./img/icons/Icon_OccupationSprite.png" height="40px"></div> 
+                    <div class="optiontext red">You neglected your work and got fired. You're unemployed once again.</div>
+                </div>`; 
+
+            case 'work_too_much':
+                return `<div class="twoColumns20-80">
+                    <div class="basicCell"><img src="./img/icons/Sprite_RejectionLetter.png" height="40px"></div> 
+                    <div class="optiontext red">You worked too much and felt a little bit sick for awhile. You lost some time in recover. The doctor fee was ${overWorkFee}€.</div>
+                </div>`; 
+
+            case 'pet_decare':
+                return `<div class="twoColumns20-80">
+                    <div class="basicCell"><img src="./img/icons/Sprite_RejectionLetter.png" height="40px"></div> 
+                    <div class="optiontext red">You didn't takee care of your pet and had to visit a vet. The fee was ${pets[currentPlayerAttributes.petID].petPenalty}€.</div>
+                </div>`; 
+
+            case 'relationship_brokeup':
+                return `<div class="twoColumns20-80">
+                    <div class="basicCell"><img src="./img/icons/Icon_RelationshipSprite.png" height="40px"></div> 
+                    <div class="optiontext red">Unfortuntately your relationship didn't work out...</div>
+                </div>`; 
+
+
+
+            //oranges
+            case 'rentToDue':
+                return `<div class="twoColumns20-80">
+                    <div class="basicCell"><img src="./img/icons/Icon_RentDue.png" height="40px"></div> 
+                    <div class="optiontext orange">Rent to due during this week!</div>
+                </div>`; 
+
+
+
+
+
+            //happy
+            case 'lottery':
+                return `<div class="twoColumns20-80">
+                    <div class="basicCell"><img src="./img/icons/Icon_MoneySprite.png" height="40px"></div> 
+                    <div class="optiontext green">You won in lottery! Total amount was ${lotteryWinCount*500}€!!</div>
+                </div>`; 
+
+            case 'relationship_recovery':
+                return `<div class="twoColumns20-80">
+                    <div class="basicCell"><img src="./img/icons/Icon_RelationshipSprite.png" height="40px"></div> 
+                    <div class="optiontext green">You finally recovered from your hard brake up.</div>
+                </div>`; 
+
+        }
+
+
+   
+    }
 }

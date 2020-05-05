@@ -252,7 +252,9 @@ io.sockets.on('connection', (socket) =>{
             homeId: data.homeId,
             educationId: data.educationId,
             petId: data.petId,
-            relationshipId: data.relationshipId
+            relationshipId: data.relationshipId,
+            
+            jobsId: data.jobsId
         }
 
 

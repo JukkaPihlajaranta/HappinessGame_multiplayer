@@ -49,6 +49,10 @@ body{
     background-color: rgb(97, 115, 136);
 }
 
+.infoboxBase.darknet{
+    background-color: rgb(33, 54, 47);
+}
+
 .opponent_eventContainer{
 
     color:white;
@@ -98,6 +102,15 @@ body{
     grid-template-rows: auto;
     align-self: center;
     display: grid;
+}
+
+
+.columns30-30-30{
+    grid-template-columns: 33% 33% 33%;
+    grid-template-rows: auto;
+    align-self: center;
+    display: grid;
+    align-content: center;
 }
 
 .twoColumns30-70{
