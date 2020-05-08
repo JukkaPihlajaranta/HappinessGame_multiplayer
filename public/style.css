@@ -238,6 +238,7 @@ body{
 .optiontext.white{ color:rgb(255, 255, 255); font-weight: 400;}
 .optiontext.orange{ color: orange; }
 .optiontext.red{ color: rgb(252, 94, 77); }
+.optiontext.red_bold{ color: rgb(252, 94, 77); font-weight: 700;}
 .optiontext.magenta{ color: rgb(255, 161, 250); }
 .optiontext.blueish{ color: rgb(164, 229, 255); }
 
@@ -275,6 +276,10 @@ body{
 
 .btn.green{
     background-color: rgb(0, 150, 25);
+}
+
+.btn.darknet{
+    background-color: rgb(33, 54, 47);
 }
 
 .btn:hover{

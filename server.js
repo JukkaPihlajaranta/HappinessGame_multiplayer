@@ -130,9 +130,9 @@ io.sockets.on('connection', (socket) =>{
         
     });
 
-    socket.on('ToServer_ChatWinner', ()=> {
+    socket.on('ToServer_ChatWinner', (data)=> {
 
-        const message = '<span style="color:lime; font-weight: 900;">' + currentPlayerList[socket.id].playerName + " is the WINNER!! Congrats!! </span>";
+        const message = '<span style="color:green; font-weight: 900;">' + currentPlayerList[socket.id].playerName + " is the WINNER!! Congrats!!</span> Happiness: " + data.happinessPoints + "%";
 
         for (var i in playerList){
             playerList[i].emit('ToClient_updateChat', message);
@@ -240,8 +240,6 @@ io.sockets.on('connection', (socket) =>{
 
 
     //OPPONENT TRACKING EVENTS------------------------------------------------------------------------------------------------------------------------
-
-    //Stats tracking
     socket.on('ToServer_OpponentStats', (data) => {
 
         const tempData = {
@@ -254,7 +252,11 @@ io.sockets.on('connection', (socket) =>{
             petId: data.petId,
             relationshipId: data.relationshipId,
             
-            jobsId: data.jobsId
+            jobsId: data.jobsId,
+
+            //illegals
+            fakeEducation: data.fakeEducation,
+            drugs: data.drugs,
         }
 
 
@@ -360,6 +362,40 @@ io.sockets.on('connection', (socket) =>{
 
     });
 
+
+    //Players competing
+    socket.on('ToServer_ReportResult', (data) => {
+
+        if (data.affectedPlayerId == null){
+            playerList[data.returnPlayer].emit('ToClinet_ReportResult');
+        }
+
+        else{
+            const guiltyOne = {
+                affectedPlayerId: data.affectedPlayerId,
+                affectedPlayerName: data.affectedPlayerName
+            }
+
+            playerList[data.returnPlayer].emit('ToClinet_ReportResult', (guiltyOne));
+        }
+        
+    });
+
+    socket.on('ToServer_CheckIfPlayersGuilty', (receivedData) => {
+
+        gameList[receivedData.gameId].playerIdList.forEach(player => {
+
+            if (player != receivedData.playerId){
+                playerList[player].emit('ToClinet_CheckIllegals', (receivedData.playerId));
+            }
+
+        });
+    });
+
+    socket.on('ToServer_OrderedHit', (playerId) => {
+
+        playerList[playerId].emit('ToClient_OrderedHit');
+    });
 
 });
 

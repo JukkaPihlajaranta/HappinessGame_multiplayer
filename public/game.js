@@ -70,6 +70,8 @@ let playerId;
 let opponentId = [];
 let opponentName = [];
 let gameId;
+let opponentHappiness = [];
+
 
 let playerNumberInArray;
 let opponentNumberInArray = [];
@@ -161,7 +163,7 @@ var socket = io.connect();
         playerGameState = 1;
         // console.log("joined game");
         socket.emit('ToServer_JoinGame', gameId);
-    }
+    };
 
     function CreatingGame(amount){
         playerGameState = 1;
@@ -170,11 +172,9 @@ var socket = io.connect();
         // socket.emit('Update_ServerPlayerNumber', amount); //change status
         socket.emit('ToServer_Chat', "<span style='color:green'>created a game!</span>");
         $("#gameCreateButtons").fadeOut(300);
-    }
+    };
 
-
-
-
+    
     
     // STARTING THE GAME-----------------------------------------------------------------------
     socket.on("ToClient_StartGame", (data) =>{
@@ -185,7 +185,7 @@ var socket = io.connect();
         
         currentPlayerAttributes = {...startingAttributes};
         
-        opponentJobs = []; //list of opponent jobs
+        // opponentJobs = []; //list of opponent jobs
         opponentId = [];
         opponentName = [];
         gameId = '';
@@ -291,17 +291,74 @@ var socket = io.connect();
     //UPDATES DURING THE GAME-------------------------------------------------------------------
     socket.on('ToClient_OpponentStats', (data) =>{ 
 
+        //if 1 opponent
         if (data.targetId == opponentId[0]){
+            
+            opponentHappiness[0] = data.happinessPoints;
+
+            // if (currentPlayerAttributes.policeAlert){
+
+            //     if(data.drugs != 0 || data.fakeEducation){
+            //         ShowTempMessage(`<span style='color:green'>You were right. There was someone, making illegal actions. ${opponentName[0]} had something illegal going on and is fined now.</span>`, "sms");
+            //         currentPlayerAttributes.happinessPoints += 3;
+            //         socket.emit('ToServer_ReportPlayer', data.targetId);
+            //     }
+
+            //     else {
+            //         ShowTempMessage("<span style='color:orange'>There wasn't any illegal going on with anyone. We'll make you accountable for false reporting. Fine is 80€</span>", "rejection");
+            //         currentPlayerAttributes.moneyPoints -= 80;
+            //         currentPlayerAttributes.happinessPoints -= 5;
+            //     }
+
+            //     currentPlayerAttributes.policeAlert = false;
+            // }
+
+
+            
+
+            if (opponentId.length == 1){
+                
+                //if opponent happiness is bigger
+                if (data.happinessPoints > currentPlayerAttributes.happinessTotal){
+                    opponentName1.innerHTML = `#1 <span style='font-weight:900;color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
+                }
+                
+                //if happiness smaller
+                else if (data.happinessPoints <= currentPlayerAttributes.happinessTotal){
+                    opponentName1.innerHTML = `#2 <span style='font-weight:900;color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
+                }
+                
+            }
+
+
+            if (opponentId.length == 2){
+
+                //if opponent happiness is bigger
+                if (data.happinessPoints > currentPlayerAttributes.happinessTotal && data.happinessPoints > opponentHappiness[1]){
+                    opponentName1.innerHTML = `#1 <span style='font-weight:900;color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
+                }
+                
+                //in the middle
+                else if (data.happinessPoints <= currentPlayerAttributes.happinessTotal && data.happinessPoints > opponentHappiness[1] || data.happinessPoints > currentPlayerAttributes.happinessTotal && data.happinessPoints <= opponentHappiness[1] ){
+                    opponentName1.innerHTML = `#2 <span style='font-weight:900;color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
+                }
+
+                //last place
+                else if (data.happinessPoints < currentPlayerAttributes.happinessTotal && data.happinessPoints < opponentHappiness[1]){
+                    opponentName1.innerHTML = `#3 <span style='font-weight:900;color:${playerColor[opponentNumberInArray[0]]};'>${opponentName[0]}</span>`;
+                }
+            }
+
+            
+
             opponent_time_text.innerHTML = "Time: " + Math.ceil((data.time/weeklytimeToCompare)*100) + "%";
-
-
+            
             if (data.time <= 0){
                 opponent_time_text.innerHTML = "<span class='optiontext red'>Time's up!</span> ";
             }
 
             opponent_happiness_text.innerHTML = "Happiness: " + data.happinessPoints + "%";
             data.moneyPoints > currentPlayerAttributes.moneyPoints ? opponent_moneyText.innerHTML = "> than you" : opponent_moneyText.innerHTML = "< than you";
-            // opponent_moneyText.innerHTML = data.moneyPoints + "€";
             data.moneyPoints > currentPlayerAttributes.moneyPoints ? opponent_moneyText.className = "UI_text scoreboard red" : opponent_moneyText.className = "UI_text scoreboard green";
 
             
@@ -323,7 +380,6 @@ var socket = io.connect();
             });
 
             //For that online jobs doensn't show opponent's jobs
-            console.log(data.jobsId);
             opponentJobs[0] = data.jobsId;
 
             data.homeId == 0 ?  opponent_icon_house.style.display = "block" : opponent_icon_house.style.display = "none";
@@ -335,7 +391,30 @@ var socket = io.connect();
             ColorTimeBar(data.time, opponent_time_bar);
         }
 
-        else if (data.targetId == opponentId[1]){
+        //if 2 opponents
+        if (data.targetId == opponentId[1]){
+
+            opponentHappiness[1] = data.happinessPoints;
+
+
+            if (opponentId.length == 2){
+
+                //if opponent happiness is bigger
+                if (data.happinessPoints > currentPlayerAttributes.happinessTotal && data.happinessPoints > opponentHappiness[0]){
+                    opponentName2.innerHTML = `#1 <span style='font-weight:900;color:${playerColor[opponentNumberInArray[1]]};'>${opponentName[1]}</span>`;
+                }
+                
+                //in the middle
+                else if (data.happinessPoints <= currentPlayerAttributes.happinessTotal && data.happinessPoints > opponentHappiness[0] || data.happinessPoints > currentPlayerAttributes.happinessTotal && data.happinessPoints <= opponentHappiness[0] ){
+                    opponentName2.innerHTML = `#2 <span style='font-weight:900;color:${playerColor[opponentNumberInArray[1]]};'>${opponentName[1]}</span>`;
+                }
+
+                //last place
+                else if (data.happinessPoints < currentPlayerAttributes.happinessTotal && data.happinessPoints < opponentHappiness[0]){
+                    opponentName2.innerHTML = `#3 <span style='font-weight:900;color:${playerColor[opponentNumberInArray[1]]};'>${opponentName[1]}</span>`;
+                }
+            }
+
             
             opponent_time_text2.innerHTML = "Time: " + Math.ceil((data.time/weeklytimeToCompare)*100) + "%";
 
@@ -509,13 +588,14 @@ var socket = io.connect();
                 gameId: gameId,
                 playerId: playerId,
                 playerLocalName, playerLocalName,
-                opponentId, opponentId
+                opponentId: opponentId,
+                happinessPoints: currentPlayerAttributes.happinessTotal
             }
 
             // const winnerdata = [playerId, playerLocalName, opponentId];
             socket.emit('ToServer_GameWinner', winnerData);
             GameEnds();
-            socket.emit('ToServer_ChatWinner');
+            socket.emit('ToServer_ChatWinner', winnerData);
             
         }
         
@@ -524,7 +604,101 @@ var socket = io.connect();
 
     });
 
+
     
+    //Players competing
+    socket.on('ToClinet_CheckIllegals', (serverData) => {
+
+        // let returnData = {};
+
+        if (currentPlayerAttributes.drugs > 0 || currentPlayerAttributes.fakeEducation){
+
+            ShowTempMessage(`<span style='color:salmon'>You're fined of breaking the law. This is bad. No no nooo...<br>
+            You will lose your job, if you have one.</span>`, "sms");
+            currentPlayerAttributes.moneyPoints -= 110;
+            currentPlayerAttributes.happinessPoints -= 8;
+    
+            //unemploy
+            currentPlayerAttributes.drugs = 0;
+            currentPlayerAttributes.currentWorkId = 0;
+            currentPlayerAttributes.fakeEducation = false;
+    
+            //decerase education
+            currentPlayerAttributes.educationId = 0 ? currentPlayerAttributes.educationId = 0 : currentPlayerAttributes.educationId--;
+            
+            const returnData = {
+                returnPlayer: serverData,
+                affectedPlayerId: playerId,
+                affectedPlayerName: playerLocalName
+            }
+             
+            
+            //send playerId
+            socket.emit('ToServer_ReportResult', (returnData));
+            ReduceTime_Check(0);
+        }
+
+        else {
+            //send empty
+            const returnData = {
+                returnPlayer: serverData
+            }
+
+            socket.emit('ToServer_ReportResult', (returnData));
+        }
+
+
+        
+    });
+
+    socket.on('ToClinet_ReportResult', (data) => {
+
+        if (numberOfPlayersForGame == 2){
+            if (data != null){
+                ShowTempMessage(`<span style='color:lime'>You were right. There was someone, making illegal actions. <span style='color:orange'>${opponentName[0]}</span> had something illegal going on and is fined now.</span>`, "sms");
+                currentPlayerAttributes.happinessPoints += 3;
+            }
+    
+            else{
+                ShowTempMessage("<span style='color:orange'>There wasn't any illegal going on with anyone. We'll make you accountable for false reporting. Fine is 80€</span>", "rejection");
+                currentPlayerAttributes.moneyPoints -= 80;
+                currentPlayerAttributes.happinessPoints -= 5;
+            }
+
+            ReduceTime_Check(0);
+        }
+
+        else if (numberOfPlayersForGame == 3){
+            console.log(data);
+        }
+
+
+
+    });
+
+    function CheckPlayerIllegalActions(){
+
+        const package = {
+            gameId: gameId,
+            playerId: playerId
+        };
+
+        socket.emit('ToServer_CheckIfPlayersGuilty', (package));
+    };
+
+    function InitiateTheHit(hitInfo){
+
+        const targetId = hitInfo[0];
+
+        socket.emit('ToServer_OrderedHit', targetId);
+    };
+
+    socket.on('ToClient_OrderedHit', () => {
+        currentPlayerAttributes.happinessPoints -= 15;
+        ShowTempMessage('<span style="color:salmon">You have been hit by someone. Your happiness has decreased.</span>', 'sms');
+        ReduceTime_Check(0);
+    });
+
 
 //THE GAME STARTS------------------------------------------------------------------
 function GameStarts(){
@@ -547,7 +721,7 @@ function GameEnds(){
     $("#gameCreateButtons").slideDown(300);     //game create buttons
     
     socket.emit('ToServer_PlayerNotReady');
-    socket.emit('ToServer_Chat', "grats...");
+    socket.emit('ToServer_Chat', `Happiness: ${currentPlayerAttributes.happinessTotal}%. grats to winner`);
     playerGameState = 0;
 }
 
@@ -565,9 +739,14 @@ function OpponentUpdates(){
         relationshipId: currentPlayerAttributes.relationshipID,
         
         //do not show to opponent
-        jobsId: jobs[currentPlayerAttributes.currentWorkId].id
+        jobsId: jobs[currentPlayerAttributes.currentWorkId].id,
+
+        //illegals
+        fakeEducation: currentPlayerAttributes.fakeEducation,
+        drugs: currentPlayerAttributes.drugs
     }
     
+   
     if (numberOfPlayersForGame > 1){
         socket.emit('ToServer_OpponentStats', (tempPackage));
     }
@@ -1058,12 +1237,11 @@ function TrackPoints(){
         
         //checks if current value is in the array
         function checkSameValues(array){
-            // console.log(array.distY);
             return array.distY == firstOne.distY;
         }
     
         if (shortestDistance.length > 1){
-            // console.log("more than 1");
+            
             if (shortestDistance.every(checkSameValues)){
                 //same Y values, so checking shortest X
                 // console.log("X triggered!");
@@ -1088,12 +1266,11 @@ function TrackPoints(){
             }
         }
     
-        // console.log("firstOne.x: " + firstOne.x);
 
-        if (firstOne.x == undefined){
-            console.log("error in movement!");
-            return;
-        }
+        // if (firstOne.x == undefined){
+        //     console.log("error in movement!");
+        //     return;
+        // }
 
         //adding to animation array
         positionsForAnimation.push({

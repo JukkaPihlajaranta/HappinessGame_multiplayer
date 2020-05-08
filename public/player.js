@@ -26,8 +26,8 @@ const icon_petfood2 = document.getElementById('icon_petfood2');
 const icon_exercise = document.getElementById('icon_exercise');
 const icon_exercise2 = document.getElementById('icon_exercise2');
 const icon_exercise3 = document.getElementById('icon_exercise3');
-const icon_exercise4 = document.getElementById('icon_exercise4');
-const icon_exercise5 = document.getElementById('icon_exercise5');
+const icon_drugs = document.getElementById('icon_drugs');
+// const icon_exercise5 = document.getElementById('icon_exercise5');
 const icon_yoga = document.getElementById('icon_yoga');
 const icon_rent = document.getElementById('icon_rent');
 const icon_beauty = document.getElementById('icon_beauty');
@@ -141,10 +141,15 @@ const startingAttributes = {
     itemSellingIdPrice: [],
     itemSellingTime: 0,
     
+    
+    
+    
+    policeAlertTime: null,
+
+    //Illegal
+    hitmanTarget_Time: [],
     illegalPostArrivingTime: 0,
     illegalIdToReclaim: null,
-    
-    //Illegal
     drugs: 0,
     fakeEducation: false,
 
@@ -173,10 +178,11 @@ const beautyPrice = 40;
 const moviePrice = 35;
 const lotteryPrice = 5;
 
-//fines
+//Prices and fines
 const overWorkFee = 60;
 const policeFine = 120;
 const drugsPrice = 40;
+const hitmanPrice = 500;
 
 let randomizeNewOnlineContent = true;
 let weeklyChangeEvents = [];
@@ -190,15 +196,19 @@ let randomizedOnlineJobs = [];
 const relationships = [
     {
         relationshipStatus: "Broke up",
+        weeklyAdded_Happiness: 0,
         happinessPoints: -10},
     {
         relationshipStatus: "Single",
+        weeklyAdded_Happiness: 0,
         happinessPoints: 0},
     {
         relationshipStatus: "Dating",
+        weeklyAdded_Happiness: 1,
         happinessPoints: 10},
     {
         relationshipStatus: "Relationship",
+        weeklyAdded_Happiness: 2,
         happinessPoints: 20},
 ];
 
@@ -252,9 +262,9 @@ const rentHomes = [
         deposit: 120,
         happinessPoints: 0},
     {
-        rent: 449,
+        rent: 329,
         homeName: "Luxurious home",
-        deposit: 320,
+        deposit: 249,
         happinessPoints: 12}
 ];
 
@@ -729,16 +739,29 @@ function UpdateBarAndTexts(){
         currentPlayerAttributes.showPostMessage = false;
     }
 
+    if (currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.hitmanTarget_Time[1]){
+        InitiateTheHit(currentPlayerAttributes.hitmanTarget_Time);
+        ShowTempMessage(`Hit has been delivered.`, 'sms');
+        currentPlayerAttributes.hitmanTarget_Time = [];
+    }
+
     if (currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.itemSellingTime && currentPlayerAttributes.itemSellingIdPrice.length > 1){
 
-        ShowTempMessage(`You just sold your item with ${currentPlayerAttributes.itemSellingIdPrice[1]}€!.`, 'package');
+        ShowTempMessage(`You just sold your item with ${currentPlayerAttributes.itemSellingIdPrice[1]}€!.`, 'money');
         currentPlayerAttributes.moneyPoints += currentPlayerAttributes.itemSellingIdPrice[1];
                
         var tempIndex = currentPlayerAttributes.currentItems.findIndex(number => number == currentPlayerAttributes.itemSellingIdPrice[0]); //search for item index in current item list
         currentPlayerAttributes.currentItems.splice(tempIndex, 1); //remove item from current item list
         
         currentPlayerAttributes.itemSellingIdPrice = []; //empty list
+        RandomizeItemPrices();
         UpdateBarAndTexts();
+    }
+
+    if (currentPlayerAttributes.weeklyTime < currentPlayerAttributes.policeAlertTime){
+        
+        CheckPlayerIllegalActions();
+        currentPlayerAttributes.policeAlertTime = null;
     }
 
     ManageScoreBoard_Images();
@@ -753,6 +776,13 @@ function ShowTempMessage(message, image){
         case 'sms':
             tempInfo.innerHTML = `<div class="twoColumns20-80">
                                     <div class="basicCell"><img src="./img/icons/SMS_Sprite.png" height="40px"></div> 
+                                    <div class="optiontext green">${message}</div>
+                                </div>`;        
+            break;
+
+        case 'money':
+            tempInfo.innerHTML = `<div class="twoColumns20-80">
+                                    <div class="basicCell"><img src="./img/icons/Icon_MoneySprite.png" height="40px"></div> 
                                     <div class="optiontext green">${message}</div>
                                 </div>`;        
             break;
@@ -859,7 +889,7 @@ function TotalHappinessCalculation(){
 
 
 
-//EXECUTED FROM game.js
+//EXECUTED FROM game.js // TEXTS
 function ChooseDirection(destination){
    
     switch (destination){
@@ -976,37 +1006,39 @@ function ChooseDirection(destination){
                                     <div class="oneColumn border"></div>
                                     <br>
                                          
-                                    <div class="UI_text middleTopic">Barber - beauty saloon</div>
-                                    <div class="oneColumn underline"></div>
+                                    <div class="UI_text middleTopic"><span style='color:cyan'>Barber - beauty saloon</span></div>
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="MallActions('beauty')">Purchase</button></div>
                                         <div id="xx" class="optiontext green">Makes you more appealing. Cost ${beautyPrice}€.</div>
                                     </div>
 
-                                    <div class="UI_text middleTopic">Massage house</div>
-                                    <div class="oneColumn underline"></div>
+                                    <br>
+
+                                    <div class="UI_text middleTopic"><span style='color:cyan'>Massage house</span></div>
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="MallActions('massage')">Purchase</button></div>
                                         <div id="mall_coffeehouse" class="optiontext green">Get a massage for ${massagePrice}€. You'll be happier and feeling more energetic.</div>
                                     </div>
 
-                                    <div class="UI_text middleTopic">Movie theater house</div>
-                                    <div class="oneColumn underline"></div>
+                                    <br>
+
+                                    <div class="UI_text middleTopic"><span style='color:cyan'>Movie theater</span></div>
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="MallActions('movie')">Purchase</button></div>
                                         <div id="mall_moviestext" class="optiontext green">Go and watch a random movie. The cost is ${moviePrice}€. If you like the movie, you might supprise quite a bit.</div>
                                     </div>
 
-                                    <div class="UI_text middleTopic">Kiosk</div>
-                                    <div class="oneColumn underline"></div>
+                                    <br>
+
+                                    <div class="UI_text middleTopic"><span style='color:cyan'>Kiosk</span></div>
                                     <div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="MallActions('lottery')">Purchase</button></div>
                                         <div id="mall_kiosktext" class="optiontext green">Buy a lottery ticket or even couple of them. The odds are good.. of course. The cost is ${lotteryPrice}€/ticket.</div>
                                     </div>
 
+                                    <br>
 
-                                    <div class="UI_text middleTopic">Petstore</div>
-                                    <div class="oneColumn underline"></div>
+                                    <div class="UI_text middleTopic"><span style='color:cyan'>Petstore</span></div>
                                     `;
 
 
@@ -1032,10 +1064,10 @@ function ChooseDirection(destination){
                                         <div id="xx" class="optiontext green">You need to feed your pet. Only ${pets[1].petFoodCost}€ for 2 weeks!</div>
                                     </div>
 
+                                    <br>
 
-                                    <div class="UI_text middleTopic">Post office</div>
-                                    <div class="oneColumn underline"></div>
-                                    
+                                    <div class="UI_text middleTopic"><span style='color:cyan'>Post office</span></div>
+                                  
 
                                     `;
             
@@ -1047,28 +1079,35 @@ function ChooseDirection(destination){
                                                 <div class="basicCell"><img src="./img/icons/PostPackageSprite.png" height="40px"></div>
                                             </div>
                                         </div>
+
+                                        <br>
                                         `;
             }
 
             if (!currentPlayerAttributes.itemPackageInPost){
                 infoboxObj.innerHTML += `
                                         <div class="twoColumns40-60">
+                                        <div class="optiontext orange">Nothing.</div>
                                         <div></div>
-                                            <div class="optiontext orange">You don't have anything to reclaim.</div>
                                             
                                         </div>
+
+                                        <br>
                                         `;
 
             }
+            if(currentPlayerAttributes.weeklyUnemployedPay){
+                infoboxObj.innerHTML += `<div class="UI_text middleTopic"><span style='color:cyan'>Unemployment office</span></div>
 
-            infoboxObj.innerHTML += `<div class="UI_text middleTopic">Unemployment office</div>
-                                    <div class="oneColumn underline"></div>
+                                        <div class="twoColumns40-60">
+                                            <div class="basicCell"><button class="btn" onclick="MallActions('unemployment')">Reclaim</button></div>
+                                            <div id="xx" class="optiontext green">If you are unemployed, government grants you unemployment benefit. It's  ${unemploymentBenefit}€/week.</div>
+                                        </div>
 
-                                    <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="MallActions('unemployment')">Reclaim</button></div>
-                                        <div id="mall_coffeehouse" class="optiontext green">If you are unemployed, government grants you unemployment benefit. It's  ${unemploymentBenefit}€/week.</div>
-                                    </div>
-                                    `;
+                                        
+                                        `;
+            }
+
 
 
         break;
@@ -1239,35 +1278,12 @@ function EnteringHome(){ //entering some of the homes
         let tempCopyItemList =[];
         onlineItems.forEach(item => {
             tempCopyItemList.push(item);
-        })
+    })
         
     
-
+    
         //randomize new prices
-    if (currentPlayerAttributes.currentItems.length > 0){
 
-        currentPlayerAttributes.currentItemPrices = []; //empty price list
-
-        for (var i = 0; i < currentPlayerAttributes.currentItems.length; i++){
-
-            const randomPrice2 = Math.floor(Math.random()*50);
-            let randomPrice = 0;            
-
-            if (onlineItems[currentPlayerAttributes.currentItems[i]].cost <= 250){
-                randomPrice = onlineItems[currentPlayerAttributes.currentItems[i]].cost + Math.floor(randomPrice2*0.4) ;
-            }
-
-            // else if (onlineItems[currentPlayerAttributes.currentItems[i]].cost > 50 && onlineItems[currentPlayerAttributes.currentItems[i]].cost <= 300){
-            //     randomPrice = Math.ceil(onlineItems[currentPlayerAttributes.currentItems[i]].cost +  Math.floor(randomPrice2*0.8));
-            // }
-
-            else{
-                randomPrice = Math.ceil(onlineItems[currentPlayerAttributes.currentItems[i]].cost +  Math.floor(randomPrice2 * 1.1));
-            }
-            
-            currentPlayerAttributes.currentItemPrices.push(randomPrice);
-        }
-    }
         // if (currentItems.length > 0){
             //IF CURRENT ITEMS AREN'T VISIBLE IN THE SHOP!
             // for (var i = 0; i < tempCopyItemList.length; i++){
@@ -1290,7 +1306,7 @@ function EnteringHome(){ //entering some of the homes
             tempCopyItemList.splice(randItem, 1);
         }
         
-
+        RandomizeItemPrices();
         RandomizeJobs();
 
 
@@ -1303,15 +1319,15 @@ function EnteringHome(){ //entering some of the homes
     Show_ItemsAtHome();
     
 
-
+    // <div class="twoColumns40-60">
+    // <div class="basicCell">${AddHomeStuffButton("Test test", 'tinder')}</div>
+    // <div class="optiontext magenta">Try to hook up with someone.</div>
+    // </div>
 
     //Basic home activities
     infoboxObj.innerHTML += `<div class="UI_text middleTopic">Home activities</div>
 
-        <div class="twoColumns40-60">
-        <div class="basicCell">${AddHomeStuffButton("Test test", 'tinder')}</div>
-        <div class="optiontext magenta">Try to hook up with someone.</div>
-        </div>
+
 
 
                             <div class="twoColumns40-60">
@@ -1319,6 +1335,7 @@ function EnteringHome(){ //entering some of the homes
                                 <div class="optiontext green" id="sleeptext_home">Take a rest and increase your energy.</div>
                             </div>
 
+                            <div class="UI_text middleTopic">Internet stuff</div>
 
 
                             <div class="twoColumns40-60">
@@ -1347,7 +1364,7 @@ function EnteringHome(){ //entering some of the homes
     function Show_AdditionalHomeActions(){
 
         
-        if (currentPlayerAttributes.currentWorkId != 0 || currentPlayerAttributes.rentToDue || currentPlayerAttributes.petID != 0 && currentPlayerAttributes.petWeeklyDue || currentPlayerAttributes.relationshipID != 0){
+        if (currentPlayerAttributes.currentWorkId != 0 || currentPlayerAttributes.rentToDue || currentPlayerAttributes.petID != 0 && currentPlayerAttributes.petWeeklyDue || currentPlayerAttributes.relationshipID > 1){
             infoboxObj.innerHTML += `<div class="UI_text middleTopic">Current duties</div>
                                     `;
 
@@ -1363,12 +1380,12 @@ function EnteringHome(){ //entering some of the homes
 
             if (currentPlayerAttributes.petID != 0 && currentPlayerAttributes.petWeeklyDue){
                 infoboxObj.innerHTML += 
-                `
-                <div class="twoColumns40-60">
-                    <div class="basicCell">${AddHomeStuffButton("Pet care", 'petcare')}</div>
-                    <div id="pettext_home" class="optiontext green">Each week you have to contribute some time with your pet. This will just take ${pets[currentPlayerAttributes.petID].weeklyPetTime} of your time.</div>
-                </div>
-                `;
+                                        `
+                                        <div class="twoColumns40-60">
+                                            <div class="basicCell">${AddHomeStuffButton("Pet care", 'petcare')}</div>
+                                            <div id="pettext_home" class="optiontext green">Each week you have to contribute some time with your pet. This will just take ${pets[currentPlayerAttributes.petID].weeklyPetTime} of your time.</div>
+                                        </div>
+                                        `;
             }
         
             if (currentPlayerAttributes.rentToDue){
@@ -1409,18 +1426,33 @@ function EnteringHome(){ //entering some of the homes
             `;
         }
 
+
     }
 
     function Show_DarkWeb_PoliceActions(){
-        if (numberOfPlayersForGame > 0){                                                                        //change to 1!!!!!!!!!!!
-            infoboxObj.innerHTML +=  `<br>
-                                    <div class="UI_text middleTopic">Other activities</div>
-                                    <div class="twoColumns40-60">
-                                        <div class="basicCell">${AddHomeStuffButton("Dark web", 'darknet')}</div>
-                                        <div class="optiontext green">To the dark side of the web.</div>
+        if (numberOfPlayersForGame > 1){                                                                        //change to 1!!!!!!!!!!!
+            infoboxObj.innerHTML +=  `<div class="twoColumns40-60">
+                                        <div class="basicCell"><button class="btn darknet" onclick="ActionsAtHome('darknet')">Dark web</button></div>
+                                        <div class="optiontext orange">To the dark side of the web.</div>
                                     </div>
-                                    <br>
-                                    `;
+                                    <br>`
+
+            if (currentPlayerAttributes.policeAlertTime == null){
+                infoboxObj.innerHTML +=  `<div class="twoColumns40-60">
+                                            <div class="basicCell"><button class="btn" onclick="ActionsAtHome('police')">Tip off</button></div>
+                                            <div id="police_text" class="optiontext blueish">You can tip the officals, if you have a doubt something illegal is happening at the moment. The investigation will take a little time.</div>
+                                        </div>
+                                        `;
+
+            }
+            else{
+                infoboxObj.innerHTML +=  `<div class="twoColumns40-60">
+                                        <div class="basicCell"></div>
+                                        <div id="police_text" class="optiontext blueish">Investigation currently running...</div>
+                                        </div>
+                                        `;
+            }
+
         }
 
     }
@@ -1577,17 +1609,27 @@ function ActionsAtHome(action){
                                     
                                     `;
             
-            for (var i = 0; i < currentPlayerAttributes.currentItems.length; i++){
-                infoboxObj.innerHTML += `<div class="columns30-30-30">
-
-                <div class="optiontext yellow">${onlineItems[startingAttributes.currentItems[i]].item}<br>Original cost: ${onlineItems[startingAttributes.currentItems[i]].cost}€</div>
-                <div class="basicCell"><img src="${onlineItems[startingAttributes.currentItems[i]].img}" height="80px"></div>
-                <div class="basicCell"><button class="btn green" onclick="SellItem(${onlineItems[startingAttributes.currentItems[i]].itemId},${currentPlayerAttributes.currentItemPrices[i]})">Sell for ${currentPlayerAttributes.currentItemPrices[i]}€</button></div>
-                
-            </div>
-            `;
+            if (currentPlayerAttributes.itemSellingIdPrice.length == 0){
+                for (var i = 0; i < currentPlayerAttributes.currentItems.length; i++){
+                    infoboxObj.innerHTML += `<div class="columns30-30-30">
+    
+                    <div class="optiontext yellow">${onlineItems[startingAttributes.currentItems[i]].item}<br>Original cost: ${onlineItems[startingAttributes.currentItems[i]].cost}€</div>
+                    <div class="basicCell"><img src="${onlineItems[startingAttributes.currentItems[i]].img}" height="80px"></div>
+                    <div class="basicCell"><button class="btn green" onclick="SellItem(${onlineItems[startingAttributes.currentItems[i]].itemId},${currentPlayerAttributes.currentItemPrices[i]})">Sell for ${currentPlayerAttributes.currentItemPrices[i]}€</button></div>
+                    
+                    </div>
+                    `;
+    
+                }
 
             }
+            else{
+                infoboxObj.innerHTML += `<br>
+                                            <div class="UI_text description">You have item sell currently pending.</div>`
+                                            ;
+            }
+
+
             //                         currentPlayerAttributes.currentItems.forEach(item =>{
             // infoboxObj.innerHTML += `<div class="twoColumns30-70">
             //                             <div class="optiontext yellow">${onlineItems[item].item}</div>
@@ -1616,15 +1658,20 @@ function ActionsAtHome(action){
 
         case 'darknet':   
                 OpenDarkNet();
-            // ReduceTime_Check(1); //executes also update function
+        
             break;
             
+        case 'police':   
 
+            currentPlayerAttributes.policeAlertTime = currentPlayerAttributes.weeklyTime - 15;
+            if (currentPlayerAttributes.policeAlertTime < 0){
+                currentPlayerAttributes.policeAlertTime = 1;
+            }
+            EnteringHome();
+
+            break;
     }
 
-    // function AddHomeStuffButton(text, action){
-    //     return `<button class="btn" onclick="ActionsAtHome('${action}')">${text}</button>`;
-    // }
 
 };
 
@@ -1703,21 +1750,7 @@ function OpenOnlineJobs(){
 };
 
 
-function SellItem(id, price){
 
-    currentPlayerAttributes.itemSellingIdPrice[0] = FindWithAttr(onlineItems, "itemId", id);
-    currentPlayerAttributes.itemSellingIdPrice[1] = price;
-
-    currentPlayerAttributes.itemSellingTime = currentPlayerAttributes.weeklyTime - 15;
-
-    if (currentPlayerAttributes.itemSellingTime < 0){
-        currentPlayerAttributes.itemSellingTime = 1;
-    }
-
-    ReduceTime_Check(7);
-    // console.log(currentPlayerAttributes.itemSellingIdPrice);
-    EnteringHome();
-}
 
 
 //ONLINE SHOPPING------------------------------------------------------------------------------------------------
@@ -1795,11 +1828,11 @@ function OpenDarkNet(){
                             <div class="UI_text description"><span style="font-weight:900">Disclamer:</span> All of these illegal activities may be reported to police by someone and then you are on your own.</div>  `;
     infoboxObj.scrollTop = 0;
 
-    if (currentPlayerAttributes.illegalIdToReclaim == null){
+    if (currentPlayerAttributes.illegalIdToReclaim == null){ //time to deliver these illegal things
 
     infoboxObj.innerHTML += `<div class="twoColumns40-60">
                                 <div class="basicCell"><button class="btn" onclick="BuyFake('education')">Order!</button></div>
-                                <div class="optiontext orange" id="sleeptext_home">Selling degree for ${education[currentPlayerAttributes.educationId+1].degree} certificate. It will be mailed to you and only costs 
+                                <div class="optiontext orange" id="xx">Selling degree for ${education[currentPlayerAttributes.educationId+1].degree} certificate. It will be mailed to you and only costs 
                                 ${education[currentPlayerAttributes.educationId+1].fakePrice}€. </div>
                             </div>
                             
@@ -1807,14 +1840,20 @@ function OpenDarkNet(){
 
                             <div class="twoColumns40-60">
                                 <div class="basicCell"><button class="btn" onclick="BuyFake('drugs')">Order!</button></div>
-                                <div class="optiontext orange" id="sleeptext_home">Selling some 'enhancers' to double your studying speed. Do not get caught. Price ${drugsPrice}€</div>
+                                <div class="optiontext orange" id="xx">Selling some 'enhancers' to double your studying speed. Do not get caught. Price ${drugsPrice}€</div>
                             </div>
 
                             <br>
-
+                            <div class="twoColumns40-60">
+                                <div class="basicCell">
+                                ${HitmanOrder()}
+                                
+                                </div>
+                                <div class="optiontext orange" id="hitman_text">Hire an anonymous to cause trouble one of the targets mentioned left. I'll take the whole payment at once. The cost is ${hitmanPrice}€/target.</div>
+                            </div>
                             `;
 
-
+                            
     }
 
     else{
@@ -1829,64 +1868,22 @@ function OpenDarkNet(){
                                 </div>`;
     }
 
-
-
-    // if (currentPlayerAttributes.itemIdToReclaim == 0){
-    //     for (var i = 0; i < randomizedOnlineItems.length; i++){
-
-            
-    //         //ONLINE ITEMS
-    //         if (randomizedOnlineItems[i].cost <= currentPlayerAttributes.moneyPoints){
-    //             infoboxObj.innerHTML +=  `
-    //             <div class="twoColumns40-60 topicBorder">
-    //             <div class="UI_text middleTopic">${randomizedOnlineItems[i].item}</div>
-    //             <div class="optiontext dark"><button class="btn green" onclick="OrderOnlineItem(${randomizedOnlineItems[i].itemId}, ${randomizedOnlineItems[i].cost})">Purchase</button></div>
-    //             </div>
-    //             <div class="oneColumn border"></div>
-
-    //             <div class="twoColumns40-60">
-    //                 <div><img src="${randomizedOnlineItems[i].img}" height="80px"></div>
-    //                 <div>
-    //                     <span class="optiontext blueish">${randomizedOnlineItems[i].description}</span><br>
-    //                     <span class="optiontext green">${randomizedOnlineItems[i].cost}€</span>
-    //                 </div>
-                    
-                    
-    //             <br>`;
-    //         }
-
-    //         else{
-    //             infoboxObj.innerHTML +=  `
-    //             <div class="twoColumns40-60 topicBorder">
-    //             <div class="UI_text middleTopic">${randomizedOnlineItems[i].item}</div>
-    //             <div class="optiontext dark"></div>
-    //             </div>
-    //             <div class="oneColumn border"></div>
-                
-    //             <div class="twoColumns40-60">
-    //                 <div><img src="${randomizedOnlineItems[i].img}" height="80px"></div>
-    //                 <div>
-    //                     <span class="optiontext blueish">${randomizedOnlineItems[i].description}</span><br>
-    //                     <span class="optiontext red">${randomizedOnlineItems[i].cost}€</span>
-    //                 </div>
-    //             <br>`
-    //         }
-    //     }
-
-    // }
-    // else{
-    //     infoboxObj.innerHTML = `<div class="browserBase">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}<div class="browser">http://www.somestuff.com/order#21123</div></div>
-    //                             <br><div class="UI_text description">Hi there stranger! <br><br>
-    //                             Thanks for buying this. I'll post the item right a way! The follow-up code is #5473829543 432 5432 21123. Be sure to write that down. The package should be there shortly.<br><br>
-
-    //                             Regards, <br>
-    //                             the seller
-    //                             </div>`;
-    // }
-
     ReduceTime_Check(1);
 
-    
+    function HitmanOrder(){
+
+        if (opponentName.length == 1){
+            return `<button class="btn" onclick="OrderHitman('${opponentId[0]}')">Target ${opponentName[0]}</button>`;
+
+        }
+
+        else if (opponentName.length == 2){
+            return `<button class="btn" onclick="OrderHitman('${opponentId[0]}')">${opponentName[0]}</button><br><br>
+                    <button class="btn" onclick="OrderHitman('${opponentId[1]}')">${opponentName[1]}</button>`;
+        }
+
+    }
+
 };
 
 //FOREST---------------------------------------------------------------------------------------------------
@@ -1941,13 +1938,13 @@ function MallActions(action){
         case 'massage':
             if (currentPlayerAttributes.mallActions != 0 && currentPlayerAttributes.moneyPoints >= massagePrice) {
                 currentPlayerAttributes.moneyPoints -= massagePrice;
-                currentPlayerAttributes.energyLevel += massagePrice
+                currentPlayerAttributes.energyLevel += 20;
                 currentPlayerAttributes.mallActions--;
                 currentPlayerAttributes.happinessPoints++;
 
                 OpponentEvents('is having a massage...');
                 document.getElementById('mall_coffeehouse').innerHTML = "You feel happier after massage and more energetic!";
-                ReduceTime_Check(5);
+                ReduceTime_Check(6);
             }
             
             break;
@@ -1983,7 +1980,7 @@ function MallActions(action){
             if (currentPlayerAttributes.moneyPoints >= lotteryPrice) {
 
                 currentPlayerAttributes.moneyPoints -= lotteryPrice;
-                lotteryPrice++;
+                currentPlayerAttributes.lotteryTickets++;
                 
                 OpponentEvents('is buying some lottery tickets...');
 
@@ -1994,13 +1991,14 @@ function MallActions(action){
         break;
 
         case 'unemployment':
-            if (currentPlayerAttributes.weeklyUnemployedPay) {
+            if (currentPlayerAttributes.weeklyUnemployedPay && currentPlayerAttributes.currentWorkId == 0) {
 
                 currentPlayerAttributes.weeklyUnemployedPay = false;
                 currentPlayerAttributes.moneyPoints += unemploymentBenefit;
                 
-                ShowTempMessage(`You just received ${unemploymentBenefit}€ as government unemployment benefit.`, 'package');
+                ShowTempMessage(`You just received ${unemploymentBenefit}€ as government unemployment benefit.`, 'money');
                 ReduceTime_Check(0);
+                ChooseDirection('Mall');
             }
             
         break;
@@ -2314,19 +2312,19 @@ function SportsAction(sport){
     if(sport == 'sports'){
 
         const sports_gymText = document.getElementById('sports_gymText');
-
-        if (currentPlayerAttributes.exerciseLvl <= 4 && currentPlayerAttributes.gymTimes > 0){
+        
+        if (currentPlayerAttributes.exerciseLvl <= 2 && currentPlayerAttributes.gymTimes > 0){
             currentPlayerAttributes.exerciseLvl++;
             currentPlayerAttributes.gymTimes--;
             OpponentEvents('hit the gym.' );
             ReduceTime_Check(4);
-
+        
             sports_gymText.innerHTML = "That was very good workout...";
             sports_gymText.className = "optiontext green";
         }
 
-        else if (currentPlayerAttributes.exerciseLvl > 4){
-            sports_gymText.innerHTML = "You have already pumped enough for this week.";
+        else if (currentPlayerAttributes.exerciseLvl > 2){
+            sports_gymText.innerHTML = "You have already pumped enough for this week. Your muscles says no...";
             sports_gymText.className = "optiontext red";
         }
 
@@ -2458,8 +2456,8 @@ function ManageScoreBoard_Images(){
     currentPlayerAttributes.homeID == 1 ? icon_houselux.style.display ="block" : icon_houselux.style.display ="none";
     currentPlayerAttributes.jobIdPending ? icon_jobapplication.style.display ="block" : icon_jobapplication.style.display ="none";
     currentPlayerAttributes.itemPackageInPost ? icon_postpackage.style.display ="block" : icon_postpackage.style.display ="none";
-    // currentPlayerAttributes.exerciseLvl == 0 ? icon_exercise.style.display ="none" : icon_exercise.style.display ="block";
     
+    currentPlayerAttributes.drugs > 0 ? icon_drugs.style.display ="block" : icon_drugs.style.display ="none";
     currentPlayerAttributes.currentYogaEnhancer == 0 ? icon_yoga.style.display = "none" : icon_yoga.style.display = "block";
     currentPlayerAttributes.rentToDue ? icon_rent.style.display = "block" : icon_rent.style.display = "none";
     currentPlayerAttributes.beautyFactor ? icon_beauty.style.display = "block" : icon_beauty.style.display = "none";
@@ -2469,45 +2467,31 @@ function ManageScoreBoard_Images(){
             icon_exercise.style.display ="none";
             icon_exercise2.style.display ="none";
             icon_exercise3.style.display ="none";
-            icon_exercise4.style.display ="none";
-            icon_exercise5.style.display ="none";
+            
+            
         break;
         
         case 1:
             icon_exercise.style.display ="block";
             icon_exercise2.style.display ="none";
             icon_exercise3.style.display ="none";
-            icon_exercise4.style.display ="none";
-            icon_exercise5.style.display ="none";
+            
+            
         break;
         case 2:
             icon_exercise.style.display ="block";
             icon_exercise2.style.display ="block";
             icon_exercise3.style.display ="none";
-            icon_exercise4.style.display ="none";
-            icon_exercise5.style.display ="none";
+            
+            
         break;
         case 3:
             icon_exercise.style.display ="block";
             icon_exercise2.style.display ="block";
             icon_exercise3.style.display ="block";
-            icon_exercise4.style.display ="none";
-            icon_exercise5.style.display ="none";
+            
         break;
-        case 4:
-            icon_exercise.style.display ="block";
-            icon_exercise2.style.display ="block";
-            icon_exercise3.style.display ="block";
-            icon_exercise4.style.display ="block";
-            icon_exercise5.style.display ="none";
-        break;
-        case 5:
-            icon_exercise.style.display ="block";
-            icon_exercise2.style.display ="block";
-            icon_exercise3.style.display ="block";
-            icon_exercise4.style.display ="block";
-            icon_exercise5.style.display ="block";
-        break;
+
 
     }
 
@@ -2577,6 +2561,22 @@ function AddEnergy(addedEnergy){
     currentPlayerAttributes.energyLevel += addedEnergy;
 };
 
+function SellItem(id, price){
+
+    currentPlayerAttributes.itemSellingIdPrice[0] = FindWithAttr(onlineItems, "itemId", id);
+    currentPlayerAttributes.itemSellingIdPrice[1] = price;
+
+    currentPlayerAttributes.itemSellingTime = currentPlayerAttributes.weeklyTime - 15;
+
+    if (currentPlayerAttributes.itemSellingTime < 0){
+        currentPlayerAttributes.itemSellingTime = 1;
+    }
+
+    ReduceTime_Check(7);
+    // console.log(currentPlayerAttributes.itemSellingIdPrice);
+    EnteringHome();
+};
+
 function RandomizeJobs(){
 
     randomizedOnlineJobs = [];
@@ -2610,6 +2610,34 @@ function RandomizeJobs(){
         let randJob = Math.floor(Math.random()*jobsToShow.length);
         randomizedOnlineJobs.push(jobsToShow[randJob]);
         jobsToShow.splice(randJob, 1); //delete jobs, which are listed from the temp array
+    }
+};
+
+function RandomizeItemPrices(){
+    if (currentPlayerAttributes.currentItems.length > 0){
+
+        currentPlayerAttributes.currentItemPrices = []; //empty price list
+
+        //Randomize price
+        for (var i = 0; i < currentPlayerAttributes.currentItems.length; i++){
+
+            const randomPrice2 = Math.floor(Math.random()*50);
+            let randomPrice = 0;            
+
+            if (onlineItems[currentPlayerAttributes.currentItems[i]].cost <= 70){
+                randomPrice = onlineItems[currentPlayerAttributes.currentItems[i]].cost + Math.floor(randomPrice2*0.4) ;
+            }
+
+            else if (onlineItems[currentPlayerAttributes.currentItems[i]].cost > 70 && onlineItems[currentPlayerAttributes.currentItems[i]].cost <= 300){
+                randomPrice = Math.ceil(onlineItems[currentPlayerAttributes.currentItems[i]].cost +  Math.floor(randomPrice2*0.6));
+            }
+
+            else{
+                randomPrice = Math.ceil(onlineItems[currentPlayerAttributes.currentItems[i]].cost +  Math.floor(randomPrice2 * 0.9));
+            }
+            
+            currentPlayerAttributes.currentItemPrices.push(randomPrice);
+        }
     }
 };
 
@@ -2678,6 +2706,7 @@ function WorkChecker(){
 
 }
 
+//Illegal
 function BuyFake(fakeSubject){
 
     switch (fakeSubject){
@@ -2700,11 +2729,9 @@ function BuyFake(fakeSubject){
                 currentPlayerAttributes.moneyPoints -= drugsPrice;
 
                 currentPlayerAttributes.illegalPostArrivingTime = currentPlayerAttributes.weeklyTime - 15;
-                
                 currentPlayerAttributes.illegalIdToReclaim = 'drugs';
 
                 if (currentPlayerAttributes.illegalPostArrivingTime < 0){ currentPlayerAttributes.illegalPostArrivingTime = 1; }
-
                 currentPlayerAttributes.showPostMessage = true;
             }
         break;
@@ -2723,7 +2750,39 @@ function BuyFake(fakeSubject){
 
 }
 
+function OrderHitman(id){
 
+
+    if (currentPlayerAttributes.moneyPoints >= hitmanPrice){
+        currentPlayerAttributes.moneyPoints -= hitmanPrice;
+
+
+        currentPlayerAttributes.hitmanTarget_Time[1] = currentPlayerAttributes.weeklyTime - 15;
+        if (currentPlayerAttributes.hitmanTarget_Time[1] < 0){ currentPlayerAttributes.hitmanTarget_Time[1] = 1; }
+        
+        currentPlayerAttributes.hitmanTarget_Time[0] = id;
+
+        ReduceTime_Check(1);
+
+        infoboxObj.innerHTML = `<div class="browserBase">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}<div class="browser">http://www.darknet.com/order#432s42</div></div>
+                                <br><div class="UI_text description">Hi! <br><br>
+                                Thanks for the purchase. There are eyes everywhere, we have to be cautious. But yea.. the delivery is own its way.<br><br>
+
+                                Thanks. Bye.<br>
+
+                                <br>
+                                -the man
+                                </div>`;
+    }
+
+    else{
+        const hitman_text = document.getElementById('hitman_text');
+        hitman_text.innerHTML = "Not enough money.";
+        hitman_text.className = "optiontext red";
+    }
+
+
+}
 
 
 //WEEK CHANGE FUNCTIONS----------------------------------------------------------------------------------------------------------
@@ -2739,18 +2798,18 @@ function Relationship_WeekChange(){
         
         currentPlayerAttributes.relationshipStrenght -= 2;
 
+        //dropping relationship strenght
         if (currentPlayerAttributes.relationshipStrenght <= 0){
             switch (currentPlayerAttributes.relationshipID){
 
-                
-                case 2: //dating
+                case 2: //dating => broke up
                     currentPlayerAttributes.relationshipID = 0;
                     currentPlayerAttributes.happinessPoints -= 5;
                     weeklyChangeEvents.push('relationship_brokeup');
                     OpponentEvents("broke up." );
                     break;
 
-                case 3: //Relationship
+                case 3: //Relationship => broke up
                     currentPlayerAttributes.relationshipID = 0;
                     currentPlayerAttributes.happinessPoints -= 8;
                     OpponentEvents("broke up." );
@@ -2758,6 +2817,8 @@ function Relationship_WeekChange(){
                     break;
                 
             }
+
+            currentPlayerAttributes.happinessPoints += relationships[currentPlayerAttributes.relationshipID].weeklyAdded_Happiness;
             currentPlayerAttributes.relationshipStrenght = 0; //if broken up
         }
     }
@@ -2843,7 +2904,7 @@ function Pet_WeekChange(){
 
 function Messages_WeekChange(messageArray){
 
-    console.log(messageArray);
+    // console.log(messageArray);
 
     tempInfo.innerHTML = `<div class="twoColumns20-80">
                         <div class="basicCell"><img src="./img/icons/SMS_Sprite.png" height="40px"></div> 
@@ -2867,31 +2928,31 @@ function Messages_WeekChange(messageArray){
 
                 return `<div class="twoColumns20-80">
                     <div class="basicCell"><img src="./img/icons/Icon_RentDue.png" height="40px"></div> 
-                    <div class="optiontext red">You didn't pay your rent in last week. You were due to pay double rent ${rentHomes[currentPlayerAttributes.homeID].rent*2}€.</div>
+                    <div class="optiontext red_bold">You didn't pay your rent in last week. You were due to pay double rent ${rentHomes[currentPlayerAttributes.homeID].rent*2}€.</div>
                 </div>`; 
                 
             case 'losejob':
                 return `<div class="twoColumns20-80">
                     <div class="basicCell"><img src="./img/icons/Icon_OccupationSprite.png" height="40px"></div> 
-                    <div class="optiontext red">You neglected your work and got fired. You're unemployed once again.</div>
+                    <div class="optiontext red_bold">You neglected your work and got fired. You're unemployed once again.</div>
                 </div>`; 
 
             case 'work_too_much':
                 return `<div class="twoColumns20-80">
                     <div class="basicCell"><img src="./img/icons/Sprite_RejectionLetter.png" height="40px"></div> 
-                    <div class="optiontext red">You worked too much and felt a little bit sick for awhile. You lost some time in recover. The doctor fee was ${overWorkFee}€.</div>
+                    <div class="optiontext red_bold">You worked too much and felt a little bit sick for awhile. You lost some time in recover. The doctor fee was ${overWorkFee}€.</div>
                 </div>`; 
 
             case 'pet_decare':
                 return `<div class="twoColumns20-80">
                     <div class="basicCell"><img src="./img/icons/Sprite_RejectionLetter.png" height="40px"></div> 
-                    <div class="optiontext red">You didn't takee care of your pet and had to visit a vet. The fee was ${pets[currentPlayerAttributes.petID].petPenalty}€.</div>
+                    <div class="optiontext red_bold">You didn't takee care of your pet and had to visit a vet. The fee was ${pets[currentPlayerAttributes.petID].petPenalty}€.</div>
                 </div>`; 
 
             case 'relationship_brokeup':
                 return `<div class="twoColumns20-80">
                     <div class="basicCell"><img src="./img/icons/Icon_RelationshipSprite.png" height="40px"></div> 
-                    <div class="optiontext red">Unfortuntately your relationship didn't work out...</div>
+                    <div class="optiontext red_bold">Unfortuntately your relationship didn't work out...</div>
                 </div>`; 
 
 
