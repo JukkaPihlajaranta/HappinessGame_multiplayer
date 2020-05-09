@@ -63,6 +63,9 @@ const list_of_players = document.getElementById('list_of_players');
 const opponentName1 = document.getElementById('opponentName1');
 const opponentName2 = document.getElementById('opponentName2');
 let playerGameState = 0;
+let playerResponses = 0;
+let playerIllegalResponses = 0;
+
 
 let opponentJobs = [];
 let playerLocalName = '';
@@ -112,13 +115,13 @@ var socket = io.connect();
         chatArea.innerHTML += `<div>${data}</div>`;
     });
 
-
+    //PUTTING THE ID
     socket.on('ToClient_readyToPlay', (id) => {
         playerId = id;
        
     });      
 
-    //RECEIVE UPDATED PLAYERLIST
+    //UPDATING THE PLAYERLIST
     socket.on('ToClient_UpdateWholePlayerList', (data) => {
 
         list_of_players.innerHTML = '';
@@ -136,7 +139,7 @@ var socket = io.connect();
             //Show join button next to game creator if client gamestate 0 and gamecreator is not playing
             else if (data[obj].isGameCreator && playerGameState == 0 && data[obj].playerState != 2){
                 list_of_players.innerHTML += `<div><span style="font-weight:900">${data[obj].playerName}</span> - <span style='color:lime; font-weight:900;'>${data[obj].thisGameCreatorsList.length}/${data[obj].maxPlayers} 
-                 ready!   <button class="btn" onclick="JoinGame('${data[obj].playersGameId}')">Join!</button></span>`;
+                 ready!   <button class="btn green" onclick="JoinGame('${data[obj].playersGameId}')">Join!</button></span>`;
                 //  ${data[obj].playerName}'s game
                 //   console.log("show the button");
             }
@@ -159,12 +162,9 @@ var socket = io.connect();
 
     });
 
-    function JoinGame(gameId){
-        playerGameState = 1;
-        // console.log("joined game");
-        socket.emit('ToServer_JoinGame', gameId);
-    };
 
+    
+    //CREATE, JOIN, STARTING AND ENDING A GAME-----------------------------------------------------------------------
     function CreatingGame(amount){
         playerGameState = 1;
         numberOfPlayersForGame = amount;
@@ -174,9 +174,12 @@ var socket = io.connect();
         $("#gameCreateButtons").fadeOut(300);
     };
 
-    
-    
-    // STARTING THE GAME-----------------------------------------------------------------------
+    function JoinGame(gameId){
+        playerGameState = 1;
+        // console.log("joined game");
+        socket.emit('ToServer_JoinGame', gameId);
+    };
+
     socket.on("ToClient_StartGame", (data) =>{
         
         //reset these
@@ -282,11 +285,11 @@ var socket = io.connect();
         
         GameStarts();
     });
-    
-    // ENDS THE GAME-----------------------------------------------------------------------
+
     socket.on('gameEndsOpponent',() => {
         GameEnds();
     });
+
 
     //UPDATES DURING THE GAME-------------------------------------------------------------------
     socket.on('ToClient_OpponentStats', (data) =>{ 
@@ -555,19 +558,23 @@ var socket = io.connect();
         Lottery_WeekChange();
 
 
-
+        //Happiness
         currentPlayerAttributes.forestHappiness = 1;
         currentPlayerAttributes.internetHappiness = 1;
         currentPlayerAttributes.exerciseLvl = 0;
         currentPlayerAttributes.currentYogaEnhancer = 0;
-        currentPlayerAttributes.beautyFactor = 0;
-        currentPlayerAttributes.barGig = true;
-        currentPlayerAttributes.mallActions = 1;
-        currentPlayerAttributes.newlyMet = false;
         currentPlayerAttributes.schoolAction = 0;
         currentPlayerAttributes.lotteryTickets = 0;
         currentPlayerAttributes.volunteerTime = 2;
+        currentPlayerAttributes.barGig = true;
+        currentPlayerAttributes.mallActions = 1;
+
+        //Other
+        currentPlayerAttributes.beautyFactor = 0;
+        
+        //Money
         currentPlayerAttributes.weeklyUnemployedPay = true;
+        currentPlayerAttributes.barShiftDone = false;
 
         PutLocalEvent(0,0,"newWeek"); //putting new event to event checker
         
@@ -576,7 +583,7 @@ var socket = io.connect();
         ManageMoveButtons('off');
         
         Messages_WeekChange(weeklyChangeEvents); //show messages for new week
-        ReduceTime_Check(0);
+        
 
 
 
@@ -598,7 +605,8 @@ var socket = io.connect();
             socket.emit('ToServer_ChatWinner', winnerData);
             
         }
-        
+
+        ReduceTime_Check(0);
         
         
 
@@ -606,7 +614,7 @@ var socket = io.connect();
 
 
     
-    //Players competing
+    //PLAYERS SENDING REQUEST AND HITS
     socket.on('ToClinet_CheckIllegals', (serverData) => {
 
         // let returnData = {};
@@ -669,7 +677,31 @@ var socket = io.connect();
         }
 
         else if (numberOfPlayersForGame == 3){
-            console.log(data);
+            
+            playerResponses++;
+
+            if (data != null){
+                ShowTempMessage(`<span style='color:lime'>You were right. There was someone, making illegal actions. Someone had something illegal going on and is fined now.</span>`, "sms");
+                currentPlayerAttributes.happinessPoints += 3;
+                playerIllegalResponses++;
+                ReduceTime_Check(0);
+            }
+
+            if (playerResponses == 2){
+
+                //if no one is doing any illegal
+                if (playerIllegalResponses == 0){
+                    ShowTempMessage("<span style='color:orange'>There wasn't any illegal going on with anyone. We'll make you accountable for false reporting. Fine is 80€</span>", "rejection");
+                    currentPlayerAttributes.moneyPoints -= 80;
+                    currentPlayerAttributes.happinessPoints -= 5;
+                    ReduceTime_Check(0);
+                }
+
+                playerResponses = 0;
+                playerIllegalResponses = 0;
+            }
+            
+            
         }
 
 

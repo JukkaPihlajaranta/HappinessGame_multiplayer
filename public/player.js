@@ -81,7 +81,7 @@ const startingAttributes = {
     happinessTotal: 0,
     happinessPoints: 10,
     moneyPoints: 200,
-    energyLevel: 50,
+    energyLevel: 75,
     intoxicationLevel: 0,
     
     //time
@@ -115,6 +115,7 @@ const startingAttributes = {
     //Misc
     beautyFactor: 0,
     barGig: true,
+    barShiftDone: false,
     lotteryTickets: 0,
 
     //relationship
@@ -182,7 +183,8 @@ const lotteryPrice = 5;
 const overWorkFee = 60;
 const policeFine = 120;
 const drugsPrice = 40;
-const hitmanPrice = 500;
+const hitmanPrice = 580;
+const barBlockerPay = 29;
 
 let randomizeNewOnlineContent = true;
 let weeklyChangeEvents = [];
@@ -224,7 +226,7 @@ const pets = [
         petFoodCost: 109,
         petPenalty: 250,
         weeklyPetTime: 12,
-        happinessPoints: 12}
+        happinessPoints: 15}
     
 ];
 
@@ -238,19 +240,19 @@ const education = [
 {
     degree: "College",
     cost: 250,
-    fakePrice: 100,
+    fakePrice: 80,
     happinessPoints: 6},
 
 {
     degree: "Bachelor",
     cost: 430,
-    fakePrice: 180,
+    fakePrice: 130,
     happinessPoints: 12},
 
 {
     degree: "Master",
     cost: 590,
-    fakePrice: 210,
+    fakePrice: 180,
     happinessPoints: 18},
 
 ];
@@ -290,6 +292,7 @@ const jobs = [
         salary: 38,
         description: "You will prepare fast food meals. This doesn't require work level or degree.",
         happinessPoinst: 5},
+
     {
         id: 2,
         worklevel: 0,
@@ -328,7 +331,7 @@ const jobs = [
         educationReq: 0,
         salary: 35,
         description: "This doesn't require work level or degree.",
-        happinessPoinst: 5},
+        happinessPoinst: 4},
 
     {
         id: 12,
@@ -338,7 +341,7 @@ const jobs = [
         educationReq: 0,
         salary: 46,
         description: "This doesn't require work level or degree.",
-        happinessPoinst: 5},
+        happinessPoinst: 3},
 
     {
         id: 13,
@@ -371,6 +374,7 @@ const jobs = [
         salary: 75,
         description: "Hard work, somewhat good pay. This requires work level 1 and college degree.",
         happinessPoinst: 8},
+
     {
         id: 5,
         worklevel: 1,
@@ -379,7 +383,7 @@ const jobs = [
         educationReq: 1,
         salary: 50,
         description: "You will work at the hotel reception. This requires work level 1 and college degree.",
-        happinessPoinst: 12},
+        happinessPoinst: 7},
 
     {
         id: 6,
@@ -399,7 +403,7 @@ const jobs = [
         educationReq: 1,
         salary: 50,
         description: "This requires work level 1 and college degree.",
-        happinessPoinst: 11},
+        happinessPoinst: 8},
 
     {
         id: 16,
@@ -409,7 +413,7 @@ const jobs = [
         educationReq: 1,
         salary: 61,
         description: "Sell! Sell! Sell! Sell! Sell! Seeeell! This requires work level 1 and college degree.",
-        happinessPoinst: 7},
+        happinessPoinst: 4},
     
 
     //WORK LEVEL 2 -----------------------------------------------------------------------------------------------
@@ -431,7 +435,7 @@ const jobs = [
         educationReq: 2,
         salary: 107,
         description: "You're the one who gives home to people. This requires work level 2 and college degree.",
-        happinessPoinst: 7},
+        happinessPoinst: 5},
 
     {
         id: 9,
@@ -441,7 +445,7 @@ const jobs = [
         educationReq: 2,
         salary: 78,
         description: "You create digital content you desire the most. This requires work level 1 and college degree.",
-        happinessPoinst: 15},
+        happinessPoinst: 13},
 
     //WORK LEVEL 3 -----------------------------------------------------------------------------------------------
 
@@ -453,7 +457,7 @@ const jobs = [
         educationReq: 2,
         salary: 134,
         description: "This requires work level 3 and bachelor degree.",
-        happinessPoinst: 10},
+        happinessPoinst: 5},
 
     {
         id: 20,
@@ -473,7 +477,7 @@ const jobs = [
         educationReq: 2,
         salary: 120,
         description: "This requires work level 3 and bachelor degree.",
-        happinessPoinst: 10},
+        happinessPoinst: 7},
 
     //WORK LEVEL 4 -----------------------------------------------------------------------------------------------
 
@@ -485,7 +489,7 @@ const jobs = [
         educationReq: 3,
         salary: 207,
         description: "This requires work level 4 and masters degree.",
-        happinessPoinst: 8},
+        happinessPoinst: 7},
 
     {
         id: 23,
@@ -495,17 +499,17 @@ const jobs = [
         educationReq: 3,
         salary: 192,
         description: "This requires work level 4 and masters degree.",
-        happinessPoinst: 8},
+        happinessPoinst: 5},
 
     {
         id: 24,
         worklevel: 4,
         job: "Doctor",
-        energyConsumption: 67,
+        energyConsumption: 49,
         educationReq: 3,
         salary: 201,
         description: "This requires work level 4 and masters degree.",
-        happinessPoinst: 12},
+        happinessPoinst: 10},
 
 ];
 
@@ -913,7 +917,7 @@ function ChooseDirection(destination){
                 if (currentPlayerAttributes.randomForRenting == 0){
                 infoboxObj.innerHTML += `<div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="RentHomeAction(0)">Rent!</button></div>
-                                        <div id="rentHouse_text" class="optiontext green">Rent this appartment. Deposit is ${rentHomes[0].deposit}€. Addition to this rently fee is ${rentHomes[0].rent}€</div>
+                                        <div id="rentHouse_text" class="optiontext green">Rent this appartment. Apparentment deposit is ${rentHomes[0].deposit}€, which you have to pay right away. Rent is ${rentHomes[0].rent}€/month. The appartment is very nice though.</div>
                                         </div>`;
                 }
                 else {
@@ -986,11 +990,20 @@ function ChooseDirection(destination){
             
             if (currentPlayerAttributes.randomForRenting == 1 && currentPlayerAttributes.barGig){
                 infoboxObj.innerHTML += `<div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="BarAction('gig')">Go to gig!</button></div>
+                                        <div class="basicCell"><button class="btn yellow" onclick="BarAction('gig')">Go to gig!</button></div>
                                         <div id="gig_bartext" class="optiontext green">There is a gig downstairs. This is the most popular band in town. The tickets cost 59€/pcs.</div>
                                         </div>`;
 
             }
+
+            if (currentPlayerAttributes.randomForRenting == 2 && !currentPlayerAttributes.barShiftDone){
+                infoboxObj.innerHTML += `<div class="twoColumns40-60">
+                                        <div class="basicCell"><button class="btn green" onclick="BarAction('blocking')">Work!</button></div>
+                                        <div id="gig_bartext" class="optiontext green">If you are unemployed, This n' that BAR offers you to do a work shift at bar. You'll get ${barBlockerPay}€.</div>
+                                        </div>`;
+
+            }
+
                 
 
 
@@ -1008,7 +1021,7 @@ function ChooseDirection(destination){
                                          
                                     <div class="UI_text middleTopic"><span style='color:cyan'>Barber - beauty saloon</span></div>
                                     <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="MallActions('beauty')">Purchase</button></div>
+                                        <div class="basicCell"><button class="btn" onclick="MallActions('beauty')">Go for it</button></div>
                                         <div id="xx" class="optiontext green">Makes you more appealing. Cost ${beautyPrice}€.</div>
                                     </div>
 
@@ -1016,7 +1029,7 @@ function ChooseDirection(destination){
 
                                     <div class="UI_text middleTopic"><span style='color:cyan'>Massage house</span></div>
                                     <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="MallActions('massage')">Purchase</button></div>
+                                        <div class="basicCell"><button class="btn yellow" onclick="MallActions('massage')">To massage</button></div>
                                         <div id="mall_coffeehouse" class="optiontext green">Get a massage for ${massagePrice}€. You'll be happier and feeling more energetic.</div>
                                     </div>
 
@@ -1024,7 +1037,7 @@ function ChooseDirection(destination){
 
                                     <div class="UI_text middleTopic"><span style='color:cyan'>Movie theater</span></div>
                                     <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="MallActions('movie')">Purchase</button></div>
+                                        <div class="basicCell"><button class="btn yellow" onclick="MallActions('movie')">To movies</button></div>
                                         <div id="mall_moviestext" class="optiontext green">Go and watch a random movie. The cost is ${moviePrice}€. If you like the movie, you might supprise quite a bit.</div>
                                     </div>
 
@@ -1032,7 +1045,7 @@ function ChooseDirection(destination){
 
                                     <div class="UI_text middleTopic"><span style='color:cyan'>Kiosk</span></div>
                                     <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="MallActions('lottery')">Purchase</button></div>
+                                        <div class="basicCell"><button class="btn" onclick="MallActions('lottery')">Buy</button></div>
                                         <div id="mall_kiosktext" class="optiontext green">Buy a lottery ticket or even couple of them. The odds are good.. of course. The cost is ${lotteryPrice}€/ticket.</div>
                                     </div>
 
@@ -1045,7 +1058,7 @@ function ChooseDirection(destination){
             if (currentPlayerAttributes.petID == 0){
              infoboxObj.innerHTML += `
                                     <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="PetStoreAction('acquire')">Purchase</button></div>
+                                        <div class="basicCell"><button class="btn" onclick="PetStoreAction('acquire')">Acquire</button></div>
                                         <div id="xx" class="optiontext green">This is adorable little fellow! Remember you have to take good care of it. Acquire price is ${pets[1].petAcquireCost}€. You'll get also 2 weeks of food.</div>
                                     </div>`
             }
@@ -1060,7 +1073,7 @@ function ChooseDirection(destination){
 
 
             infoboxObj.innerHTML += `<div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="PetStoreAction('petfood')">Purchase</button></div>
+                                        <div class="basicCell"><button class="btn" onclick="PetStoreAction('petfood')">Buy</button></div>
                                         <div id="xx" class="optiontext green">You need to feed your pet. Only ${pets[1].petFoodCost}€ for 2 weeks!</div>
                                     </div>
 
@@ -1074,7 +1087,7 @@ function ChooseDirection(destination){
             if (currentPlayerAttributes.itemPackageInPost){
                 infoboxObj.innerHTML += `
                                         <div class="twoColumns40-60">
-                                            <div class="basicCell"><button class="btn" onclick="MallActions('postPackage')">Reclaim</button></div>
+                                            <div class="basicCell"><button class="btn green" onclick="MallActions('postPackage')">Reclaim</button></div>
                                             <div id="xx" class="optiontext green">Here's something you ordered.
                                                 <div class="basicCell"><img src="./img/icons/PostPackageSprite.png" height="40px"></div>
                                             </div>
@@ -1087,9 +1100,9 @@ function ChooseDirection(destination){
             if (!currentPlayerAttributes.itemPackageInPost){
                 infoboxObj.innerHTML += `
                                         <div class="twoColumns40-60">
-                                        <div class="optiontext orange">Nothing.</div>
+                                        
                                         <div></div>
-                                            
+                                        <div class="optiontext orange">Nothing for you at the moment.</div>    
                                         </div>
 
                                         <br>
@@ -1100,7 +1113,7 @@ function ChooseDirection(destination){
                 infoboxObj.innerHTML += `<div class="UI_text middleTopic"><span style='color:cyan'>Unemployment office</span></div>
 
                                         <div class="twoColumns40-60">
-                                            <div class="basicCell"><button class="btn" onclick="MallActions('unemployment')">Reclaim</button></div>
+                                            <div class="basicCell"><button class="btn green" onclick="MallActions('unemployment')">Reclaim</button></div>
                                             <div id="xx" class="optiontext green">If you are unemployed, government grants you unemployment benefit. It's  ${unemploymentBenefit}€/week.</div>
                                         </div>
 
@@ -1124,7 +1137,7 @@ function ChooseDirection(destination){
                                     
 
                                     <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="ForestAction()">Wander</button></div>
+                                        <div class="basicCell"><button class="btn yellow" onclick="ForestAction()">Wander</button></div>
                                         <div id="forestText" class="optiontext green">Forest is a source of happiness.</div>
                                     </div>
                                     <br>
@@ -1151,7 +1164,7 @@ function ChooseDirection(destination){
                                     <br>
                                     
                                     <div class="twoColumns40-60">
-                                    <div class="basicCell"><button class="btn" onclick="SchoolAction('library')">Library</button></div>
+                                    <div class="basicCell"><button class="btn yellow" onclick="SchoolAction('library')">Library</button></div>
                                     <div id="schoolText" class="optiontext green">Ready a book or magazine. Spend restful time in total peace.</div>
                                     </div>
                                     `;
@@ -1193,18 +1206,18 @@ function ChooseDirection(destination){
                                     
                                     
                                     <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="SportsAction('sports')">Gym</button></div>
+                                        <div class="basicCell"><button class="btn green" onclick="SportsAction('sports')">Gym</button></div>
                                         <div id="sports_gymText" class="optiontext green">Get some muscles pencil neck. You feel much happier after that.</div>
                                     </div>
 
 
                                     <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="SportsAction('yoga')">Yoga</button></div>
+                                        <div class="basicCell"><button class="btn green" onclick="SportsAction('yoga')">Yoga</button></div>
                                     <div id="sports_yogaText" class="optiontext green">Yoga is the best for you mentally.</div>
                                 </div>
 
                                 <div class="twoColumns40-60">
-                                <div class="basicCell"><button class="btn" onclick="SportsAction('sauna')">Sauna</button></div>
+                                <div class="basicCell"><button class="btn green" onclick="SportsAction('sauna')">Sauna</button></div>
                                     <div id="sports_swimText" class="optiontext green">Spend some time in sauna. It reduces your work stress!</div>
                                 </div>
 
@@ -1215,7 +1228,7 @@ function ChooseDirection(destination){
         case "Church":
             infoboxObj.className = "infoboxBase";
             infoboxObj.innerHTML = `<div class="UI_text center">
-                                
+                                <img src="./img/building_texts/In_ChurchImg.png" width="${infoboxWidth}px">
                                 </div>
                                 <div class="text-topic"><span style='color:darkseagreen'>Church</span></div>
                                 <div class="UI_text description">Hopefully you will find something you are looking for(?)</div>
@@ -1223,14 +1236,14 @@ function ChooseDirection(destination){
                                 <br>
                                 
                                 <div class="twoColumns40-60">
-                                <div class="basicCell"><button class="btn" onclick="ChurchAction('leap')">Take it!</button></div>
+                                <div class="basicCell"><button class="btn yellow" onclick="ChurchAction('leap')">Take it!</button></div>
                                     <div id="xx" class="optiontext green">This is a leap of faith! You might be happier or less happier after this.</div>
                                 </div>
 
                                 <br>
 
                                 <div class="twoColumns40-60">
-                                <div class="basicCell"><button class="btn" onclick="ChurchAction('volunteer')">Volunteer!</button></div>
+                                <div class="basicCell"><button class="btn yellow" onclick="ChurchAction('volunteer')">Volunteer!</button></div>
                                     <div id="church_volunteerText" class="optiontext green">Do some charity work. This takes time and energy, but gives you back a lot of happiness. You have to be unemployed to participate.</div>
                                 </div>
                                 `;
@@ -1271,6 +1284,11 @@ function EnteringHome(){ //entering some of the homes
         infoboxObj.className = "infoboxBase lux";
 
     }
+
+    infoboxObj.innerHTML += `<div class="twoColumns40-60">
+                                <div class="basicCell">${AddHomeStuffButton("Rest", 'sleep')}</div>
+                                <div class="optiontext green" id="sleeptext_home">Take a rest and increase your energy.</div>
+                            </div>`;
 
     //COPY THE LIST
     if(randomizeNewOnlineContent){
@@ -1325,32 +1343,22 @@ function EnteringHome(){ //entering some of the homes
     // </div>
 
     //Basic home activities
-    infoboxObj.innerHTML += `<div class="UI_text middleTopic">Home activities</div>
-
-
-
-
-                            <div class="twoColumns40-60">
-                                <div class="basicCell">${AddHomeStuffButton("Rest", 'sleep')}</div>
-                                <div class="optiontext green" id="sleeptext_home">Take a rest and increase your energy.</div>
-                            </div>
-
-                            <div class="UI_text middleTopic">Internet stuff</div>
+    infoboxObj.innerHTML += `<div class="UI_text middleTopic">World wide web</div>
 
 
                             <div class="twoColumns40-60">
-                                <div class="basicCell">${AddHomeStuffButton("Internet", 'internettime')}</div>
+                                <div class="basicCell"><button class="btn yellow" onclick="ActionsAtHome('internettime')">Web leisure</button></div>
                                 <div id="internet_home" class="optiontext green">Spend some quality time in internet.</div>
                             </div>
 
                             <div class="twoColumns40-60">
-                                <div class="basicCell">${AddHomeStuffButton("Online shop", 'orderonline')}</div>
-                                <div class="optiontext green">Buy something online to cheer up your life.</div>
+                                <div class="basicCell">${AddHomeStuffButton("Trading", 'orderonline')}</div>
+                                <div class="optiontext green">You'll find items people selling at www.somestuff.com</div>
                             </div>
 
                             <div class="twoColumns40-60">
-                                <div class="basicCell">${AddHomeStuffButton("Check jobs", 'checkonlinejobs')}</div>
-                                <div class="optiontext green">Get a job. There's plenty of jobs online.</div>
+                                <div class="basicCell">${AddHomeStuffButton("Jobs", 'checkonlinejobs')}</div>
+                                <div class="optiontext green">You'll find available jobs at www.somejobs.com</div>
                             </div>
 
 
@@ -1401,7 +1409,7 @@ function EnteringHome(){ //entering some of the homes
 
             if (currentPlayerAttributes.relationshipID > 1){
                 infoboxObj.innerHTML += `   <div class="twoColumns40-60">
-                                            <div class="basicCell"><button class="btn" onclick="RelationshipAction()">Romantic time</button></div>
+                                            <div class="basicCell"><button class="btn" onclick="RelationshipAction()">Invest time</button></div>
                                             <div class="optiontext green" id="relationship_walkTxt">Spend time with your partner. Have nice long walk, make a nice meal, watch a romantic movie.</div>
                                             </div>
                 
@@ -1433,13 +1441,13 @@ function EnteringHome(){ //entering some of the homes
         if (numberOfPlayersForGame > 1){                                                                        //change to 1!!!!!!!!!!!
             infoboxObj.innerHTML +=  `<div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn darknet" onclick="ActionsAtHome('darknet')">Dark web</button></div>
-                                        <div class="optiontext orange">To the dark side of the web.</div>
+                                        <div class="optiontext orange">In the otherside of the law. www.darknet.com</div>
                                     </div>
                                     <br>`
 
             if (currentPlayerAttributes.policeAlertTime == null){
                 infoboxObj.innerHTML +=  `<div class="twoColumns40-60">
-                                            <div class="basicCell"><button class="btn" onclick="ActionsAtHome('police')">Tip off</button></div>
+                                            <div class="basicCell"><button class="btn police" onclick="ActionsAtHome('police')">Tip off</button></div>
                                             <div id="police_text" class="optiontext blueish">You can tip the officals, if you have a doubt something illegal is happening at the moment. The investigation will take a little time.</div>
                                         </div>
                                         `;
@@ -1640,21 +1648,21 @@ function ActionsAtHome(action){
             
             break;
 
-        case 'relationship':
-            infoboxObj.innerHTML = `<div class="xx">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}</div>
-                                    <div class="text-topic">Relationship</div>
-                                    <div class="UI_text description">Healthy relationship is the most important things in your life</div>
-                                    <div class="oneColumn border"></div>
+        // case 'relationship':
+        //     infoboxObj.innerHTML = `<div class="xx">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}</div>
+        //                             <div class="text-topic">Relationship</div>
+        //                             <div class="UI_text description">Healthy relationship is the most important things in your life</div>
+        //                             <div class="oneColumn border"></div>
                                     
 
-                                    <div class="twoColumns40-60">
-                                        <div class="basicCell"><button class="btn" onclick="RelationshipAction('relationship_restaurant')">Restaurant</button></div>
-                                        <div class="optiontext green">Eat in a restaurant. Cost 120€.</div>
-                                    </div>
-                                `;
+        //                             <div class="twoColumns40-60">
+        //                                 <div class="basicCell"><button class="btn" onclick="RelationshipAction('relationship_restaurant')">Restaurant</button></div>
+        //                                 <div class="optiontext green">Eat in a restaurant. Cost 120€.</div>
+        //                             </div>
+        //                         `;
                                     
 
-            break;
+        //     break;
 
         case 'darknet':   
                 OpenDarkNet();
@@ -1831,15 +1839,15 @@ function OpenDarkNet(){
     if (currentPlayerAttributes.illegalIdToReclaim == null){ //time to deliver these illegal things
 
     infoboxObj.innerHTML += `<div class="twoColumns40-60">
-                                <div class="basicCell"><button class="btn" onclick="BuyFake('education')">Order!</button></div>
-                                <div class="optiontext orange" id="xx">Selling degree for ${education[currentPlayerAttributes.educationId+1].degree} certificate. It will be mailed to you and only costs 
+                                <div class="basicCell"><button class="btn" onclick="BuyFake('education')">Buy!</button></div>
+                                <div class="optiontext orange" id="xx">Selling a fake degree for ${education[currentPlayerAttributes.educationId+1].degree}. You'll receive it nearest post office. It only costs 
                                 ${education[currentPlayerAttributes.educationId+1].fakePrice}€. </div>
                             </div>
                             
                             <br>
 
                             <div class="twoColumns40-60">
-                                <div class="basicCell"><button class="btn" onclick="BuyFake('drugs')">Order!</button></div>
+                                <div class="basicCell"><button class="btn" onclick="BuyFake('drugs')">Buy!</button></div>
                                 <div class="optiontext orange" id="xx">Selling some 'enhancers' to double your studying speed. Do not get caught. Price ${drugsPrice}€</div>
                             </div>
 
@@ -1849,7 +1857,7 @@ function OpenDarkNet(){
                                 ${HitmanOrder()}
                                 
                                 </div>
-                                <div class="optiontext orange" id="hitman_text">Hire an anonymous to cause trouble one of the targets mentioned left. I'll take the whole payment at once. The cost is ${hitmanPrice}€/target.</div>
+                                <div class="optiontext orange" id="hitman_text">Hire an anonymous to cause some trouble one of the target(s) mentioned left. I'll take the whole payment at once. The cost is ${hitmanPrice}€/target.</div>
                             </div>
                             `;
 
@@ -2039,14 +2047,15 @@ function BarAction(action){
 
         case 'sosialize':
             const rand1 = Math.floor(Math.random()*(30 - currentPlayerAttributes.intoxicationLevel - currentPlayerAttributes.beautyFactor - (currentPlayerAttributes.educationId*3)));
-                // console.log(rand1);
-            if (rand1 == 5 && currentPlayerAttributes.relationshipID == 0 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4) {
+                
+                
+            if (rand1 == 5 && currentPlayerAttributes.relationshipID == 1 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4) {
                 const sosializeText = document.getElementById('sosialize_bar');
-                sosializeText.innerHTML = 'You found some company!'
-                sosializeText.className = 'optiontext magenta'
+                sosializeText.innerHTML = 'You found some company!';
+                sosializeText.className = 'optiontext magenta';
                 currentPlayerAttributes.relationshipID = 2;
                 currentPlayerAttributes.relationshipStrenght = 3;
-                
+                ShowTempMessage('You met someone.', 'relationship');
                 OpponentEvents('met someone.');
             }
             else{
@@ -2059,13 +2068,13 @@ function BarAction(action){
         case 'dance':
             const rand2 = Math.floor(Math.random()*(27 + currentPlayerAttributes.intoxicationLevel - Math.floor(1.5*currentPlayerAttributes.beautyFactor)  - currentPlayerAttributes.educationId));
             
-            if (rand2 == 5 && currentPlayerAttributes.relationshipID == 0 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4){
+            if (rand2 == 5 && currentPlayerAttributes.relationshipID == 1 && currentPlayerAttributes.intoxicationLevel != 5 && currentPlayerAttributes.intoxicationLevel != 4){
                 const danceText = document.getElementById('dance_bar');
                 danceText.innerHTML = 'You were able charm someone with your dancing!';
                 danceText.className = 'optiontext magenta';
                 currentPlayerAttributes.relationshipID = 2;
                 currentPlayerAttributes.relationshipStrenght = 3;
-
+                ShowTempMessage('You met someone.', 'relationship');
                 
                 OpponentEvents('met someone.');
             }
@@ -2108,6 +2117,18 @@ function BarAction(action){
         ChooseDirection('Bar');
 
         break;
+
+        case 'blocking':
+            if (currentPlayerAttributes.currentWorkId == 0 && !currentPlayerAttributes.barShiftDone){
+
+                currentPlayerAttributes.moneyPoints += barBlockerPay;
+                currentPlayerAttributes.barShiftDone = true;
+                ShowTempMessage("You received some money by doing one shift at This n' that BAR!", 'money')
+                ReduceTime_Check(5);
+                ChooseDirection('Bar');
+            }
+
+            break;
     }
 
 
@@ -2120,12 +2141,13 @@ function RelationshipAction(){
     
         
     const relationship_walkTxt = document.getElementById('relationship_walkTxt');
-    relationship_walkTxt.innerHTML = "You spend a nice time with your partner, walking outside and cooking a nice meal and doing all kinds of nice things...";
+    relationship_walkTxt.innerHTML = "You spend a nice time with your partner, walking outside, cooking a nice meal and doing all kinds of nice things together...";
+    relationship_walkTxt.className = "optiontext magenta";
     currentPlayerAttributes.relationshipStrenght++;
-    currentPlayerAttributes.moneyPoints -= 5;
+    // currentPlayerAttributes.moneyPoints -= 5;
     // currentPlayerAttributes.happinessPoints++;
     
-    ReduceTime_Check(10);
+    ReduceTime_Check(12);
             
     
         // case 'relationship_restaurant':
@@ -2794,7 +2816,7 @@ function Relationship_WeekChange(){
     }
 
     //declining relationship
-    if (currentPlayerAttributes.relationshipID > 1 && !currentPlayerAttributes.newlyMet){
+    if (currentPlayerAttributes.relationshipID > 1){
         
         currentPlayerAttributes.relationshipStrenght -= 2;
 
@@ -2817,10 +2839,10 @@ function Relationship_WeekChange(){
                     break;
                 
             }
-
-            currentPlayerAttributes.happinessPoints += relationships[currentPlayerAttributes.relationshipID].weeklyAdded_Happiness;
             currentPlayerAttributes.relationshipStrenght = 0; //if broken up
         }
+
+        currentPlayerAttributes.happinessPoints += relationships[currentPlayerAttributes.relationshipID].weeklyAdded_Happiness;
     }
 }
 
