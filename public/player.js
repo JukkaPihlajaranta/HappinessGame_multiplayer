@@ -520,70 +520,70 @@ const onlineItems = [
         img: "./img/items/Item_CoffeeMugSprite.png",
         cost: 5,
         description: "Convenient coffee mug. Your coffee will taste better.",
-        itemHappiness: 1},
+        itemHappiness: 0},
     {
         itemId: 2,
         item: "Magnifying glass",
         img: "./img/items/Item_MagnifyingGlassSprite.png",
         cost: 16,
         description: "Your eyes will get blurry as you're growning older.",
-        itemHappiness: 2},
+        itemHappiness: 0},
     {
         itemId: 3,
         item: "Oil can",
         img: "./img/items/Item_OilCanSprite.png",
         cost: 35,
         description: "Some lubrication to the bearings and joints.",
-        itemHappiness: 1},
+        itemHappiness: 0},
     {
         itemId: 4,
         item: "Slingshot",
         img: "./img/items/Item_SlingShotSprite.png",
         cost: 20,
         description: "Do not aim to a neightbour's window!",
-        itemHappiness: 1},
+        itemHappiness: 0},
     {
         itemId: 5,
         item: "Leaf blower",
         img: "./img/items/Item_LeafBlowerSprite.png",
         cost: 120,
         description: "Take a control over leaves on your yard.",
-        itemHappiness: 3},
+        itemHappiness: 0},
     {
         itemId: 6,
         item: "Table fan",
         img: "./img/items/Item_TableFanSprite.png",
         cost: 39,
         description: "When it's hot, you'll need this.",
-        itemHappiness: 2},
+        itemHappiness: 0},
     {
         itemId: 7,
         item: "Excercise bike",
         img: "./img/items/Item_ExcerciseBikeSprite.png",
         cost: 190,
         description: "Get yourself to a good shape!",
-        itemHappiness: 4},
+        itemHappiness: 0},
     {
         itemId: 8,
         item: "Credit card",
         img: "./img/items/Item_CreditCardSprite.png",
         cost: 10,
         description: "Unlimited happiness. Maybe we counterfeited or maybe not.",
-        itemHappiness: -3},
+        itemHappiness: 0},
     {
         itemId: 9,
         item: "CPU",
         img: "./img/items/Item_ChipSprite.png",
         cost: 200,
         description: "Enhances the speed of your PC.",
-        itemHappiness: 3},
+        itemHappiness: 0},
     {
         itemId: 10,
         item: "Car battery",
         img: "./img/items/Item_CarBatterySprite.png",
         cost: 70,
         description: "Car battery full of energy.",
-        itemHappiness: 3},
+        itemHappiness: 0},
     {
         itemId: 11,
         item: "UAZ-3303",
@@ -597,14 +597,14 @@ const onlineItems = [
         img: "./img/items/Item_PickAxeSprite.png",
         cost: 97,
         description: "This helps you to find some gold or just put it on your wall..",
-        itemHappiness: 3},
+        itemHappiness: 0},
     {
         itemId: 13,
         item: "Chest",
         img: "./img/items/Item_ChestSprite.png",
         cost: 177,
         description: "Anchient chest. Very nice for the furnishing your home.",
-        itemHappiness: 3},
+        itemHappiness: 0},
     {
         itemId: 14,
         item: "Pieces of emerald",
@@ -618,28 +618,28 @@ const onlineItems = [
         img: "./img/items/Item_CableSprite.png",
         cost: 20,
         description: "A cable to connect two devices to each other. No further information.",
-        itemHappiness: 1},
+        itemHappiness: 0},
     {
         itemId: 16,
         item: "Shovel",
         img: "./img/items/Item_ShovelSprite.png",
         cost: 16,
         description: "A shovel for your need.",
-        itemHappiness: 2},
+        itemHappiness: 0},
     {
         itemId: 17,
         item: "VCR",
         img: "./img/items/Item_VCRSprite.png",
         cost: 35,
         description: "A little bit older technology. Fully functional, if you don't use it",
-        itemHappiness: 2},
+        itemHappiness: 0},
     {
         itemId: 18,
         item: "VHS",
         img: "./img/items/Item_VHSSprite.png",
         cost: 55,
         description: "You'll never know, what you find on this tape. Excelusive material!",
-        itemHappiness: 2},
+        itemHappiness: 0},
     {
         itemId: 19,
         item: "Pizza boxes",
@@ -860,15 +860,15 @@ function TotalHappinessCalculation(){
     
     let extraHappinesPoints = 0;
 
-    // if (currentPlayerAttributes.currentItems.length > 0){
-    //     currentPlayerAttributes.currentItems.forEach(item => {
-    //         for (var i = 0; i < onlineItems.length; i++){
-    //             if (item == onlineItems[i].itemId){
-    //                 extraHappinesPoints += onlineItems[i].itemHappiness;
-    //             }
-    //         }
-    //     });
-    // }
+    if (currentPlayerAttributes.currentItems.length > 0){
+        currentPlayerAttributes.currentItems.forEach(item => {
+            for (var i = 0; i < onlineItems.length; i++){
+                if (item == onlineItems[i].itemId){
+                    extraHappinesPoints += onlineItems[i].itemHappiness;
+                }
+            }
+        });
+    }
     
     
 
@@ -2907,7 +2907,7 @@ function Work_WeekChange(){
 
 function Pet_WeekChange(){
 
-    if (currentPlayerAttributes.petID == 1){
+    if (currentPlayerAttributes.petID > 0){
 
         if (currentPlayerAttributes.petWeeklyDue){
             
@@ -2916,6 +2916,7 @@ function Pet_WeekChange(){
             currentPlayerAttributes.moneyPoints -= pets[currentPlayerAttributes.petID].petPenalty;
             currentPlayerAttributes.happinessPoints -= 5;
         }
+        
 
         //pet food check
 

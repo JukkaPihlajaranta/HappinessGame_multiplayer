@@ -556,7 +556,7 @@ var socket = io.connect();
         Relationship_WeekChange();
         Work_WeekChange();
         Lottery_WeekChange();
-
+        Pet_WeekChange();
 
         //Happiness
         currentPlayerAttributes.forestHappiness = 1;
