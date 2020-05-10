@@ -726,7 +726,7 @@ var socket = io.connect();
     };
 
     socket.on('ToClient_OrderedHit', () => {
-        currentPlayerAttributes.happinessPoints -= 15;
+        currentPlayerAttributes.happinessPoints -= 8;
         ShowTempMessage('<span style="color:salmon">You have been hit by someone. Your happiness has decreased.</span>', 'sms');
         ReduceTime_Check(0);
     });

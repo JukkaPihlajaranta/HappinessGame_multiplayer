@@ -313,6 +313,8 @@ io.sockets.on('connection', (socket) =>{
             }
         }
 
+        console.log(gameList[data.gameId].weekReady);
+
         //if maxplayers have ended their weeks        
         if (tempReadyCount == gameList[data.gameId].gameMaxPlayers){
             
