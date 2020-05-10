@@ -115,6 +115,14 @@ var socket = io.connect();
         chatArea.innerHTML += `<div>${data}</div>`;
     });
 
+    function GameEventMessage(message){
+        
+        const newEvent = document.createElement('div');
+        newEvent.innerHTML = `<div>${message}</div>`;
+        opponent_events.appendChild(newEvent);
+        opponent_events.scrollTo(0,opponent_events.scrollHeight);
+    };
+
     //PUTTING THE ID
     socket.on('ToClient_readyToPlay', (id) => {
         playerId = id;
@@ -241,7 +249,7 @@ var socket = io.connect();
                 player.innerHTML =''; //empty the inner html
                 const playerText = document.createElement('div');
                 playerText.className = "opponentHoverName";
-                playerText.innerHTML = truncate(playerLocalName, 8);
+                playerText.innerHTML = truncate(playerLocalName, 10);
                 player.appendChild(playerText);
             }
             else if (data.playerIdList[i] != playerId){
@@ -249,7 +257,7 @@ var socket = io.connect();
                 opponentNumberInArray.push(i);
                 opponentId.push(data.playerIdList[i]);
                 
-                opponentName.push(truncate(data.playerNameList[i], 13));
+                opponentName.push(truncate(data.playerNameList[i], 14));
 
             }
         }
@@ -264,7 +272,7 @@ var socket = io.connect();
             opponentObject_1.innerHTML =''; //empty the inner html
             const opp_text = document.createElement('div');
             opp_text.className = "opponentHoverName";
-            opp_text.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[0]]};'>${truncate(opponentName[0], 8)}</span>`;
+            opp_text.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[0]]};'>${truncate(opponentName[0], 10)}</span>`;
             opponentObject_1.appendChild(opp_text);
             opponentObject_1.style.display = "block";
     
@@ -276,7 +284,7 @@ var socket = io.connect();
                 opponentObject_2.innerHTML =''; //empty the inner html
                 const opp_text2 = document.createElement('div');
                 opp_text2.className = "opponentHoverName";
-                opp_text2.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[1]]};'>${truncate(opponentName[1],8)}</span>`;
+                opp_text2.innerHTML = `<span style='color:${playerColor[opponentNumberInArray[1]]};'>${truncate(opponentName[1], 10)}</span>`;
                 opponentObject_2.appendChild(opp_text2);
                 opponentObject_2.style.display = "block";
             }
@@ -526,16 +534,7 @@ var socket = io.connect();
 
         //Month change
         if ( currentPlayerAttributes.weekNumber % 4 == 0){
-            // console.log("month has changed.");
- 
-            // if (currentPlayerAttributes.rentToDue){ 
-            //     ShowTempMessage("New month and new things! <span style='color:salmon;'>If you didn't pay your rent, cost has been doubled and credited from your bank account.</span>", 
-            //     "sms");
-                
-            // }
-            // else{ 
-                
-            // }
+
             weeklyChangeEvents.push(`New moon!`);
             
             //Monthly changes
@@ -571,6 +570,7 @@ var socket = io.connect();
 
         //Other
         currentPlayerAttributes.beautyFactor = 0;
+        currentPlayerAttributes.justHired = false;
         
         //Money
         currentPlayerAttributes.weeklyUnemployedPay = true;
@@ -621,8 +621,9 @@ var socket = io.connect();
 
         if (currentPlayerAttributes.drugs > 0 || currentPlayerAttributes.fakeEducation){
 
-            ShowTempMessage(`<span style='color:salmon'>You're fined of breaking the law. This is bad. No no nooo...<br>
-            You will lose your job, if you have one.</span>`, "sms");
+            GameEventMessage(`<span style='color:salmon'>You're fined of breaking the law. This is bad. No no nooo... You will lose your job, if you have one. Your happiness decreased by 8.</span>`);
+            // ShowTempMessage(`<span style='color:salmon'>You're fined of breaking the law. This is bad. No no nooo...<br>
+            // You will lose your job, if you have one.</span>`, "sms");
             currentPlayerAttributes.moneyPoints -= 110;
             currentPlayerAttributes.happinessPoints -= 8;
     
@@ -663,12 +664,14 @@ var socket = io.connect();
 
         if (numberOfPlayersForGame == 2){
             if (data != null){
-                ShowTempMessage(`<span style='color:lime'>You were right. There was someone, making illegal actions. <span style='color:orange'>${opponentName[0]}</span> had something illegal going on and is fined now.</span>`, "sms");
+                // ShowTempMessage(`<span style='color:lime'>You were right. There was someone, making illegal actions. <span style='color:orange'>${opponentName[0]}</span> had something illegal going on and is fined now.</span>`, "sms");
+                GameEventMessage(`<span style='color:green'>You were right. There was someone, making illegal actions. <span style='color:orange'>${opponentName[0]}</span> had something illegal going on and is fined now.</span>`);
                 currentPlayerAttributes.happinessPoints += 3;
             }
     
             else{
-                ShowTempMessage("<span style='color:orange'>There wasn't any illegal going on with anyone. We'll make you accountable for false reporting. Fine is 80€</span>", "rejection");
+                // ShowTempMessage("<span style='color:orange'>There wasn't any illegal going on with anyone. We'll make you accountable for false reporting. Fine is 80€</span>", "rejection");
+                GameEventMessage(`<span style='color:red'>There wasn't any illegal going on with anyone. We'll make you accountable for false reporting. Fine is 80€</span>`);
                 currentPlayerAttributes.moneyPoints -= 80;
                 currentPlayerAttributes.happinessPoints -= 5;
             }
@@ -681,7 +684,8 @@ var socket = io.connect();
             playerResponses++;
 
             if (data != null){
-                ShowTempMessage(`<span style='color:lime'>You were right. There was someone, making illegal actions. Someone had something illegal going on and is fined now.</span>`, "sms");
+                GameEventMessage(`<span style='color:green'>You were right. There was someone, making illegal actions. Someone had something illegal going on and is fined now.</span>`);
+                // ShowTempMessage(`<span style='color:lime'>You were right. There was someone, making illegal actions. Someone had something illegal going on and is fined now.</span>`, "sms");
                 currentPlayerAttributes.happinessPoints += 3;
                 playerIllegalResponses++;
                 ReduceTime_Check(0);
@@ -691,7 +695,8 @@ var socket = io.connect();
 
                 //if no one is doing any illegal
                 if (playerIllegalResponses == 0){
-                    ShowTempMessage("<span style='color:orange'>There wasn't any illegal going on with anyone. We'll make you accountable for false reporting. Fine is 80€</span>", "rejection");
+                    // ShowTempMessage("<span style='color:orange'>There wasn't any illegal going on with anyone. We'll make you accountable for false reporting. Fine is 80€</span>", "rejection");
+                    GameEventMessage(`<span style='color:red'>There wasn't any illegal going on with anyone. We'll make you accountable for false reporting. Fine is 80€</span>`);
                     currentPlayerAttributes.moneyPoints -= 80;
                     currentPlayerAttributes.happinessPoints -= 5;
                     ReduceTime_Check(0);
@@ -727,7 +732,8 @@ var socket = io.connect();
 
     socket.on('ToClient_OrderedHit', () => {
         currentPlayerAttributes.happinessPoints -= 8;
-        ShowTempMessage('<span style="color:salmon">You have been hit by someone. Your happiness has decreased.</span>', 'sms');
+        GameEventMessage(`<span style="color:salmon font-weight:900">You have been hit by someone. Your happiness has decreased by 8.</span>`);
+        // ShowTempMessage('<span style="color:salmon">You have been hit by someone. Your happiness has decreased.</span>', 'sms');
         ReduceTime_Check(0);
     });
 
@@ -1520,7 +1526,7 @@ function PutLocalEvent(color, text, newWeek) {
     if (newWeek == "newWeek"){
         const newEvent = document.createElement('div');
         
-        newEvent.innerHTML =`<span style='font-weight:700; color:lime'>-=New week=-</span>`;
+        newEvent.innerHTML =`<span style='font-weight:800; text-shadow: 1px 1px black; color:cyan;'>-=New week=-</span>`;
         
         opponent_events.appendChild(newEvent);
 

@@ -167,7 +167,7 @@ io.sockets.on('connection', (socket) =>{
         gameList[newGameId] = {
             gameId: newGameId,                              //game id
             gameCreatorId: socket.id,
-            color: ["deepskyblue", "orange", "darkturquoise"],
+            color: ["deepskyblue", "darkorange", "sienna"],
             gameMaxPlayers: playerNumbers,
             playerIdList: newIDList,                                   //list of players                         
             playerNameList: newPlayerList,                   //list of player names
@@ -299,35 +299,39 @@ io.sockets.on('connection', (socket) =>{
 
     socket.on('ToServer_OpponentWeeklyTimeCheck', (data) =>{
 
-        let tempReadyCount = 0;
-        
+        //put current player ready for week
         for (i = 0; i < gameList[data.gameId].playerIdList.length; i++){
-            
-            if (gameList[data.gameId].weekReady[i] == true){
-                tempReadyCount++;
-            }
             
             if (gameList[data.gameId].playerIdList[i] == data.playerId){
                 gameList[data.gameId].weekReady[i] = true;
-                tempReadyCount++;
+                // tempReadyCount++;
             }
         }
 
-        console.log(gameList[data.gameId].weekReady);
+        let tempReadyCount = 0;
+
+        //check if enough players are ready
+        for (i = 0; i < gameList[data.gameId].weekReady.length; i++){
+            if (gameList[data.gameId].weekReady[i] == true){
+                tempReadyCount++;
+            }
+        }
 
         //if maxplayers have ended their weeks        
         if (tempReadyCount == gameList[data.gameId].gameMaxPlayers){
             
+            //start a new week with every player
             gameList[data.gameId].playerIdList.forEach(player => {
                 playerList[player].emit('ToClient_NewWeek');
             });
 
+            //set all the weeks not ready
             for (i = 0; i < gameList[data.gameId].weekReady.length; i++){
                 gameList[data.gameId].weekReady[i] = false;
             }
-
         }
 
+        console.log(gameList[data.gameId].weekReady);
 
     });
    

@@ -127,6 +127,7 @@ const startingAttributes = {
     playerWorkLevel: 0,          //0-4
     jobPendingTime: 0,
     jobIdPending: null,
+    justHired: false,
     workExperience: 0,           //gathering experience, when 10 ==> level
     workStress: 0,              //if more than 6 ==> ill, if 0 player will get fired
     showJobs: true,
@@ -183,7 +184,7 @@ const lotteryPrice = 5;
 const overWorkFee = 60;
 const policeFine = 120;
 const drugsPrice = 40;
-const hitmanPrice = 580;
+const hitmanPrice = 620;
 const barBlockerPay = 29;
 
 let randomizeNewOnlineContent = true;
@@ -260,7 +261,7 @@ const education = [
 const rentHomes = [
     {
         rent: 182,
-        homeName: "Lo-cost appartment",
+        homeName: "Lo-cost apartment",
         deposit: 120,
         happinessPoints: 0},
     {
@@ -735,7 +736,8 @@ function UpdateBarAndTexts(){
 
     if (currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.illegalPostArrivingTime  && currentPlayerAttributes.showPostMessage ||
         currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.itemPostArrivingTime  && currentPlayerAttributes.showPostMessage){
-        ShowTempMessage('A package in post! Go to mall to reclaim it.', 'package');
+        // ShowTempMessage('A package in post! Go to mall to reclaim it.', 'package');
+        GameEventMessage(`<span style="color:lime">A package in post! Go to mall to reclaim it.</span>`);
         
 
 
@@ -745,13 +747,15 @@ function UpdateBarAndTexts(){
 
     if (currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.hitmanTarget_Time[1]){
         InitiateTheHit(currentPlayerAttributes.hitmanTarget_Time);
-        ShowTempMessage(`Hit has been delivered.`, 'sms');
+        GameEventMessage(`<span style="color:cyan">The hit has been delivered...</span>`);
+        // ShowTempMessage(`Hit has been delivered.`, 'sms');
         currentPlayerAttributes.hitmanTarget_Time = [];
     }
 
     if (currentPlayerAttributes.weeklyTime <= currentPlayerAttributes.itemSellingTime && currentPlayerAttributes.itemSellingIdPrice.length > 1){
 
-        ShowTempMessage(`You just sold your item with ${currentPlayerAttributes.itemSellingIdPrice[1]}€!.`, 'money');
+        GameEventMessage(`<span style="color:lime">You just sold your item with ${currentPlayerAttributes.itemSellingIdPrice[1]}€!.</span>`);
+        // ShowTempMessage(`You just sold your item with ${currentPlayerAttributes.itemSellingIdPrice[1]}€!.`, 'money');
         currentPlayerAttributes.moneyPoints += currentPlayerAttributes.itemSellingIdPrice[1];
                
         var tempIndex = currentPlayerAttributes.currentItems.findIndex(number => number == currentPlayerAttributes.itemSellingIdPrice[0]); //search for item index in current item list
@@ -917,7 +921,7 @@ function ChooseDirection(destination){
                 if (currentPlayerAttributes.randomForRenting == 0){
                 infoboxObj.innerHTML += `<div class="twoColumns40-60">
                                         <div class="basicCell"><button class="btn" onclick="RentHomeAction(0)">Rent!</button></div>
-                                        <div id="rentHouse_text" class="optiontext green">Rent this appartment. Apparentment deposit is ${rentHomes[0].deposit}€, which you have to pay right away. Rent is ${rentHomes[0].rent}€/month. The appartment is very nice though.</div>
+                                        <div id="rentHouse_text" class="optiontext green">Rent this apartment. Apparentment deposit is ${rentHomes[0].deposit}€, which you have to pay right away. Rent is ${rentHomes[0].rent}€/month. The apartment is very nice though.</div>
                                         </div>`;
                 }
                 else {
@@ -946,7 +950,7 @@ function ChooseDirection(destination){
                 if (currentPlayerAttributes.randomForRenting == 0){
                     infoboxObj.innerHTML += `<div class="twoColumns40-60">
                                             <div class="basicCell"><button class="btn" onclick="RentHomeAction(1)">Rent!</button></div>
-                                            <div id="rentHouse_text" class="optiontext green">Rent this appartment. Deposit is ${rentHomes[1].deposit}€. Addition to this rently fee is ${rentHomes[1].rent}€</div>
+                                            <div id="rentHouse_text" class="optiontext green">Rent this apartment. Deposit is ${rentHomes[1].deposit}€. Addition to this rently fee is ${rentHomes[1].rent}€</div>
                                             </div>`;
                 }
 
@@ -1263,7 +1267,7 @@ function EnteringHome(){ //entering some of the homes
         infoboxObj.innerHTML = `<div class="UI_text center">
                                 <img src="./img/building_texts/Home_Image.png" width="${infoboxWidth}px">
                                 </div>
-                                <div class="text-topic"><span style='color:sienna'>Lo-cost appartment</span></div>
+                                <div class="text-topic"><span style='color:sienna'>Lo-cost apartment</span></div>
                                 <div class="UI_text description">This is where some people live.</div>
                                 <div class="oneColumn border"></div>
                                 <br>`
@@ -1277,7 +1281,7 @@ function EnteringHome(){ //entering some of the homes
         infoboxObj.innerHTML = `<div class="UI_text center">
                                 <img src="./img/building_texts/In_HomeBetterImg.png" width="${infoboxWidth}px">
                                 </div>
-                                <div class="text-topic"><span style='color:peachpuff'>Luxurious appartment</span></div>
+                                <div class="text-topic"><span style='color:peachpuff'>Luxurious apartment</span></div>
                                 <div class="UI_text description">This is where successful people live.</div>
                                 <div class="oneColumn border"></div>
                                 <br>`
@@ -1409,7 +1413,7 @@ function EnteringHome(){ //entering some of the homes
 
             if (currentPlayerAttributes.relationshipID > 1){
                 infoboxObj.innerHTML += `   <div class="twoColumns40-60">
-                                            <div class="basicCell"><button class="btn" onclick="RelationshipAction()">Invest time</button></div>
+                                            <div class="basicCell"><button class="btn" onclick="RelationshipAction()">Relationship</button></div>
                                             <div class="optiontext green" id="relationship_walkTxt">Spend time with your partner. Have nice long walk, make a nice meal, watch a romantic movie.</div>
                                             </div>
                 
@@ -1550,10 +1554,11 @@ function ActionsAtHome(action){
                 elem.className = "optiontext green";
                 currentPlayerAttributes.workStress++;
 
-                if (currentPlayerAttributes.workExperience > workExperienceRequired){
+                if (currentPlayerAttributes.workExperience > workExperienceRequired && currentPlayerAttributes.playerWorkLevel < 4){
                     currentPlayerAttributes.playerWorkLevel++;
                     currentPlayerAttributes.workExperience = 0;
-                    ShowTempMessage("You're more experienced now. Maybe you should applying for more demanding jobs.", 'sms')
+                    GameEventMessage(`<span style="color:lime">You're more experienced now. Maybe you should applying for more demanding jobs.</span>`);
+                    // ShowTempMessage("You're more experienced now. Maybe you should applying for more demanding jobs.", 'sms')
                 }
 
                 ReduceTime_Check(10); //executes also update function
@@ -1597,7 +1602,8 @@ function ActionsAtHome(action){
             if (currentPlayerAttributes.moneyPoints >= rentHomes[currentPlayerAttributes.homeID].rent  && currentPlayerAttributes.rentToDue){
                 currentPlayerAttributes.moneyPoints -= rentHomes[currentPlayerAttributes.homeID].rent
                 currentPlayerAttributes.rentToDue = false;
-                ShowTempMessage('The payment transaction was successful.', 'sms');
+                GameEventMessage(`<span style="color:lime">The rent transaction was carried out successfully.</span>`);
+                // ShowTempMessage('The payment transaction was successful.', 'sms');
                 OpponentEvents('had money to pay the rent.');
                 EnteringHome();
             }
@@ -1638,31 +1644,9 @@ function ActionsAtHome(action){
             }
 
 
-            //                         currentPlayerAttributes.currentItems.forEach(item =>{
-            // infoboxObj.innerHTML += `<div class="twoColumns30-70">
-            //                             <div class="optiontext yellow">${onlineItems[item].item}</div>
-            //                             <div class="basicCell"><img src="${onlineItems[item].img}" height="80px"></div>
-            //                         </div>
-            //                         `;
-            // });
             
             break;
 
-        // case 'relationship':
-        //     infoboxObj.innerHTML = `<div class="xx">${AddHomeButton('<img src="./img/icons/Button_Back.png" height="20px">','Home')}</div>
-        //                             <div class="text-topic">Relationship</div>
-        //                             <div class="UI_text description">Healthy relationship is the most important things in your life</div>
-        //                             <div class="oneColumn border"></div>
-                                    
-
-        //                             <div class="twoColumns40-60">
-        //                                 <div class="basicCell"><button class="btn" onclick="RelationshipAction('relationship_restaurant')">Restaurant</button></div>
-        //                                 <div class="optiontext green">Eat in a restaurant. Cost 120€.</div>
-        //                             </div>
-        //                         `;
-                                    
-
-        //     break;
 
         case 'darknet':   
                 OpenDarkNet();
@@ -2004,7 +1988,8 @@ function MallActions(action){
                 currentPlayerAttributes.weeklyUnemployedPay = false;
                 currentPlayerAttributes.moneyPoints += unemploymentBenefit;
                 
-                ShowTempMessage(`You just received ${unemploymentBenefit}€ as government unemployment benefit.`, 'money');
+                // ShowTempMessage(`You just received ${unemploymentBenefit}€ as government unemployment benefit.`, 'money');
+                GameEventMessage(`<span style="color:lime">You just received ${unemploymentBenefit}€ as government unemployment benefit.</span>`);
                 ReduceTime_Check(0);
                 ChooseDirection('Mall');
             }
@@ -2055,7 +2040,8 @@ function BarAction(action){
                 sosializeText.className = 'optiontext magenta';
                 currentPlayerAttributes.relationshipID = 2;
                 currentPlayerAttributes.relationshipStrenght = 3;
-                ShowTempMessage('You met someone.', 'relationship');
+                GameEventMessage('<span style="color:magenta">You met someone!</span>');
+                // ShowTempMessage('You met someone.', 'relationship');
                 OpponentEvents('met someone.');
             }
             else{
@@ -2074,8 +2060,8 @@ function BarAction(action){
                 danceText.className = 'optiontext magenta';
                 currentPlayerAttributes.relationshipID = 2;
                 currentPlayerAttributes.relationshipStrenght = 3;
-                ShowTempMessage('You met someone.', 'relationship');
-                
+                // ShowTempMessage('You met someone.', 'relationship');
+                GameEventMessage('<span style="color:magenta">You met someone!</span>');
                 OpponentEvents('met someone.');
             }
             else{
@@ -2100,11 +2086,13 @@ function BarAction(action){
                     currentPlayerAttributes.relationshipID = 2;
                     currentPlayerAttributes.relationshipStrenght = 3;
                     OpponentEvents('met someone.');
-                    ShowTempMessage("What great gig and you met someone!", 'sms');
+                    GameEventMessage('<span style="color:magenta">What great gig and you met someone!</span>');
+                    // ShowTempMessage("What great gig and you met someone!", 'sms');
                 }
 
                 else{
-                    ShowTempMessage("What great gig, but you didn't meet anyone special!", 'sms');
+                    GameEventMessage(`<span style="color:green">What great gig, but you didn't meet anyone special! You happiness increased by 4.</span>`);
+                    // ShowTempMessage("What great gig, but you didn't meet anyone special!", 'sms');
                 }
                 
                 ReduceTime_Check(5);
@@ -2123,7 +2111,8 @@ function BarAction(action){
 
                 currentPlayerAttributes.moneyPoints += barBlockerPay;
                 currentPlayerAttributes.barShiftDone = true;
-                ShowTempMessage("You received some money by doing one shift at This n' that BAR!", 'money')
+                GameEventMessage(`<span style="color:lime">You made ${barBlockerPay}€ by doing a shift at This n' that BAR!</span>`);
+                // ShowTempMessage("You received some money by doing one shift at This n' that BAR!", 'money')
                 ReduceTime_Check(5);
                 ChooseDirection('Bar');
             }
@@ -2147,7 +2136,7 @@ function RelationshipAction(){
     // currentPlayerAttributes.moneyPoints -= 5;
     // currentPlayerAttributes.happinessPoints++;
     
-    ReduceTime_Check(12);
+    ReduceTime_Check(18);
             
     
         // case 'relationship_restaurant':
@@ -2160,9 +2149,9 @@ function RelationshipAction(){
             
         //     break;
 
-        if (currentPlayerAttributes.relationshipStrenght > 7){
-            currentPlayerAttributes.happinessPoints++;
-        }
+    // if (currentPlayerAttributes.relationshipStrenght > 7){
+    //     currentPlayerAttributes.happinessPoints++;
+    // }
 
 
     
@@ -2170,6 +2159,10 @@ function RelationshipAction(){
 
         currentPlayerAttributes.relationshipID++;
         currentPlayerAttributes.relationshipStrenght = 3;
+    }
+
+    else if (currentPlayerAttributes.relationshipStrenght > 8 && currentPlayerAttributes.relationshipID == 3){
+        currentPlayerAttributes.relationshipStrenght = 9;
     }
 
 };
@@ -2240,18 +2233,20 @@ function RentHomeAction(home){
         currentPlayerAttributes.moneyPoints -= rentHomes[0].deposit;
         currentPlayerAttributes.moneyPoints += rentHomes[1].deposit;
         currentPlayerAttributes.homeID = 0;
-        currentPlayerAttributes.rentToDue = true;
-        ShowTempMessage('You just rented yourself ' + rentHomes[0].homeName +'. Remember to pay your rent for this month.', 'sms');
-        OpponentEvents('rented an appartment.');
+        // currentPlayerAttributes.rentToDue = true;
+        GameEventMessage(`<span style="color:lime">You just rented yourself ${rentHomes[0].homeName}. Remember to pay your rent next month.</span>`);
+        // ShowTempMessage('You just rented yourself ' + rentHomes[0].homeName +'. Remember to pay your rent for this month.', 'sms');
+        OpponentEvents('rented an apartment.');
     }
 
     else if (home == 1 && currentPlayerAttributes.moneyPoints >= rentHomes[1].deposit){
         currentPlayerAttributes.moneyPoints -= rentHomes[1].deposit;
         currentPlayerAttributes.moneyPoints += rentHomes[0].deposit;
         currentPlayerAttributes.homeID = 1;
-        currentPlayerAttributes.rentToDue = true;
-        ShowTempMessage('You just rented yourself ' + rentHomes[1].homeName +'. Remember to pay your rent for this month.', 'sms');
-        OpponentEvents('rented an appartment.');
+        // currentPlayerAttributes.rentToDue = true;
+        GameEventMessage(`<span style="color:lime">You just rented yourself ${rentHomes[1].homeName}. Remember to pay your rent next month.</span>`);
+        // ShowTempMessage('You just rented yourself ' + rentHomes[1].homeName +'. Remember to pay your rent for this month.', 'sms');
+        OpponentEvents('rented an apartment.');
     }
 
 };
@@ -2267,7 +2262,8 @@ function SchoolAction(action){
             currentPlayerAttributes.moneyPoints -= education[currentPlayerAttributes.educationId+1].cost
             currentPlayerAttributes.educationEnroll = true;
             ChooseDirection('School'); //for reload
-            ShowTempMessage('You enrolled for ' + education[currentPlayerAttributes.educationId+1].degree, 'sms');
+            GameEventMessage(`<span style="color:lime">You enrolled for ${education[currentPlayerAttributes.educationId+1].degree}</span>`);
+            // ShowTempMessage('You enrolled for ' + education[currentPlayerAttributes.educationId+1].degree, 'sms');
             OpponentEvents('enrolled for a degree.');
             // + education[currentPlayerAttributes.educationId+1].degree + "."
             
@@ -2290,7 +2286,9 @@ function SchoolAction(action){
                 currentPlayerAttributes.educationProgress = 0;
                 //message to panel congrats etc.
                 ReduceTime_Check(0);
-                ShowTempMessage('You made it! Your current degree is ' + education[currentPlayerAttributes.educationId].degree, 'sms');
+                GameEventMessage(`<span style="color:lime">You made it! Your current degree is ${education[currentPlayerAttributes.educationId].degree}</span>`);
+                
+                // ShowTempMessage('You made it! Your current degree is ' + education[currentPlayerAttributes.educationId].degree, 'sms');
                 // OpponentEvents('Gratuated for ' + education[currentPlayerAttributes.educationId].degree + "!" );
                 ChooseDirection('School'); //for reload
             }
@@ -2580,7 +2578,7 @@ function AddEnergy(addedEnergy){
         currentPlayerAttributes.energyLevel = 100;
     }
     
-    currentPlayerAttributes.energyLevel += addedEnergy;
+    currentPlayerAttributes.energyLevel += addedEnergy + (currentPlayerAttributes.homeID * 2);
 };
 
 function SellItem(id, price){
@@ -2699,23 +2697,28 @@ function WorkChecker(){
         if (jobs[tempJobPending].worklevel <= currentPlayerAttributes.playerWorkLevel && rand != 4 && jobs[tempJobPending].educationReq <= currentPlayerAttributes.educationId + fakeEducationLvl){
 
             currentPlayerAttributes.currentWorkId = tempJobPending;
-            ShowTempMessage(`Congratulations! You got the job!<br><br> Now you can start working as ${jobs[tempJobPending].job}.`, 'sms');
+            GameEventMessage(`<span style="color:lime">Congratulations! You got the job! Now you can start working as ${jobs[tempJobPending].job}.</span>`);
+            // ShowTempMessage(`Congratulations! You got the job!<br><br> Now you can start working as ${jobs[tempJobPending].job}.`, 'sms');
+            currentPlayerAttributes.justHired = true;
             OpponentEvents(`got a new job!`);
             // ${jobs[tempJobPending].job}
         }
 
         else if (jobs[tempJobPending].worklevel > currentPlayerAttributes.playerWorkLevel){
-            ShowTempMessage("Unfortunately you didn't get the job. You are lacking work experience.", 'rejection');
+            GameEventMessage(`<span style="color:orange; text-shadow: 1px 1px black;">Unfortunately you didn't get the job. You were lacking in work experience.</span>`);
+            // ShowTempMessage("Unfortunately you didn't get the job. You are lacking work experience.", 'rejection');
             OpponentEvents("failed to get a job.");
         }
 
         else if (jobs[tempJobPending].educationReq > currentPlayerAttributes.educationId){
-            ShowTempMessage("Unfortunately you didn't get the job. You are lacking some education.", 'rejection');
+            GameEventMessage(`<span style="color:orange; text-shadow: 1px 1px black;">Unfortunately you didn't get the job. You were lacking in education.</span>`);
+            // ShowTempMessage("Unfortunately you didn't get the job. You are lacking some education.", 'rejection');
             OpponentEvents("failed to get a job.");
         }
 
         else{
-            ShowTempMessage("Unfortunately you didn't get the job. All of the candidates including you were really good, but you weren't the our choice.", 'rejection');
+            GameEventMessage(`<span style="color:orange">Unfortunately you didn't get the job. All of the candidates including you were really good, but you weren't the our choice.</span>`);
+            // ShowTempMessage("Unfortunately you didn't get the job. All of the candidates including you were really good, but you weren't the our choice.", 'rejection');
             OpponentEvents("failed to get a job.");
         }
 
@@ -2728,7 +2731,7 @@ function WorkChecker(){
 
 }
 
-//Illegal
+//ILLEGAL ----------------------------------------------------------------------------------------------------------------------
 function BuyFake(fakeSubject){
 
     switch (fakeSubject){
@@ -2855,7 +2858,7 @@ function Lottery_WeekChange(){
         for (var i = 0; i < currentPlayerAttributes.lotteryTickets; i++){
             const randomTicketResult = Math.floor(Math.random()*25);
             currentPlayerAttributes.lotteryTickets--;
-            console.log(randomTicketResult);
+
             if (randomTicketResult == 5){
                 currentPlayerAttributes.moneyPoints += 500;
                 currentPlayerAttributes.happinessPoints += 2;
@@ -2864,6 +2867,7 @@ function Lottery_WeekChange(){
 
         }
         if (lotteryWinCount > 0){ weeklyChangeEvents.push('lottery'); }
+        if (lotteryWinCount == 0){ weeklyChangeEvents.push('no_win_lottery'); }
         
     }
 
@@ -2886,7 +2890,7 @@ function Work_WeekChange(){
 
     if (currentPlayerAttributes.currentWorkId != 0){
     
-        if (currentPlayerAttributes.workStress < 1){ //don't go work at all
+        if (currentPlayerAttributes.workStress < 1 && !currentPlayerAttributes.justHired){ //don't go work at all
             currentPlayerAttributes.currentWorkId = 0;
             currentPlayerAttributes.happinessPoints -= 10;
             
@@ -2918,7 +2922,11 @@ function Pet_WeekChange(){
         }
         
 
-        //pet food check
+        if (currentPlayerAttributes.petFoodAmount == 0){
+            weeklyChangeEvents.push('no_petfood');
+            currentPlayerAttributes.moneyPoints -= pets[currentPlayerAttributes.petID].petPenalty;
+            currentPlayerAttributes.happinessPoints -= 5;
+        }
 
         currentPlayerAttributes.petFoodAmount == 0 ? currentPlayerAttributes.petFoodAmount == 0 : currentPlayerAttributes.petFoodAmount--; //decrease pet food
         currentPlayerAttributes.petWeeklyDue = true;
@@ -2972,6 +2980,12 @@ function Messages_WeekChange(messageArray){
                     <div class="optiontext red_bold">You didn't takee care of your pet and had to visit a vet. The fee was ${pets[currentPlayerAttributes.petID].petPenalty}€.</div>
                 </div>`; 
 
+            case 'no_petfood':
+                return `<div class="twoColumns20-80">
+                    <div class="basicCell"><img src="./img/icons/Sprite_RejectionLetter.png" height="40px"></div> 
+                    <div class="optiontext red_bold">Your pet didn't have any food. You had to pay a visit to vet. The fee was ${pets[currentPlayerAttributes.petID].petPenalty}€.</div>
+                </div>`; 
+
             case 'relationship_brokeup':
                 return `<div class="twoColumns20-80">
                     <div class="basicCell"><img src="./img/icons/Icon_RelationshipSprite.png" height="40px"></div> 
@@ -2987,6 +3001,11 @@ function Messages_WeekChange(messageArray){
                     <div class="optiontext orange">Rent to due during this week!</div>
                 </div>`; 
 
+            case 'no_win_lottery':
+                return `<div class="twoColumns20-80">
+                    <div class="basicCell"><img src="./img/icons/Icon_MoneySprite.png" height="40px"></div> 
+                    <div class="optiontext orange">You didn't win in the lottery unfortunately!</div>
+                </div>`; 
 
 
 
