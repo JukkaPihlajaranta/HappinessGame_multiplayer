@@ -1191,10 +1191,13 @@ function ChooseDirection(destination){
                                     </div>
                                     `;
                                 }
-
+                                
                                 else{
                                     infoboxObj.innerHTML += `<div class="optiontext green">Nothing for you any. You are total master! </div>`;
                                 }
+            infoboxObj.innerHTML += `<div class="UI_text description">
+                                    The roots of education are bitter, but the fruit is sweet.
+                                    </div>`; 
         break;
 
 
@@ -1267,7 +1270,7 @@ function EnteringHome(){ //entering some of the homes
         infoboxObj.innerHTML = `<div class="UI_text center">
                                 <img src="./img/building_texts/Home_Image.png" width="${infoboxWidth}px">
                                 </div>
-                                <div class="text-topic"><span style='color:sienna'>Lo-cost apartment</span></div>
+                                <div class="text-topic"><span style='color:peru'>Lo-cost apartment</span></div>
                                 <div class="UI_text description">This is where some people live.</div>
                                 <div class="oneColumn border"></div>
                                 <br>`
